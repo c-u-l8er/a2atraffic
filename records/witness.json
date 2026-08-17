@@ -1,0 +1,34 @@
+{
+  "schema": "a2atraffic-witness-v1",
+  "_comment": "What this surface has actually observed. It is the only place a traffic number may come from, and it is currently zero. An observatory reporting zero is credible in a way an observatory reporting 99.97% uptime never will be. Do not seed, estimate, simulate or animate these. If a number here is not the result of something that happened, it is a fabrication and DOCTRINE.md rule 2 applies.",
+
+  "verified_at": "2026-08-17",
+
+  "messages_witnessed": 0,
+  "agents_observed": 0,
+  "tasks_traced": 0,
+  "receipts": [],
+
+  "why_zero": "There is no collector. This surface serves static files; nothing routes A2A traffic through it and no agent has been instrumented to report to it. Zero is not a placeholder for a number we have not looked up — it is the measurement.",
+
+  "what_would_change_it": "A receipt. One witnessed A2A message, recorded with its task id, context id, the two endpoints, the protocol binding, and a hash. Until a receipt exists in this file, the canvas on this page is a simulation and says so, and no capability card may flip from proposed to implemented.",
+
+  "receipt_schema": {
+    "_comment": "The shape a receipt will take when the first one exists. Declared now so the empty state is a schema and not a shrug.",
+    "id": "sha256 of the canonicalised record",
+    "witnessed_at": "ISO 8601 UTC, millisecond precision",
+    "method": "one of the v1.0 method names in protocol.json",
+    "protocol_binding": "JSONRPC | GRPC | HTTP+JSON",
+    "task_id": "string",
+    "context_id": "string",
+    "from": "agent card origin",
+    "to": "agent card origin",
+    "task_state": "one of the TASK_STATE_* values in protocol.json",
+    "card_signature_verified": "boolean | null — null when the card carried no signatures[]"
+  },
+
+  "compose_seam": {
+    "status": "blocked",
+    "_comment": "The ledger strip is designed to also carry route-edge counts vendored from the portfolio COMPOSE snapshot, with an edge flipping to implemented only when a receipt exists here. There is no COMPOSE record yet — no /compose/ route on computedriven.com and no record file in ProjectAmp2 as of 2026-08-17. It waits on the [TRAVIS] shared-facts ruling. When it lands it is one more record file and one more GEN region; nothing here is re-architected."
+  }
+}

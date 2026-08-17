@@ -1,0 +1,64 @@
+{
+  "_draft": "THIS IS A DRAFT AND IT IS NOT SERVED AT THE DISCOVERY PATH. https://a2atraffic.com/.well-known/agent-card.json returns 404, deliberately. See _why below. A card published at the well-known path is a promise that the interfaces it lists will answer; this surface serves static files and answers no A2A task method, so publishing it there would advertise an endpoint that refuses — the same defect this site was rebuilt to remove. Curl the discovery path: the 404 you get is the honest reading.",
+
+  "_why": "A2A v1.0 requires supportedInterfaces[] on every AgentCard (a2a.proto:371, field_behavior REQUIRED). There is no spec-valid way to say 'discoverable but not serving'. So the refusal is published instead of the card, and this file records exactly what would be served on the day there is something behind it.",
+
+  "_flip": "records/surface.json -> serve_agent_card: true, then build-site.mjs copies this file to .well-known/agent-card.json with the _draft/_why/_flip keys stripped. Do not flip it until an endpoint answers.",
+
+  "_schema_note": "Field names and required-ness read from a2aproject/A2A@main/specification/a2a.proto:336-455 on 2026-08-17, not from an example.",
+
+  "name": "a2a-traffic-observatory",
+  "description": "Publishes what the A2A protocol specifies, what it structurally cannot express, and what this surface has witnessed. Read-only. Observes; does not orchestrate.",
+
+  "supportedInterfaces": [
+    {
+      "url": "https://a2atraffic.com/a2a/json",
+      "protocolBinding": "HTTP+JSON",
+      "protocolVersion": "1.0"
+    }
+  ],
+  "_supportedInterfaces_note": "Declared, not deployed. Nothing is listening at that URL today and this file is not at the discovery path, so nothing has been promised to a client.",
+
+  "provider": {
+    "organization": "ComputeDriven",
+    "url": "https://computedriven.com"
+  },
+
+  "version": "0.1.0",
+  "documentationUrl": "https://a2atraffic.com/#protocol",
+
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "extendedAgentCard": false
+  },
+  "_capabilities_note": "All false. The previous version of this site printed streaming: true and pushNotifications: true for an agent that did not exist.",
+
+  "defaultInputModes": ["text/plain"],
+  "defaultOutputModes": ["application/json", "text/plain"],
+
+  "skills": [
+    {
+      "id": "gap-matrix",
+      "name": "Governance gap matrix",
+      "description": "Returns the six-dimension governance assessment (G1 membership, G2 deliberation, G3 voting, G4 dissent preservation, G5 human escalation, G6 audit and replay) for a named agent-interoperability protocol, with the source citation and the coverage score.",
+      "tags": ["governance", "a2a", "mcp", "acp", "assessment"],
+      "examples": [
+        "What can A2A not express about membership?",
+        "Score MCP against the governance taxonomy."
+      ]
+    },
+    {
+      "id": "protocol-reference",
+      "name": "A2A v1.0 reference",
+      "description": "Returns verified facts about the A2A protocol: the discovery path, the three protocol bindings, the nine task states, the v1.0 method names, and the v0.3 to v1.0 migration deltas. Every entry carries the primary source it was derived from.",
+      "tags": ["a2a", "reference", "migration", "v1.0"],
+      "examples": [
+        "What is the well-known path for an Agent Card?",
+        "What replaced preferredTransport in v1.0?"
+      ]
+    }
+  ],
+
+  "_no_signatures_note": "signatures[] is absent. A2A v1.0 supports JWS over JCS-canonicalised JSON (RFC 7515 / RFC 8785) to bind a card to a domain. This card is unsigned, which is a real gap and is stated rather than hidden."
+}

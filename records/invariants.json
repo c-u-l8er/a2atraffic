@@ -1,0 +1,442 @@
+{
+  "schema": "a2atraffic-invariants-v1",
+  "_comment": "VENDORED, NOT AUTHORED. Extracted from the canonical Periodic Table of Agent Invariants by tools/sync-invariants.mjs. Do not hand-edit — re-run the sync. The counts this site prints are derived from this file, never typed.",
+  "title": "The Periodic Table of Agent Invariants",
+  "version": "v0.5",
+  "publisher": "OpenSentience / Ampersand Box Design",
+  "canonical_url": "https://opensentience.org/invariants.html",
+  "canonical_path": "/home/travis/ProjectAmp2/opensentience.org/invariants.html",
+  "source_sha256": "d8c6eacc1d2c5532f3ba58e8c4b4624570070987020caa4b86d82f1d6520c20a",
+  "extracted_by": "tools/sync-invariants.mjs",
+  "total": 43,
+  "by_status": {
+    "proved": 6,
+    "shipped": 4,
+    "named": 4,
+    "sketched": 8,
+    "missing": 21
+  },
+  "status_order": [
+    "proved",
+    "shipped",
+    "named",
+    "sketched",
+    "missing"
+  ],
+  "groups": [
+    {
+      "roman": "I",
+      "name": "Topological",
+      "meta": "OS-001 / OS-002 — Graphonomous",
+      "cells": [
+        {
+          "num": "01",
+          "symbol": "κ",
+          "label": "Cyclicity",
+          "status": "proved",
+          "title": "κ — Cyclicity",
+          "tagline": "When the graph has feedback, flat reasoning fails."
+        },
+        {
+          "num": "02",
+          "symbol": "β",
+          "label": "Persistence",
+          "status": "shipped",
+          "title": "β — Persistence",
+          "tagline": "Which features survive the next consolidation."
+        },
+        {
+          "num": "03",
+          "symbol": "τ",
+          "label": "Tree-likeness",
+          "status": "named",
+          "title": "τ — Tree-likeness",
+          "tagline": "How hierarchical is this neighborhood?"
+        },
+        {
+          "num": "04",
+          "symbol": "ρ",
+          "label": "Curvature",
+          "status": "named",
+          "title": "ρ — Discrete Ricci curvature",
+          "tagline": "Tree-like, grid-like, or sphere-like?"
+        },
+        {
+          "num": "05",
+          "symbol": "μ",
+          "label": "Mobility",
+          "status": "sketched",
+          "title": "μ — Reachable-state mobility",
+          "tagline": "How many futures does this position admit?"
+        },
+        {
+          "num": "06",
+          "symbol": "?",
+          "label": "Tempo",
+          "status": "missing",
+          "title": "Tempo invariant (unnamed)",
+          "tagline": "Who is forcing whom?"
+        },
+        {
+          "num": "37",
+          "symbol": "ω",
+          "label": "Opson",
+          "status": "named",
+          "title": "ω — Opson · opportunity-volume",
+          "tagline": "Money as work-I-don't-have-to-do, formalized."
+        }
+      ]
+    },
+    {
+      "roman": "II",
+      "name": "Spatial",
+      "meta": "OS-012 — SCOPE",
+      "cells": [
+        {
+          "num": "07",
+          "symbol": "σ",
+          "label": "Conflict",
+          "status": "shipped",
+          "title": "σ — Derived conflict",
+          "tagline": "Local agreement, global disagreement."
+        },
+        {
+          "num": "08",
+          "symbol": "χ",
+          "label": "Coherence",
+          "status": "sketched",
+          "title": "χ — Frame-transform coherence",
+          "tagline": "Do cross-region morphisms compose?"
+        },
+        {
+          "num": "09",
+          "symbol": "?",
+          "label": "Mobility-spatial",
+          "status": "missing",
+          "title": "Spatial mobility (unnamed)",
+          "tagline": "How much of the environment is reachable?"
+        }
+      ]
+    },
+    {
+      "roman": "III",
+      "name": "Temporal",
+      "meta": "OS-010 — PULSE",
+      "cells": [
+        {
+          "num": "10",
+          "symbol": "π",
+          "label": "Phase order",
+          "status": "proved",
+          "title": "π — Phase ordering",
+          "tagline": "Retrieve → route → act → learn → consolidate."
+        },
+        {
+          "num": "11",
+          "symbol": "ι",
+          "label": "Idempotence",
+          "status": "shipped",
+          "title": "ι — Token idempotence",
+          "tagline": "Replaying a token must not double-fire."
+        },
+        {
+          "num": "12",
+          "symbol": "ψ",
+          "label": "Cadence",
+          "status": "shipped",
+          "title": "ψ — Cadence honesty",
+          "tagline": "Declared rate matches observed rate."
+        },
+        {
+          "num": "13",
+          "symbol": "?",
+          "label": "Tempo-temporal",
+          "status": "missing",
+          "title": "Initiative (unnamed)",
+          "tagline": "Who advanced the loop?"
+        }
+      ]
+    },
+    {
+      "roman": "IV",
+      "name": "Governance",
+      "meta": "OS-006 — Delegatic",
+      "cells": [
+        {
+          "num": "14",
+          "symbol": "⊘",
+          "label": "No cycles",
+          "status": "proved",
+          "title": "⊘ — No cycles in authority graph",
+          "tagline": "Delegation is acyclic by construction."
+        },
+        {
+          "num": "15",
+          "symbol": "⊆",
+          "label": "Monotonic",
+          "status": "proved",
+          "title": "⊆ — Monotonic inheritance",
+          "tagline": "Children cannot exceed their parents."
+        },
+        {
+          "num": "16",
+          "symbol": "⊥",
+          "label": "Deny default",
+          "status": "proved",
+          "title": "⊥ — Deny by default",
+          "tagline": "Absence of grant equals refusal."
+        },
+        {
+          "num": "17",
+          "symbol": "⊕",
+          "label": "Append-only",
+          "status": "proved",
+          "title": "⊕ — Append-only audit",
+          "tagline": "History cannot be rewritten."
+        },
+        {
+          "num": "38",
+          "symbol": "ν",
+          "label": "Nexus",
+          "status": "sketched",
+          "title": "ν — Nexus · mutual-credit peer settlement",
+          "tagline": "Currency that only exists between two agents in the act of exchange."
+        },
+        {
+          "num": "39",
+          "symbol": "ε",
+          "label": "Episteme",
+          "status": "named",
+          "title": "ε — Episteme · delegation-bound trust receipt",
+          "tagline": "Trust held, not value owned."
+        }
+      ]
+    },
+    {
+      "roman": "V",
+      "name": "Deliberation",
+      "meta": "OS-003 — Deliberation Orchestrator",
+      "cells": [
+        {
+          "num": "18",
+          "symbol": "?",
+          "label": "Convergence",
+          "status": "missing",
+          "title": "Argument convergence (unnamed)",
+          "tagline": "When does the argument settle?"
+        },
+        {
+          "num": "19",
+          "symbol": "?",
+          "label": "Dissent durability",
+          "status": "sketched",
+          "title": "Vindicated dissent (β × σ)",
+          "tagline": "When disagreement is structural, not noise."
+        },
+        {
+          "num": "20",
+          "symbol": "?",
+          "label": "Seal integrity",
+          "status": "missing",
+          "title": "Seal integrity (unnamed)",
+          "tagline": "Can a sealed outcome be reopened?"
+        }
+      ]
+    },
+    {
+      "roman": "VI",
+      "name": "Attention",
+      "meta": "OS-004 — Attention Engine",
+      "cells": [
+        {
+          "num": "21",
+          "symbol": "?",
+          "label": "Salience persistence",
+          "status": "missing",
+          "title": "Salience persistence (unnamed)",
+          "tagline": "Does what was important stay important?"
+        },
+        {
+          "num": "22",
+          "symbol": "?",
+          "label": "Focus coherence",
+          "status": "missing",
+          "title": "Focus coherence (unnamed)",
+          "tagline": "Do the things being attended to fit together?"
+        },
+        {
+          "num": "23",
+          "symbol": "?",
+          "label": "Attention budget",
+          "status": "missing",
+          "title": "Attention-budget conservation (unnamed)",
+          "tagline": "Attention is finite and tracked."
+        },
+        {
+          "num": "40",
+          "symbol": "φ",
+          "label": "Phos",
+          "status": "sketched",
+          "title": "φ — Phos · attention-credit currency",
+          "tagline": "Earned by directing thought productively. Burned by asking others to think."
+        }
+      ]
+    },
+    {
+      "roman": "VII",
+      "name": "Tier / Budget",
+      "meta": "OS-005 — Model Tier Adaptation",
+      "cells": [
+        {
+          "num": "24",
+          "symbol": "?",
+          "label": "Escalation monotonicity",
+          "status": "missing",
+          "title": "Escalation monotonicity (unnamed)",
+          "tagline": "Stronger models do not make things worse."
+        },
+        {
+          "num": "25",
+          "symbol": "?",
+          "label": "Cost conservation",
+          "status": "missing",
+          "title": "Cost-budget conservation (unnamed)",
+          "tagline": "Spend matches declared budget."
+        },
+        {
+          "num": "26",
+          "symbol": "?",
+          "label": "Capability floor",
+          "status": "missing",
+          "title": "Capability floor (unnamed)",
+          "tagline": "Downshift preserves a minimum."
+        },
+        {
+          "num": "41",
+          "symbol": "δ",
+          "label": "Demurra",
+          "status": "sketched",
+          "title": "δ — Demurra · demurrage operational currency",
+          "tagline": "Tokens that decay if they aren't spent on substrate work."
+        },
+        {
+          "num": "42",
+          "symbol": "γ",
+          "label": "Grava",
+          "status": "sketched",
+          "title": "γ — Grava · compute-backed reserve",
+          "tagline": "The hard floor under everything else."
+        }
+      ]
+    },
+    {
+      "roman": "VIII",
+      "name": "Evaluation",
+      "meta": "OS-009 — PRISM",
+      "cells": [
+        {
+          "num": "27",
+          "symbol": "?",
+          "label": "Holdout integrity",
+          "status": "missing",
+          "title": "Holdout integrity (unnamed)",
+          "tagline": "Test set never leaks."
+        },
+        {
+          "num": "28",
+          "symbol": "?",
+          "label": "Adversarial monotonicity",
+          "status": "missing",
+          "title": "Adversarial monotonicity (unnamed)",
+          "tagline": "Harder scenarios produce lower scores on weak systems."
+        },
+        {
+          "num": "29",
+          "symbol": "?",
+          "label": "Anti-saturation",
+          "status": "missing",
+          "title": "Anti-saturation (unnamed)",
+          "tagline": "The benchmark gets harder as systems improve."
+        },
+        {
+          "num": "43",
+          "symbol": "θ",
+          "label": "Tithon",
+          "status": "sketched",
+          "title": "θ — Tithon · settlement / redemption invariant",
+          "tagline": "The bridge from internal economy to real-world capital."
+        }
+      ]
+    },
+    {
+      "roman": "IX",
+      "name": "Embodiment",
+      "meta": "OS-011 — body-browser, body-os",
+      "cells": [
+        {
+          "num": "30",
+          "symbol": "?",
+          "label": "Continuity",
+          "status": "missing",
+          "title": "Embodiment continuity (unnamed)",
+          "tagline": "Body-state survives reload."
+        },
+        {
+          "num": "31",
+          "symbol": "?",
+          "label": "Affordance honesty",
+          "status": "missing",
+          "title": "Affordance honesty (unnamed)",
+          "tagline": "The body advertises only what it can do."
+        },
+        {
+          "num": "32",
+          "symbol": "?",
+          "label": "Sensor-actuator coherence",
+          "status": "missing",
+          "title": "Sensor-actuator coherence (unnamed)",
+          "tagline": "What I see is what I just did."
+        }
+      ]
+    },
+    {
+      "roman": "X",
+      "name": "Security & Federation",
+      "meta": "OS-013 / OS-014 / OS-017",
+      "cells": [
+        {
+          "num": "33",
+          "symbol": "?",
+          "label": "Non-replay",
+          "status": "missing",
+          "title": "Credential non-replay (unnamed)",
+          "tagline": "A token used twice was used wrongly."
+        },
+        {
+          "num": "34",
+          "symbol": "?",
+          "label": "PII conservation",
+          "status": "missing",
+          "title": "PII conservation (unnamed)",
+          "tagline": "Sensitive data does not cross aggregation boundaries."
+        },
+        {
+          "num": "35",
+          "symbol": "?",
+          "label": "Causal order",
+          "status": "missing",
+          "title": "Causal-order preservation (unnamed)",
+          "tagline": "Aggregation does not reorder cause and effect."
+        },
+        {
+          "num": "36",
+          "symbol": "?",
+          "label": "Aggregation fidelity",
+          "status": "missing",
+          "title": "Aggregation fidelity (unnamed)",
+          "tagline": "The federated view faithfully represents the union."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>404 — A2A Traffic</title>
+<meta name="robots" content="noindex">
+<style>
+  :root { --cyan:#00d9ff; --pink:#ff3366; --bg:#06080d; --fg:#e8eaf0; --dim:#4a4f66; --sec:#8a8fa8; --border:#1a1f30; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--fg); font-family:"JetBrains Mono",ui-monospace,monospace;
+         min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem; line-height:1.7; }
+  main { max-width:56ch; }
+  .code { font-size:4.5rem; font-weight:700; letter-spacing:-0.03em; color:var(--pink); line-height:1; }
+  h1 { font-size:1.1rem; font-weight:400; margin:1rem 0 1.5rem; color:var(--fg); }
+  p { font-size:0.85rem; color:var(--sec); margin-bottom:1rem; }
+  .note { font-size:0.76rem; color:var(--dim); border-left:2px solid var(--border); padding-left:1rem; margin:1.5rem 0; }
+  a { color:var(--cyan); }
+</style>
+</head>
+<body>
+<main>
+  <div class="code">404</div>
+  <h1>No such path on a2atraffic.com.</h1>
+  <p>If you were performing A2A well-known discovery, this domain publishes no
+     Agent Card at <code>/.well-known/agent-card.json</code> — it answers
+     no A2A task method, so a card there would advertise an endpoint that refuses.</p>
+  <div class="note">
+    If you are reading this page, the fix worked. As of 2026-08-17 this
+    domain answered <strong>HTTP 200</strong> with its
+    homepage for every unmatched path, which is the defect this file exists to correct.
+    That measurement is recorded in
+    <a href="/records/surface.json">records/surface.json</a> and the homepage states it.
+  </div>
+  <p><a href="/">← a2atraffic.com</a> · <a href="/#protocol">A2A v1.0 reference</a> · <a href="/#gap">the gap matrix</a></p>
+</main>
+</body>
+</html>

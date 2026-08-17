@@ -1,0 +1,797 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>A2A Traffic — the A2A protocol observatory</title>
+        <meta
+            name="description"
+            content="What the Agent2Agent protocol specifies, what it structurally cannot express, and what this surface has actually witnessed. A2A v1.0 reference, the six-dimension governance gap matrix, and a client-side Agent Card inspector."
+        />
+        <meta
+            name="keywords"
+            content="A2A protocol, Agent2Agent, agent card, agent-card.json, A2A v1.0, supportedInterfaces, TASK_STATE, A2A vs MCP, agent governance, agent interoperability"
+        />
+        <link rel="canonical" href="https://a2atraffic.com/" />
+        <meta property="og:title" content="A2A Traffic — the A2A protocol observatory" />
+        <meta
+            property="og:description"
+            content="What A2A specifies, what it cannot express, and what this surface has witnessed — which is nothing, stated plainly."
+        />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://a2atraffic.com/" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=JetBrains+Mono:wght@300;400;600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap"
+            rel="stylesheet"
+        />
+        <script type="module" src="/amp-nav.js"></script>
+        <style>
+            :root {
+                --cyan: #00d9ff;
+                --green: #00ff88;
+                --pink: #ff3366;
+                --orange: #ffaa00;
+                --purple: #9933ff;
+                --bg-primary: #06080d;
+                --bg-secondary: #0c0f17;
+                --bg-card: #10131c;
+                --bg-card-hover: #151a26;
+                --text-primary: #e8eaf0;
+                --text-secondary: #8a8fa8;
+                --text-dim: #4a4f66;
+                --border: #1a1f30;
+                --border-hover: #2a3050;
+                --mono: "JetBrains Mono", "Space Mono", ui-monospace, monospace;
+            }
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            html { scroll-behavior: smooth; }
+            body {
+                font-family: "DM Sans", system-ui, sans-serif;
+                background: var(--bg-primary);
+                color: var(--text-primary);
+                line-height: 1.6;
+                overflow-x: hidden;
+            }
+            a { color: var(--cyan); }
+            ::selection { background: rgba(0, 217, 255, 0.25); }
+            :focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
+
+            /* ── site nav ── */
+            nav.site {
+                position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+                padding: 0 2rem; height: 60px;
+                display: flex; align-items: center; justify-content: space-between;
+                background: rgba(6, 8, 13, 0.86);
+                backdrop-filter: blur(20px);
+                border-bottom: 1px solid var(--border);
+            }
+            .nav-logo {
+                font-family: "Space Mono", monospace; font-weight: 700;
+                font-size: 1.05rem; letter-spacing: 0.08em;
+                display: flex; align-items: center; gap: 0.6rem;
+                text-decoration: none; color: var(--text-primary);
+            }
+            .nav-logo .dot {
+                width: 8px; height: 8px; border-radius: 50%;
+                background: var(--text-dim);
+            }
+            .nav-links { display: flex; gap: 1.6rem; align-items: center; list-style: none; }
+            .nav-links a {
+                color: var(--text-secondary); text-decoration: none;
+                font-size: 0.82rem; font-family: var(--mono);
+                letter-spacing: 0.03em; transition: color 0.2s;
+            }
+            .nav-links a:hover { color: var(--cyan); }
+            .cta-sm {
+                border: 1px solid var(--border-hover); padding: 0.4rem 0.9rem;
+                border-radius: 3px; color: var(--text-primary) !important;
+            }
+            .cta-sm:hover { border-color: var(--cyan); }
+            @media (max-width: 780px) {
+                nav.site { padding: 0 1rem; }
+                .nav-links { gap: 0.9rem; }
+                /* Drop Reference and Status, keep The gap + Inspector — those
+                   two are the reason to be here. Measured at 390px: three items
+                   plus the logo fit on one row, five do not. */
+                .nav-links li:nth-child(3),
+                .nav-links li:nth-child(4),
+                .nav-links li:nth-child(5) { display: none; }
+            }
+
+            /* ── layout ── */
+            section { max-width: 1140px; margin: 0 auto; padding: 6rem 2rem; }
+            .band { border-top: 1px solid var(--border); background: var(--bg-secondary); }
+            .section-label {
+                font-family: var(--mono); font-size: 0.72rem;
+                letter-spacing: 0.22em; text-transform: uppercase;
+                color: var(--text-dim); display: block; margin-bottom: 0.9rem;
+            }
+            h2.section-title {
+                font-size: clamp(1.7rem, 3.6vw, 2.5rem); font-weight: 600;
+                letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 1rem;
+            }
+            .section-desc {
+                color: var(--text-secondary); max-width: 62ch;
+                font-size: 1.02rem; margin-bottom: 2.5rem;
+            }
+            .section-desc a { color: var(--cyan); }
+
+            /* ── rung chips ── */
+            .rung-chip {
+                display: inline-block; font-family: var(--mono);
+                font-size: 0.64rem; letter-spacing: 0.12em; text-transform: uppercase;
+                padding: 0.16rem 0.5rem; border-radius: 2px;
+                border: 1px solid currentColor; white-space: nowrap;
+                vertical-align: middle;
+            }
+            .rung-chip[data-rung="spec"]        { color: var(--text-dim); }
+            .rung-chip[data-rung="proposed"]    { color: var(--text-dim); }
+            .rung-chip[data-rung="in_tree"]     { color: var(--orange); }
+            .rung-chip[data-rung="live_local"]  { color: var(--green); }
+            .rung-chip[data-rung="blocked"]     { color: var(--pink); }
+            .rung-chip[data-rung="reported"]    { color: var(--purple); }
+
+            /* ── source note ── */
+            .src {
+                font-family: var(--mono); font-size: 0.7rem;
+                color: var(--text-dim); line-height: 1.7;
+                overflow-wrap: anywhere;
+            }
+            .src a { color: var(--text-secondary); text-decoration: none; border-bottom: 1px dotted var(--border-hover); }
+            .src a:hover { color: var(--cyan); }
+
+            /* ── hero ── */
+            .hero {
+                position: relative; min-height: 90vh; display: flex;
+                align-items: center; justify-content: center; overflow: hidden;
+                border-bottom: 1px solid var(--border);
+            }
+            #network { position: absolute; inset: 0; width: 100%; height: 100%; }
+            .hero-content {
+                position: relative; z-index: 2; text-align: center;
+                padding: 8rem 1.5rem 4rem; max-width: 900px; pointer-events: none;
+            }
+            .hero-content a { pointer-events: auto; }
+            .hero-badge {
+                display: inline-flex; align-items: center; gap: 0.55rem;
+                font-family: var(--mono); font-size: 0.68rem;
+                letter-spacing: 0.2em; text-transform: uppercase;
+                color: var(--text-dim); border: 1px solid var(--border);
+                background: rgba(6, 8, 13, 0.8);
+                padding: 0.4rem 0.9rem; border-radius: 999px; margin-bottom: 1.8rem;
+            }
+            .hero-badge .sim-dot {
+                width: 7px; height: 7px; border-radius: 50%;
+                background: var(--text-dim); box-shadow: 0 0 0 3px rgba(74, 79, 102, 0.15);
+            }
+            .hero h1 {
+                font-family: "Space Mono", monospace; font-weight: 700;
+                font-size: clamp(2.6rem, 9vw, 6rem); letter-spacing: -0.03em;
+                line-height: 0.95; margin-bottom: 1.4rem;
+            }
+            .hero-sub {
+                font-size: clamp(1rem, 2vw, 1.2rem); color: var(--text-secondary);
+                max-width: 46rem; margin: 0 auto 1rem;
+            }
+            .hero-sub strong { color: var(--text-primary); font-weight: 500; }
+            .hero-note {
+                font-family: var(--mono); font-size: 0.74rem;
+                color: var(--text-dim); margin-bottom: 2.2rem;
+            }
+            .hero-actions {
+                display: flex; gap: 0.9rem; justify-content: center; flex-wrap: wrap;
+            }
+            .btn-primary, .btn-secondary {
+                font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.08em;
+                padding: 0.85rem 1.5rem; border-radius: 3px; text-decoration: none;
+                transition: all 0.2s; display: inline-block;
+            }
+            .btn-primary {
+                background: var(--cyan); color: #04121a; font-weight: 600;
+                border: 1px solid var(--cyan);
+            }
+            .btn-primary:hover { background: transparent; color: var(--cyan); }
+            .btn-secondary {
+                border: 1px solid var(--border-hover); color: var(--text-primary);
+            }
+            .btn-secondary:hover { border-color: var(--cyan); color: var(--cyan); }
+
+            /* ── ledger strip ── */
+            .ledger { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--bg-secondary); }
+            .ledger-inner { max-width: 1140px; margin: 0 auto; padding: 2.2rem 2rem 1.6rem; }
+            .ledger-head {
+                display: flex; justify-content: space-between; align-items: baseline;
+                flex-wrap: wrap; gap: 0.6rem; margin-bottom: 1.4rem;
+            }
+            .ledger-head h2 {
+                font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.22em;
+                text-transform: uppercase; color: var(--text-dim); font-weight: 400;
+            }
+            .ledger-grid {
+                display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+                gap: 1px; background: var(--border);
+                border: 1px solid var(--border);
+            }
+            .ledger-cell { background: var(--bg-secondary); padding: 1.1rem 1.2rem; }
+            .ledger-val {
+                font-family: "Space Mono", monospace; font-size: 1.85rem;
+                font-weight: 700; letter-spacing: -0.02em; line-height: 1.1;
+                display: block;
+            }
+            .ledger-val.zero { color: var(--text-dim); }
+            .ledger-val.warn { color: var(--pink); }
+            .ledger-lab {
+                font-family: var(--mono); font-size: 0.72rem;
+                color: var(--text-secondary); display: block; margin-top: 0.35rem;
+            }
+            .ledger-cell .src { margin-top: 0.5rem; display: block; }
+
+            /* ── gap matrix ── */
+            .matrix-wrap { overflow-x: auto; border: 1px solid var(--border); background: var(--bg-card); }
+            table.matrix { border-collapse: collapse; width: 100%; min-width: 720px; font-size: 0.86rem; }
+            table.matrix th, table.matrix td {
+                border: 1px solid var(--border); padding: 0.7rem 0.8rem; text-align: left;
+            }
+            table.matrix thead th {
+                font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.08em;
+                text-transform: uppercase; color: var(--text-secondary);
+                font-weight: 400; vertical-align: bottom; background: var(--bg-secondary);
+            }
+            table.matrix thead th .gname { display: block; color: var(--text-dim); font-size: 0.66rem; text-transform: none; letter-spacing: 0; }
+            table.matrix tbody th {
+                font-family: var(--mono); font-size: 0.8rem; font-weight: 400;
+                color: var(--text-primary); white-space: nowrap; background: var(--bg-secondary);
+            }
+            tr.focus th, tr.focus td { background: rgba(0, 217, 255, 0.05); }
+            tr.focus tbody th { color: var(--cyan); }
+            .cell { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; }
+            .cell[data-s="absent"]  { color: var(--pink); }
+            .cell[data-s="partial"] { color: var(--orange); }
+            .cell[data-s="full"]    { color: var(--green); }
+            td.cov { font-family: "Space Mono", monospace; font-weight: 700; }
+
+            .dim-list { margin-top: 2.5rem; display: grid; gap: 1px; background: var(--border); border: 1px solid var(--border); }
+            .dim {
+                background: var(--bg-card); padding: 1.6rem 1.7rem;
+            }
+            .dim-head { display: flex; align-items: baseline; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 0.2rem; }
+            .dim-id { font-family: "Space Mono", monospace; font-weight: 700; color: var(--cyan); font-size: 0.95rem; }
+            .dim-name { font-size: 1.05rem; font-weight: 600; }
+            .dim-def { color: var(--text-dim); font-size: 0.84rem; font-style: italic; margin-bottom: 1.1rem; }
+            .dim-rows { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.2rem; }
+            .dim-row h4 {
+                font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.14em;
+                text-transform: uppercase; color: var(--text-dim);
+                font-weight: 400; margin-bottom: 0.4rem;
+            }
+            .dim-row p { font-size: 0.9rem; color: var(--text-secondary); }
+            .dim-row.transports h4 { color: var(--green); }
+            .dim-row.cannot h4 { color: var(--pink); }
+            .dim-row.here h4 { color: var(--cyan); }
+            .dim-row .detail { display: block; margin-top: 0.45rem; font-family: var(--mono); font-size: 0.72rem; color: var(--text-dim); }
+
+            /* ── generic tables ── */
+            .tbl-wrap { overflow-x: auto; border: 1px solid var(--border); background: var(--bg-card); }
+            table.data { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 0.88rem; }
+            table.data th, table.data td { border-bottom: 1px solid var(--border); padding: 0.72rem 0.9rem; text-align: left; vertical-align: top; }
+            table.data thead th {
+                font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.12em;
+                text-transform: uppercase; color: var(--text-dim); font-weight: 400;
+                background: var(--bg-secondary);
+            }
+            table.data tbody tr:last-child th, table.data tbody tr:last-child td { border-bottom: none; }
+            table.data code, code.inline {
+                font-family: var(--mono); font-size: 0.8rem;
+                background: rgba(0, 217, 255, 0.07); color: var(--cyan);
+                padding: 0.1rem 0.35rem; border-radius: 2px; word-break: break-word;
+            }
+            table.data td.was code { background: rgba(255, 51, 102, 0.07); color: var(--pink); }
+            table.data td .why { display: block; color: var(--text-dim); font-size: 0.82rem; margin-top: 0.3rem; }
+
+            /* ── lifecycle ── */
+            /* min 250px so TASK_STATE_INPUT_REQUIRED fits on one line — the
+               longest id is 24 chars and breaking it mid-word reads as a typo. */
+            .life { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+            .life-cell { background: var(--bg-card); padding: 1.1rem 1.2rem; border-top: 2px solid var(--kind-color, var(--text-dim)); }
+            .life-cell[data-kind="open"]        { --kind-color: var(--cyan); }
+            .life-cell[data-kind="interrupted"] { --kind-color: var(--orange); }
+            .life-cell[data-kind="terminal"]    { --kind-color: var(--green); }
+            .life-cell[data-kind="unknown"]     { --kind-color: var(--text-dim); }
+            .life-id { font-family: var(--mono); font-size: 0.78rem; color: var(--text-primary); display: block; overflow-wrap: anywhere; }
+            .life-kind { font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--kind-color); display: block; margin: 0.35rem 0 0.5rem; }
+            .life-detail { font-size: 0.84rem; color: var(--text-secondary); }
+
+            /* ── code ── */
+            pre.code {
+                font-family: var(--mono); font-size: 0.78rem; line-height: 1.75;
+                background: var(--bg-card); border: 1px solid var(--border);
+                padding: 1.3rem 1.4rem; overflow-x: auto; color: var(--text-secondary);
+                border-radius: 3px;
+            }
+            pre.code .cmt { color: var(--text-dim); }
+            pre.code .str { color: var(--green); }
+            pre.code .kw  { color: var(--orange); }
+            pre.code .fn  { color: var(--cyan); }
+            pre.code .bad { color: var(--pink); }
+
+            /* ── inspector ── */
+            .insp { border: 1px solid var(--border); background: var(--bg-card); }
+            .insp-bar { display: flex; flex-wrap: wrap; gap: 0.6rem; padding: 1.2rem; border-bottom: 1px solid var(--border); }
+            .insp-bar input[type="url"] {
+                flex: 1 1 320px; min-width: 0; font-family: var(--mono); font-size: 0.85rem;
+                background: var(--bg-primary); border: 1px solid var(--border-hover);
+                color: var(--text-primary); padding: 0.7rem 0.9rem; border-radius: 3px;
+            }
+            .insp-bar input[type="url"]::placeholder { color: var(--text-dim); }
+            .insp-bar button {
+                font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.08em;
+                padding: 0.7rem 1.2rem; border-radius: 3px; cursor: pointer;
+                background: var(--cyan); color: #04121a; border: 1px solid var(--cyan); font-weight: 600;
+            }
+            .insp-bar button.ghost { background: transparent; color: var(--text-primary); border-color: var(--border-hover); font-weight: 400; }
+            .insp-bar button:hover { filter: brightness(1.12); }
+            .insp-examples { padding: 0 1.2rem 1.1rem; }
+            .insp-examples button {
+                font-family: var(--mono); font-size: 0.72rem; background: none;
+                border: 1px solid var(--border); color: var(--text-secondary);
+                padding: 0.3rem 0.6rem; border-radius: 2px; cursor: pointer; margin: 0.2rem 0.3rem 0 0;
+            }
+            .insp-examples button:hover { border-color: var(--cyan); color: var(--cyan); }
+            .insp-out { padding: 1.3rem; min-height: 120px; }
+            .insp-status {
+                font-family: var(--mono); font-size: 0.78rem; margin-bottom: 1rem;
+                display: flex; align-items: flex-start; gap: 0.6rem;
+            }
+            .insp-status .badge {
+                font-size: 0.64rem; letter-spacing: 0.12em; text-transform: uppercase;
+                padding: 0.16rem 0.5rem; border: 1px solid currentColor; border-radius: 2px; flex: none;
+            }
+            .insp-status[data-k="idle"]    { color: var(--text-dim); }
+            .insp-status[data-k="ok"]      { color: var(--green); }
+            .insp-status[data-k="refused"] { color: var(--orange); }
+            .insp-status[data-k="absent"]  { color: var(--pink); }
+            .insp-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); margin-bottom: 1.2rem; }
+            .insp-field { background: var(--bg-secondary); padding: 0.85rem 1rem; }
+            .insp-field .k { font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-dim); display: block; }
+            .insp-field .v { font-family: var(--mono); font-size: 0.82rem; color: var(--text-primary); display: block; margin-top: 0.3rem; word-break: break-word; }
+            .insp-field .v.miss { color: var(--pink); }
+            .insp-field .v.ok { color: var(--green); }
+            .insp-notes { font-size: 0.88rem; color: var(--text-secondary); }
+            .insp-notes li { margin: 0.4rem 0 0.4rem 1.1rem; }
+            textarea.paste {
+                width: 100%; min-height: 150px; font-family: var(--mono); font-size: 0.78rem;
+                background: var(--bg-primary); border: 1px solid var(--border-hover);
+                color: var(--text-primary); padding: 0.9rem; border-radius: 3px; resize: vertical;
+            }
+            .noscript-note {
+                font-family: var(--mono); font-size: 0.78rem; color: var(--orange);
+                border: 1px solid var(--border); padding: 0.9rem 1.1rem; background: var(--bg-card);
+            }
+
+            /* ── cards ── */
+            .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+            .card { background: var(--bg-card); padding: 1.6rem 1.7rem; transition: background 0.2s; }
+            .card:hover { background: var(--bg-card-hover); }
+            .card-head { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; margin-bottom: 0.7rem; }
+            .card h3 { font-size: 1.02rem; font-weight: 600; }
+            .card .icon { font-size: 1.2rem; color: var(--text-dim); }
+            .card p { font-size: 0.9rem; color: var(--text-secondary); }
+
+            /* ── empty state ── */
+            .empty {
+                border: 1px dashed var(--border-hover); background: var(--bg-card);
+                padding: 3rem 2rem; text-align: center;
+            }
+            .empty .big {
+                font-family: "Space Mono", monospace; font-size: 3.2rem; font-weight: 700;
+                color: var(--text-dim); display: block; line-height: 1;
+            }
+            .empty .lab { font-family: var(--mono); font-size: 0.74rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-dim); display: block; margin-top: 0.7rem; }
+            .empty p { max-width: 58ch; margin: 1.4rem auto 0; color: var(--text-secondary); font-size: 0.92rem; }
+
+            /* ── status block ── */
+            .status-block { border: 1px solid var(--border); background: var(--bg-card); }
+            .status-row { padding: 1.4rem 1.6rem; border-bottom: 1px solid var(--border); }
+            .status-row:last-child { border-bottom: none; }
+            .status-row h4 { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-dim); font-weight: 400; margin-bottom: 0.5rem; }
+            .status-row p { font-size: 0.93rem; color: var(--text-secondary); }
+            .status-row.limit h4 { color: var(--pink); }
+
+            /* ── partners ── */
+            .partners { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.2rem; }
+            .partner-tag {
+                font-family: var(--mono); font-size: 0.72rem; color: var(--text-secondary);
+                border: 1px solid var(--border); padding: 0.28rem 0.65rem; border-radius: 2px;
+            }
+
+            /* ── footer ── */
+            footer { border-top: 1px solid var(--border); background: var(--bg-secondary); padding: 3.5rem 2rem 2rem; }
+            .footer-grid { max-width: 1140px; margin: 0 auto; display: grid; grid-template-columns: 1.6fr repeat(3, 1fr); gap: 2.5rem; }
+            @media (max-width: 780px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
+            .footer-logo { font-family: "Space Mono", monospace; font-weight: 700; letter-spacing: 0.06em; margin-bottom: 0.7rem; }
+            .footer-brand p { font-size: 0.86rem; color: var(--text-secondary); max-width: 34ch; }
+            .footer-col h5 { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-dim); font-weight: 400; margin-bottom: 0.8rem; }
+            .footer-col a { display: block; font-size: 0.86rem; color: var(--text-secondary); text-decoration: none; margin-bottom: 0.45rem; }
+            .footer-col a:hover { color: var(--cyan); }
+            .footer-bottom {
+                max-width: 1140px; margin: 2.5rem auto 0; padding-top: 1.5rem;
+                border-top: 1px solid var(--border); display: flex; justify-content: space-between;
+                flex-wrap: wrap; gap: 0.8rem; font-family: var(--mono); font-size: 0.72rem; color: var(--text-dim);
+            }
+
+            /* ── reveal ── */
+            .reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.6s, transform 0.6s; }
+            .reveal.visible { opacity: 1; transform: none; }
+            @media (prefers-reduced-motion: reduce) {
+                .reveal { opacity: 1; transform: none; transition: none; }
+                html { scroll-behavior: auto; }
+            }
+            /* JS off: never leave content invisible */
+            .no-js .reveal { opacity: 1; transform: none; }
+        </style>
+    </head>
+    <body class="no-js">
+        <script>
+            document.body.classList.remove("no-js");
+        </script>
+
+        <amp-nav property="a2atraffic"></amp-nav>
+
+        <nav class="site">
+            <a href="/" class="nav-logo"><span class="dot"></span> A2A TRAFFIC</a>
+            <ul class="nav-links">
+                <li><a href="#gap">The gap</a></li>
+                <li><a href="#crosswalk">Crosswalk</a></li>
+                <li><a href="#inspect">Inspector</a></li>
+                <li><a href="#protocol">Reference</a></li>
+                <li><a href="#status">Status</a></li>
+                <li><a href="https://computedriven.com" class="cta-sm">ComputeDriven →</a></li>
+            </ul>
+        </nav>
+
+        <!-- ═══════ HERO ═══════ -->
+        <div class="hero">
+            <canvas id="network" aria-hidden="true"></canvas>
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <span class="sim-dot"></span>
+                    Simulation · not live traffic
+                </div>
+                <h1>A2A TRAFFIC</h1>
+                <p class="hero-sub">
+                    The observation layer for agent-to-agent protocol traffic.
+                    Today it observes <strong>the protocol</strong>, not your
+                    traffic — what A2A specifies, what it structurally cannot
+                    express, and what this surface has actually witnessed.
+                </p>
+                <p class="hero-note">
+                    Messages witnessed here: <!-- GEN:hero-witness --><!-- /GEN:hero-witness -->.
+                    The animation above is decorative.
+                </p>
+                <div class="hero-actions">
+                    <a href="#gap" class="btn-primary">READ THE GAP MATRIX</a>
+                    <a href="#inspect" class="btn-secondary">Inspect an Agent Card</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════ LEDGER ═══════ -->
+        <div class="ledger">
+            <div class="ledger-inner">
+                <div class="ledger-head">
+                    <h2>// the ledger</h2>
+                    <span class="src"><!-- GEN:ledger-stamp --><!-- /GEN:ledger-stamp --></span>
+                </div>
+                <!-- GEN:ledger --><!-- /GEN:ledger -->
+            </div>
+        </div>
+
+        <!-- ═══════ THE GAP ═══════ -->
+        <section id="gap" class="reveal">
+            <span class="section-label">// what the protocol cannot say</span>
+            <h2 class="section-title">A2A scores 1 out of 12 on governance</h2>
+            <p class="section-desc">
+                Generic A2A telemetry is a category with incumbents in it. This
+                is the other half of the picture, and nobody publishes it: a
+                six-dimension assessment of what five agent-interoperability
+                protocols can and cannot <em>express</em>. Not what they carry
+                slowly — what they have no vocabulary for at all.
+            </p>
+            <!-- GEN:matrix --><!-- /GEN:matrix -->
+            <p class="src" style="margin-top: 1rem">
+                <!-- GEN:matrix-cite --><!-- /GEN:matrix-cite -->
+            </p>
+            <!-- GEN:dims --><!-- /GEN:dims -->
+        </section>
+
+        <!-- ═══════ THE CROSSWALK ═══════ -->
+        <div class="band">
+            <section id="crosswalk" class="reveal">
+                <span class="section-label">// the crosswalk</span>
+                <h2 class="section-title">Two censuses, taken separately, agreeing about the holes</h2>
+                <p class="section-desc">
+                    The matrix above is an outside reading of five wire protocols.
+                    <a href="https://opensentience.org/invariants.html" target="_blank" rel="noopener">The Periodic Table of Agent Invariants</a>
+                    is an inside census of the measurements a system needs to know
+                    what position it is in and what authority that grants —
+                    <!-- GEN:crosswalk-total --><!-- /GEN:crosswalk-total --> cells,
+                    ten groups, built for a different purpose by different people.
+                    Laid side by side they point at the same places.
+                </p>
+
+                <div class="ledger-grid" style="margin-bottom:2.5rem">
+                    <!-- GEN:crosswalk-counts --><!-- /GEN:crosswalk-counts -->
+                </div>
+
+                <!-- GEN:crosswalk --><!-- /GEN:crosswalk -->
+
+                <div class="status-block" style="margin-top:2rem">
+                    <div class="status-row limit">
+                        <h4>This mapping is a judgement, not a measurement</h4>
+                        <p><!-- GEN:crosswalk-judgement --><!-- /GEN:crosswalk-judgement --></p>
+                    </div>
+                </div>
+
+                <p class="section-desc" style="margin-top:2rem">
+                    The short reading: where A2A is least weak, this stack is
+                    strongest — G1 and G6 land on invariants that are proved, and
+                    <!-- GEN:crosswalk-proved --><!-- /GEN:crosswalk-proved -->.
+                    Where A2A is empty, this stack is also
+                    mostly empty. That is not a marketing result. It says the
+                    delegation-and-audit half of agent governance has been done
+                    here and the deliberation half has been specified and not
+                    built — and that no shipping protocol has either.
+                </p>
+            </section>
+        </div>
+
+        <!-- ═══════ INSPECTOR ═══════ -->
+        <div class="band">
+            <section id="inspect" class="reveal">
+                <span class="section-label">// the inspector <span class="rung-chip" data-rung="live_local">live_local</span></span>
+                <h2 class="section-title">Inspect an Agent Card</h2>
+                <p class="section-desc">
+                    Fetches <code class="inline">/.well-known/agent-card.json</code>
+                    from a domain and reads it against the v1.0 shape. This runs
+                    entirely in your browser — nothing is sent to this server,
+                    and nothing is logged. Most agents will refuse the
+                    cross-origin read; when that happens you get the exact
+                    <code class="inline">curl</code> to run instead, not a spinner.
+                </p>
+
+                <div class="insp">
+                    <div class="insp-bar">
+                        <input
+                            type="url"
+                            id="inspUrl"
+                            placeholder="https://agent.example.com"
+                            autocomplete="off"
+                            spellcheck="false"
+                        />
+                        <button id="inspGo" type="button">INSPECT →</button>
+                        <button id="inspPasteToggle" type="button" class="ghost">Paste a card</button>
+                    </div>
+                    <div class="insp-examples">
+                        <span class="src">Try:</span>
+                        <button type="button" data-url="https://a2atraffic.com">a2atraffic.com (this site — see “our own card” below)</button>
+                        <button type="button" data-url="https://a2a-protocol.org">a2a-protocol.org</button>
+                        <button type="button" data-url="https://example.com">example.com (no agent)</button>
+                    </div>
+                    <div id="inspPasteWrap" style="display: none; padding: 0 1.2rem 1.2rem">
+                        <textarea class="paste" id="inspPaste" spellcheck="false" placeholder='{ "name": "…", "supportedInterfaces": [ … ], "skills": [ … ] }'></textarea>
+                        <div style="margin-top: 0.6rem">
+                            <button type="button" id="inspValidate" class="ghost" style="font-family: var(--mono); font-size: 0.78rem; padding: 0.6rem 1.1rem; border-radius: 3px; background: transparent; color: var(--text-primary); border: 1px solid var(--border-hover); cursor: pointer">VALIDATE PASTED CARD</button>
+                        </div>
+                    </div>
+                    <div class="insp-out" id="inspOut">
+                        <div class="insp-status" data-k="idle">
+                            <span class="badge">idle</span>
+                            <span>Enter a domain, or paste a card. Nothing has been fetched.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <noscript>
+                    <div class="noscript-note" style="margin-top: 1rem">
+                        The inspector needs JavaScript. Without it, the check is one line:
+                        <code class="inline">curl -sS https://agent.example.com/.well-known/agent-card.json</code>
+                    </div>
+                </noscript>
+
+                <p class="src" style="margin-top: 1.2rem">
+                    Limit: a browser cannot read a cross-origin URL that does not
+                    send <code class="inline">Access-Control-Allow-Origin</code>. That is the
+                    common case, so the common result of this tool is a refusal
+                    that tells you what to run in a terminal. It is a reader, not
+                    a prover — it cannot verify a JWS signature, and it says so
+                    when it meets one.
+                </p>
+            </section>
+        </div>
+
+        <!-- ═══════ OUR CARD ═══════ -->
+        <section id="ourcard" class="reveal">
+            <span class="section-label">// our own card</span>
+            <h2 class="section-title">We publish the refusal, not the card</h2>
+            <!-- GEN:ourcard --><!-- /GEN:ourcard -->
+        </section>
+
+        <!-- ═══════ PROTOCOL REFERENCE ═══════ -->
+        <div class="band">
+            <section id="protocol" class="reveal">
+                <span class="section-label">// reference</span>
+                <h2 class="section-title">A2A v1.0, re-derived</h2>
+                <p class="section-desc">
+                    Every fact below was read from the specification or from
+                    <code class="inline">a2a.proto</code> on
+                    <!-- GEN:protocol-date --><!-- /GEN:protocol-date -->, not
+                    copied from a summary. Where a field is marked required, that
+                    is <code class="inline">google.api.field_behavior</code> on the
+                    proto field, read directly.
+                </p>
+
+                <h3 style="font-size: 1.15rem; margin: 0 0 1rem">Discovery</h3>
+                <!-- GEN:discovery --><!-- /GEN:discovery -->
+
+                <h3 style="font-size: 1.15rem; margin: 3rem 0 1rem">What v1.0 changed</h3>
+                <p class="section-desc" style="margin-bottom: 1.5rem">
+                    If you built against v0.3, this is the migration. It is not a
+                    rename pass — the Agent Card, the Part object and the stream
+                    events all changed shape.
+                </p>
+                <!-- GEN:changes --><!-- /GEN:changes -->
+
+                <h3 style="font-size: 1.15rem; margin: 3rem 0 1rem">Task lifecycle</h3>
+                <p class="section-desc" style="margin-bottom: 1.5rem">
+                    <!-- GEN:lifecycle-intro --><!-- /GEN:lifecycle-intro -->
+                    An interrupted task is waiting on somebody, which is the only
+                    place a human can currently be reached — see
+                    <a href="#gap">G5</a> for why that is not the same as escalation.
+                </p>
+                <!-- GEN:lifecycle --><!-- /GEN:lifecycle -->
+
+                <h3 style="font-size: 1.15rem; margin: 3rem 0 1rem">Methods</h3>
+                <!-- GEN:methods --><!-- /GEN:methods -->
+
+                <h3 style="font-size: 1.15rem; margin: 3rem 0 1rem">Protocol bindings</h3>
+                <!-- GEN:bindings --><!-- /GEN:bindings -->
+
+                <h3 style="font-size: 1.15rem; margin: 3rem 0 1rem">A2A and MCP</h3>
+                <!-- GEN:vsmcp --><!-- /GEN:vsmcp -->
+
+                <h3 style="font-size: 1.15rem; margin: 3rem 0 1rem">Who is behind it</h3>
+                <!-- GEN:governance --><!-- /GEN:governance -->
+            </section>
+        </div>
+
+        <!-- ═══════ CAPABILITIES (DESIGN) ═══════ -->
+        <section id="design" class="reveal">
+            <span class="section-label">// capabilities — design, not deployment</span>
+            <h2 class="section-title">What an A2A observatory would do</h2>
+            <p class="section-desc">
+                These are design notes for a product that does not exist. Every
+                card below is <span class="rung-chip" data-rung="proposed">proposed</span>.
+                A card flips to implemented when a receipt exists in
+                <a href="#receipts">the witness log</a> and not before — which is
+                the rule that would have stopped the previous version of this page.
+            </p>
+            <!-- GEN:capabilities --><!-- /GEN:capabilities -->
+        </section>
+
+        <!-- ═══════ RECEIPTS ═══════ -->
+        <div class="band">
+            <section id="receipts" class="reveal">
+                <span class="section-label">// receipts</span>
+                <h2 class="section-title">Witness log</h2>
+                <p class="section-desc">
+                    The only place a traffic number on this site may come from.
+                </p>
+                <!-- GEN:receipts --><!-- /GEN:receipts -->
+            </section>
+        </div>
+
+        <!-- ═══════ STATUS ═══════ -->
+        <section id="status" class="reveal">
+            <span class="section-label">// status</span>
+            <h2 class="section-title">
+                Where this surface actually stands
+                <!-- GEN:status-chip --><!-- /GEN:status-chip -->
+            </h2>
+            <!-- GEN:status --><!-- /GEN:status -->
+            <h3 style="font-size: 1.05rem; margin: 2.5rem 0 1rem">Removed on <!-- GEN:removed-date --><!-- /GEN:removed-date --></h3>
+            <p class="section-desc" style="margin-bottom: 1.2rem">
+                Retract out loud, in the same place it was published.
+                These claims were served from this domain until today.
+            </p>
+            <!-- GEN:removed --><!-- /GEN:removed -->
+            <h3 style="font-size: 1.05rem; margin: 2.5rem 0 1rem">Deferred, and why</h3>
+            <!-- GEN:deferred --><!-- /GEN:deferred -->
+        </section>
+
+        <!-- ═══════ CLOSING ═══════ -->
+        <div class="band">
+            <section class="reveal" style="text-align: center">
+                <span class="section-label">// observe</span>
+                <h2 class="section-title" style="max-width: 22ch; margin: 0 auto 1rem">
+                    The observatory reports what it has seen.
+                </h2>
+                <p class="section-desc" style="margin: 0 auto 2.5rem; max-width: 52ch">
+                    So far: the map. When there is traffic, the number above
+                    changes and the animation stops being a decoration. Until
+                    then, this page is a reading of published documents — which
+                    is a real thing to be, and a checkable one.
+                </p>
+                <div class="hero-actions">
+                    <a href="#gap" class="btn-primary">THE GAP MATRIX</a>
+                    <a href="https://a2a-protocol.org/latest/" class="btn-secondary" target="_blank" rel="noopener">A2A specification ↗</a>
+                </div>
+            </section>
+        </div>
+
+        <!-- ═══════ FOOTER ═══════ -->
+        <footer>
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="footer-logo">A2A TRAFFIC</div>
+                    <p>
+                        The A2A protocol observatory. What the protocol says,
+                        what it cannot say, and what this surface has witnessed.
+                    </p>
+                </div>
+                <div class="footer-col">
+                    <h5>This site</h5>
+                    <a href="#gap">The gap matrix</a>
+                    <a href="#crosswalk">The crosswalk</a>
+                    <a href="#inspect">Agent Card inspector</a>
+                    <a href="#protocol">Protocol reference</a>
+                    <a href="#receipts">Witness log</a>
+                    <a href="#status">Status &amp; limits</a>
+                </div>
+                <div class="footer-col">
+                    <h5>Records</h5>
+                    <a href="/records/protocol.json">protocol.json</a>
+                    <a href="/records/gap-matrix.json">gap-matrix.json</a>
+                    <a href="/records/invariants.json">invariants.json</a>
+                    <a href="/records/witness.json">witness.json</a>
+                    <a href="/records/agent-card.draft.json">agent-card.draft.json</a>
+                    <a href="/records/surface.json">surface.json</a>
+                </div>
+                <div class="footer-col">
+                    <h5>Sources</h5>
+                    <a href="https://a2a-protocol.org/latest/" target="_blank" rel="noopener">A2A specification ↗</a>
+                    <a href="https://github.com/a2aproject/A2A" target="_blank" rel="noopener">a2aproject/A2A ↗</a>
+                    <a href="https://arxiv.org/abs/2606.31498" target="_blank" rel="noopener">The gap paper (preprint) ↗</a>
+                    <a href="https://computedriven.com">ComputeDriven</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>© <!-- GEN:year --><!-- /GEN:year --> A2ATraffic.com — a ComputeDriven surface</span>
+                <span><!-- GEN:footer-stamp --><!-- /GEN:footer-stamp --></span>
+            </div>
+        </footer>
+
+        <script src="/network.js" defer></script>
+        <script src="/inspector.js" defer></script>
+        <script>
+            (function () {
+                var reveals = document.querySelectorAll(".reveal");
+                if (!("IntersectionObserver" in window)) {
+                    reveals.forEach(function (r) { r.classList.add("visible"); });
+                    return;
+                }
+                var io = new IntersectionObserver(
+                    function (entries) {
+                        entries.forEach(function (e) {
+                            if (e.isIntersecting) e.target.classList.add("visible");
+                        });
+                    },
+                    { threshold: 0.08 },
+                );
+                reveals.forEach(function (r) { io.observe(r); });
+            })();
+        </script>
+    </body>
+</html>

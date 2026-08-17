@@ -1,0 +1,128 @@
+{
+  "schema": "a2atraffic-protocol-v1",
+  "_comment": "Facts about the A2A protocol that this site is permitted to print. Every entry was re-derived from a primary source on the verified_at date; build-site.mjs emits nothing about the protocol that is not in this file, and launch-gate.mjs refuses to publish when the emitted page and this record disagree. If you cannot cite it here, the page may not say it.",
+
+  "protocol": "A2A (Agent2Agent)",
+  "latest_version": "1.0",
+  "verified_at": "2026-08-17",
+  "verified_against": "a2a-protocol.org/latest/specification/ and a2aproject/A2A@main/specification/a2a.proto",
+
+  "governance": {
+    "body": "Linux Foundation",
+    "committee": "Technical Steering Committee",
+    "tsc_members": ["AWS", "Cisco", "Google", "IBM Research", "Microsoft", "Salesforce", "SAP", "ServiceNow"],
+    "origin": "Created by Google, announced April 2025, donated to the Linux Foundation June 2025.",
+    "aaif_note": "Reported August 2026: Google is transferring A2A into the Agentic AI Foundation, the Linux Foundation entity formed 2025-12-09 that already holds MCP, goose and AGENTS.md. Stated here as reported, not as verified — the primary source cited for it returned HTTP 403 and could not be read.",
+    "aaif_rung": "reported"
+  },
+
+  "adoption": {
+    "organizations": "150+",
+    "github_stars": "22,000+",
+    "sdk_languages": ["Python", "JavaScript", "Java", "Go", ".NET"],
+    "as_of": "2026-04-09",
+    "_comment": "Linux Foundation press release, one-year mark. The number is theirs, not ours, and the date is April — do not re-date it to today."
+  },
+
+  "discovery": {
+    "well_known_path": "/.well-known/agent-card.json",
+    "rfc": "RFC 8615",
+    "quote": "The standard path is https://{agent-server-domain}/.well-known/agent-card.json, following the principles of RFC 8615.",
+    "superseded_path": "/.well-known/agent.json",
+    "superseded_note": "An earlier-draft path. It is the one this site shipped until 2026-08-17.",
+    "mechanisms": [
+      { "name": "Well-Known URI", "detail": "The agent hosts its card at the standardised path. Public or domain-controlled discovery." },
+      { "name": "Curated registries", "detail": "A catalog service holds cards and answers queries by skill or tag. The spec does not yet prescribe a registry API." },
+      { "name": "Direct configuration", "detail": "Hardcoded details, config files, environment variables. For known, static relationships." }
+    ]
+  },
+
+  "bindings": [
+    { "id": "JSONRPC", "label": "JSON-RPC 2.0", "detail": "The original binding. Methods are called by name over a single endpoint." },
+    { "id": "GRPC", "label": "gRPC", "detail": "Address form is hostname:port, e.g. grpc.example.com:443." },
+    { "id": "HTTP+JSON", "label": "HTTP+JSON / REST", "detail": "Custom-verb paths, e.g. POST /message:send. The /v1 prefix was dropped in 1.0." }
+  ],
+  "_bindings_comment": "a2a.proto:341-344 — 'This is an open form string... The core ones officially supported are JSONRPC, GRPC and HTTP+JSON.' Three is the count of officially supported bindings, not a closed set.",
+
+  "task_states": [
+    { "id": "TASK_STATE_UNSPECIFIED", "short": "unspecified", "kind": "unknown", "detail": "The task is in an unknown or indeterminate state." },
+    { "id": "TASK_STATE_SUBMITTED", "short": "submitted", "kind": "open", "detail": "Successfully submitted and acknowledged." },
+    { "id": "TASK_STATE_WORKING", "short": "working", "kind": "open", "detail": "Actively being processed by the agent." },
+    { "id": "TASK_STATE_INPUT_REQUIRED", "short": "input-required", "kind": "interrupted", "detail": "The agent requires additional user input to proceed." },
+    { "id": "TASK_STATE_AUTH_REQUIRED", "short": "auth-required", "kind": "interrupted", "detail": "Authentication is required to proceed." },
+    { "id": "TASK_STATE_COMPLETED", "short": "completed", "kind": "terminal", "detail": "Finished successfully. Terminal." },
+    { "id": "TASK_STATE_FAILED", "short": "failed", "kind": "terminal", "detail": "Finished with an error. Terminal." },
+    { "id": "TASK_STATE_CANCELED", "short": "canceled", "kind": "terminal", "detail": "Canceled before completion. Terminal." },
+    { "id": "TASK_STATE_REJECTED", "short": "rejected", "kind": "terminal", "detail": "The agent decided not to perform the task. Terminal." }
+  ],
+  "_task_states_comment": "a2a.proto:187-208, in declaration order, re-ordered here open -> interrupted -> terminal for reading. Nine values including UNSPECIFIED.",
+
+  "roles": [
+    { "id": "ROLE_USER", "was": "user" },
+    { "id": "ROLE_AGENT", "was": "agent" }
+  ],
+
+  "methods": [
+    { "v1": "SendMessage", "v03": "message/send", "detail": "Send a message; may create a task." },
+    { "v1": "SendStreamingMessage", "v03": "message/stream", "detail": "Same, with a stream of updates back." },
+    { "v1": "GetTask", "v03": "tasks/get", "detail": "Read one task." },
+    { "v1": "ListTasks", "v03": "— (new in 1.0)", "detail": "Enumerate tasks. Cursor-paginated." },
+    { "v1": "CancelTask", "v03": "tasks/cancel", "detail": "Request cancellation." },
+    { "v1": "SubscribeToTask", "v03": "tasks/resubscribe", "detail": "Re-attach to a task's event stream." },
+    { "v1": "GetExtendedAgentCard", "v03": "agent/getAuthenticatedExtendedCard", "detail": "Fetch the authenticated extended card." },
+    { "v1": "CreateTaskPushNotificationConfig", "v03": "tasks/pushNotificationConfig/set", "detail": "Register a push target for a task." }
+  ],
+
+  "changes_v03_to_v10": [
+    { "area": "Agent Card", "from": "url, preferredTransport, additionalInterfaces, protocolVersion at top level", "to": "supportedInterfaces[] — each entry carries url, protocolBinding, protocolVersion, tenant", "why": "One ordered list, first entry preferred. Protocol version is now per-interface, so an agent can serve 0.3 and 1.0 side by side." },
+    { "area": "Task state", "from": "\"working\"", "to": "\"TASK_STATE_WORKING\"", "why": "All states became SCREAMING_SNAKE_CASE with a TASK_STATE_ prefix. Nine values." },
+    { "area": "Message role", "from": "\"user\" / \"agent\"", "to": "\"ROLE_USER\" / \"ROLE_AGENT\"", "why": "Same normalisation." },
+    { "area": "Part", "from": "separate TextPart / FilePart / DataPart with a kind discriminator", "to": "one Part with oneof content: text, raw, url, data", "why": "Discriminate by member presence — 'text' in part — not by part.kind. mimeType became mediaType; filename applies to all kinds." },
+    { "area": "Stream events", "from": "{ kind: \"status-update\", …, final: true }", "to": "{ statusUpdate: { … } } / { artifactUpdate: { … } }", "why": "Wrapper-based discrimination. The final boolean is gone; closing the stream signals completion." },
+    { "area": "HTTP+JSON paths", "from": "POST /v1/message:send", "to": "POST /message:send", "why": "The /v1 prefix was dropped; version lives on the interface." },
+    { "area": "Pagination", "from": "page / perPage", "to": "cursor / limit / nextCursor", "why": "Cursor-based." },
+    { "area": "Errors", "from": "RFC 9457 application/problem+json", "to": "google.rpc.Status + ErrorInfo, application/json", "why": "Errors carry a details[] with reason in UPPER_SNAKE_CASE and domain a2a-protocol.org." },
+    { "area": "OAuth", "from": "implicit and password flows", "to": "device code (RFC 8628); pkce_required on authorization code", "why": "The two deprecated flows were removed." },
+    { "area": "Agent Card trust", "from": "unsigned", "to": "signatures[] — JWS (RFC 7515) over JCS-canonicalised JSON (RFC 8785)", "why": "A card can now be cryptographically bound to a domain." },
+    { "area": "Multi-tenancy", "from": "—", "to": "tenant on every request and on AgentInterface", "why": "Route to one agent among many behind a shared endpoint." },
+    { "area": "Capabilities", "from": "supportsAuthenticatedExtendedCard at top level", "to": "capabilities.extendedAgentCard", "why": "Moved inside the capability set." }
+  ],
+
+  "agent_card_required_fields": ["name", "description", "supportedInterfaces", "version", "capabilities", "defaultInputModes", "defaultOutputModes", "skills"],
+  "agent_card_optional_fields": ["provider", "documentationUrl", "securitySchemes", "securityRequirements", "signatures", "iconUrl"],
+  "_agent_card_fields_comment": "a2a.proto:362-399. REQUIRED is google.api.field_behavior on the proto field, read directly, not inferred from an example.",
+
+  "vs_mcp": {
+    "mcp": "Agent to tool. An agent reaches a server to call a tool or read a resource.",
+    "a2a": "Agent to agent. Two independent agents discover each other, delegate a task, and exchange artifacts.",
+    "quote": "The A2A documentation states the two are 'highly complementary' and 'designed to work together'.",
+    "note": "They are not competitors and a system usually runs both: A2A across the agent graph, MCP down from each agent to its tools. Both are now Linux Foundation projects."
+  },
+
+  "mcp_current": {
+    "_comment": "Tracked here because this site draws the A2A/MCP boundary and MCP moved. Read from the MCP blog on verified_at.",
+    "version": "2026-07-28",
+    "naming": "The spec identifies itself by date — the version string is \"2026-07-28\". The official C# SDK calls its implementation v2.0 and much of the coverage calls it MCP 2; the specification does not.",
+    "billed_as": "the largest revision of the protocol since it launched",
+    "changes": [
+      "Stateless core — from a bidirectional stateful protocol to request/response. Requests are self-describing and can land on any instance behind a load balancer.",
+      "An Extensions framework, with Tasks moved out of experimental core into the io.modelcontextprotocol/tasks extension (poll-based retrieval and update).",
+      "MCP Apps and Enterprise Managed Authorization as extensions.",
+      "Multi Round-Trip Requests, replacing server-initiated requests that needed a held-open stream — mid-call user interaction without statefulness.",
+      "Authorization hardening: RFC 9207 issuer validation, Dynamic Client Registration replaced by Client ID Metadata Documents, credentials bound to the issuing authorization server.",
+      "A formal deprecation policy. Roots, Sampling and Logging are deprecated, as is the legacy HTTP+SSE transport, on a twelve-month minimum window."
+    ],
+    "what_it_does_not_add": "Nothing for agent-to-agent communication, and nothing for governance — no membership, deliberation, voting, dissent preservation, human escalation or tamper-evident replay.",
+    "why_that_matters_here": "It sharpens the boundary rather than blurring it. Both protocols now have a task concept, so 'A2A has tasks, MCP does not' is no longer the distinction — the distinction is the axis: MCP went further down toward tools and infrastructure, A2A stays across peers. And a stateless MCP makes the governance question louder, not quieter: a protocol that deliberately holds no session state is not the layer that will remember who was permitted to do what.",
+    "source": "https://blog.modelcontextprotocol.io/posts/2026-07-28/"
+  },
+
+  "sources": {
+    "spec": "https://a2a-protocol.org/latest/specification/",
+    "whats_new": "https://a2a-protocol.org/latest/whats-new-v1/",
+    "discovery": "https://a2a-protocol.org/latest/topics/agent-discovery/",
+    "proto": "https://github.com/a2aproject/A2A/blob/main/specification/a2a.proto",
+    "adoption": "https://www.linuxfoundation.org/press/a2a-protocol-surpasses-150-organizations-lands-in-major-cloud-platforms-and-sees-enterprise-production-use-in-first-year",
+    "aaif": "https://www.linuxfoundation.org/press/linux-foundation-announces-the-formation-of-the-agentic-ai-foundation"
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "schema": "computedriven-surface-v1",
+  "_comment": "The frozen record this landing page is GENERATED from. Nothing on the emitted page may state a rung, a status, a count or a protocol fact that is not derived here or in a sibling record. launch-gate.mjs reads the emitted index.html and refuses to publish when the two disagree.",
+
+  "version": "0.2.0",
+  "origin": "https://a2atraffic.com",
+  "repo": "https://github.com/c-u-l8er/a2atraffic.com",
+  "surface": "A2A Traffic",
+  "parent": "ComputeDriven",
+
+  "tier": 3,
+  "_tier_comment": "READ THE NAV, NOT THE TEMPLATE. ampersand-nav records a2atraffic as { name: 'A2A Traffic', place: 3, rung: null } and renderPlacement() emits the layer sentence only for place 2 — place 3 gets 'a specification in the ComputeDriven world'. Checked 2026-08-17 by reading ampersand-nav/src/amp-nav.js:761.",
+
+  "_nav_rung_disagreement": "The nav entry carries rung: null, which renders as ?. Its inline comment explains why: 'a2atraffic is listed at Tier 3 in the plan but has no directory in this repository at all, so there is nothing to link and no rung to state.' That is still true of ProjectAmp2 — this repository lives in ~/Projects/, outside it. The surface measures spec (below), so ? is under-stated rather than over-stated, which is the safe direction. Only the nav lane may change that entry; it must not be hand-edited in the vendored copy.",
+
+  "question": "What can the agent internet not say about itself?",
+
+  "surface_rung": "spec",
+  "rung_witness": "none",
+  "_rung_witness_comment": "There is no witness and the page says so. This surface specifies an observatory; it collects nothing. The only thing on it that RUNS is the Agent Card inspector, which is client-side and is labelled live_local where it appears. Everything else is a reading of published documents, which is exactly what a spec rung permits.",
+  "verified_at": "2026-08-17",
+
+  "nav_property": "a2atraffic",
+  "_nav_property_comment": "RULED BY TRAVIS 2026-08-17: 'the ampersand-nav needs to be on each website!'. This surface had zero <amp-nav> before today (grep -c amp-nav index.html -> 0) and was one of the two surfaces the nav fan-out script cannot reach, because it is not in ProjectAmp2. The vendored amp-nav.js is the DEPLOYED revision: 52,272 bytes, md5 da32283e1004f540e6d01b59dd0aeeee, byte-identical to what runefort.com/amp-nav.js served on 2026-08-17. A vendored copy must not be hand-edited.",
+
+  "_nav_unknown_key_acknowledged": "MEASURED 2026-08-17, do not clear without re-measuring. The vendored (= deployed) amp-nav.js does NOT contain the key a2atraffic — that entry was added later, in ampersand-nav commit 35667df, and has not been deployed. grep -c a2atraffic on the 52,272-byte vendored copy returns 0; on ampersand-nav/src/amp-nav.js it returns 3. Read at amp-nav.js:1524, the property attribute is passed to TEMPLATE(property) and is used only to mark the current item, so an unknown key does not empty the bar — it renders the full portfolio nav with nothing highlighted and no placement band. That is the honest degradation and it is what ships. It resolves itself when lane N deploys the newer nav; nothing in this repository should be changed for it, and the vendored copy must NOT be hand-edited to add the key.",
+
+  "hosting": {
+    "_comment": "MEASURED 2026-08-17 with curl, after the inspector built for this page reported HTTP 200 where the page had promised a 404. The page's claim was wrong and the host's behaviour is the reason. This block is the correction, and it is load-bearing: the whole 'our own card' section is written from it.",
+    "unmatched_path_status": 200,
+    "unmatched_path_content_type": "text/html; charset=utf-8",
+    "unmatched_path_body": "the site's own index.html, served in full",
+    "measured": [
+      "curl -o /dev/null -w %{http_code} https://a2atraffic.com/.well-known/agent-card.json -> 200, text/html, 77,879 bytes",
+      "curl -o /dev/null -w %{http_code} https://a2atraffic.com/nonexistent-xyz -> 200, text/html, 77,879 bytes",
+      "https://runefort.com/nonexistent-xyz-123 -> 200 text/html",
+      "https://fleetprompt.com/nonexistent-xyz-123 -> 200 text/html",
+      "https://computedriven.com/nonexistent-xyz-123 -> 200 text/html"
+    ],
+    "portfolio_wide": true,
+    "_portfolio_wide_comment": "[TRAVIS] This is NOT specific to a2atraffic. Three sibling domains were spot-checked and all three do the same, so the whole portfolio currently answers 200 with its homepage for any path a visitor, crawler or agent invents. Consequences beyond this surface: no path on any of these domains can be proven absent by curl; crawlers see unbounded duplicate pages; and any 'that endpoint does not exist' claim on any surface is unverifiable. Worth a portfolio-level fix, not just this one.",
+    "why_it_matters_here": "For A2A specifically it is worse than a 404. A client performing well-known discovery against this domain gets a successful HTTP response whose body is an HTML page, not an Agent Card. Success plus wrong content is harder to handle correctly than an honest absence.",
+    "attempted_fix": "404.html",
+    "attempted_fix_status": "unverified",
+    "_attempted_fix_comment": "Cloudflare Pages serves a root 404.html with a genuine 404 status for unmatched requests — UNLESS the project has SPA/catch-all routing set, which is dashboard state this build cannot read. So shipping 404.html may or may not change the measurement. It is stated as attempted and unverified, and must be re-measured against the deployed site before any page here claims a 404."
+  },
+
+  "serve_agent_card": false,
+  "_serve_agent_card_comment": "[TRAVIS] When false, records/agent-card.draft.json stays a draft and the page states the measured hosting behaviour above rather than promising an absence it cannot deliver. When true, build-site.mjs emits the card at the discovery path with its _-prefixed keys stripped. Do not flip until an endpoint answers an A2A task method. See PLAN.md 3.2.",
+
+  "status": {
+    "statement": "This surface observes the A2A protocol, not your traffic. It publishes what the specification says, re-derived from primary sources on 2026-08-17; what a governance assessment finds the protocol structurally cannot express; and a count of the A2A messages it has itself witnessed, which is zero.",
+    "source": "records/protocol.json was derived from a2a-protocol.org/latest and a2aproject/A2A@main/specification/a2a.proto. records/gap-matrix.json was re-read from arxiv.org/html/2606.31498v1 Table II and Table III. records/witness.json is zero because there is no collector.",
+    "limit": "There is no product. Nothing here proxies, captures, traces or stores A2A traffic, and no agent has been instrumented to report to this domain. The capability cards in the design section are proposed and labelled; none is implemented. The gap matrix is one preprint's reading of one version of five protocols, not our re-scoring of them, and the preprint is not peer-reviewed."
+  },
+
+  "removed_2026_08_17": [
+    "99.97% Uptime — fabricated; no runtime existed to have uptime",
+    "Messages/sec, Active Agents, Avg Latency — animated from seeds 12,400 / 847 / 23ms in animateStats(); rendered 0 0 0 with JS off",
+    "GET /.well-known/agent.json with streaming: true — wrong path for v1.0 AND a falsifiable endpoint claim",
+    "Every agent in the [&] portfolio speaks A2A — an unwitnessed universal",
+    "Transparent proxy layer captures all JSON-RPC messages / No code changes required / From Deploy to Insight in Minutes — present tense about a product that does not exist",
+    "MONITORING LIVE A2A TRAFFIC badge over a decorative canvas",
+    "100+ Partners in a strip that read as ours — recaptioned as the A2A ecosystem and corrected to the sourced 150+",
+    "Documentation and Changelog footer links pointing at #"
+  ],
+
+  "deferred": {
+    "compose_ledger": "Blocked on the [TRAVIS] shared-facts ruling and on a COMPOSE record existing. See records/witness.json compose_seam.",
+    "wrl_block": "Blocked on the grammar freeze, same dependency as every other surface's WRL block.",
+    "replay_hero": "The canvas graduates from labelled simulation to replay of a real receipt when a receipt exists. There are none."
+  }
+}

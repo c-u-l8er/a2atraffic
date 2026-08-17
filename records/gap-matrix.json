@@ -1,0 +1,222 @@
+{
+  "schema": "a2atraffic-gap-matrix-v1",
+  "_comment": "The governance gap matrix this site publishes. Scores are the PAPER'S, re-read from the HTML on verified_at — not paraphrased from a summary. A previous summarising pass over this same paper produced a plausible-sounding taxonomy that was not the paper's, and it was published before being caught (ProjectAmp2/PORTFOLIO_AUDIT_REVIEW.md carries the retraction). Do not restate a score without re-opening Table III.",
+  "verified_at": "2026-08-17",
+  "paper": {
+    "title": "Governance Gaps in Agent Interoperability Protocols: What MCP, A2A, and ACP Cannot Express",
+    "authors": [
+      "Richard Kang",
+      "Yudho Diponegoro"
+    ],
+    "submitted": "2026-06-30",
+    "arxiv": "2606.31498",
+    "url": "https://arxiv.org/abs/2606.31498",
+    "html": "https://arxiv.org/html/2606.31498v1",
+    "status": "preprint",
+    "status_note": "arXiv preprint. NOT peer-reviewed. This site called it peer-reviewed nowhere, and must not.",
+    "headline": "Voting and dissent preservation are universally absent across all five protocols.",
+    "conclusion": "The authors conclude agent community governance is a missing architectural layer, not a missing feature of existing standards."
+  },
+  "dimensions": [
+    {
+      "id": "G1",
+      "name": "Membership",
+      "definition": "Protocol encodes admission, invitation, removal, and role assignment for community participants.",
+      "a2a": "partial",
+      "a2a_transports": "Agent Cards declare capabilities and can be registered in directories.",
+      "a2a_cannot": "There is no protocol-native admission, invitation, or removal primitive. A card says what an agent claims it can do; nothing in A2A says whether it was allowed to join, or how it leaves.",
+      "here": {
+        "what": "box-and-box deontic rung (rung 3 of eight) and the delegatic OS-006 governance shim.",
+        "rung": "in_tree",
+        "detail": "The kernel answers 'is this permitted' with a certificate attached, over a floor that cannot be weakened. 118 enforced property-tested laws and 3 declared-open."
+      },
+      "crosswalk": {
+        "cells": [
+          "14",
+          "15",
+          "16"
+        ],
+        "claim": "Membership is admission, removal and role assignment. The authority graph answers all three structurally: delegation cannot cycle, a child cannot exceed its parent, and absence of a grant is refusal. That is a membership rule a protocol could carry but does not."
+      }
+    },
+    {
+      "id": "G2",
+      "name": "Deliberation",
+      "definition": "Protocol encodes structured argument exchange with turn-taking, challenge, and response semantics.",
+      "a2a": "absent",
+      "a2a_transports": "Messages and tasks. An argument can be sent as text.",
+      "a2a_cannot": "Nothing distinguishes an argument from a message, a challenge from a reply, or a turn from a retry. Structure has to be re-invented above the protocol by every party, which means no two parties agree on it.",
+      "here": {
+        "what": "deliberatic — Dung's argumentation framework extended to weighted bipolar (wBAF), graded semantics.",
+        "rung": "spec",
+        "detail": "Specified, no implementation. Its own page says so."
+      },
+      "crosswalk": {
+        "cells": [
+          "18",
+          "20"
+        ],
+        "claim": "Both cells are missing. The table names convergence and seal integrity as the measurements a deliberation would need; neither exists. This dimension is as empty here as it is on the wire."
+      }
+    },
+    {
+      "id": "G3",
+      "name": "Voting",
+      "definition": "Protocol encodes preference aggregation with quorum, rounds, and position resolution.",
+      "a2a": "absent",
+      "a2a_transports": "Nothing. A vote is an ordinary message.",
+      "a2a_cannot": "No quorum, no round, no resolution rule. Two agents cannot disagree in a way the protocol can settle.",
+      "here": {
+        "what": "deliberatic argues explicitly against majority voting and specifies graded semantics instead; agentromatic covers bidding, debate and election.",
+        "rung": "spec",
+        "detail": "Specified, no implementation."
+      },
+      "crosswalk": {
+        "cells": [],
+        "claim": "There is no cell for voting anywhere in the table. deliberatic argues against majority voting and specifies graded semantics instead, at spec rung — so the absence may be deliberate rather than an oversight, but an absent cell is an absent cell."
+      }
+    },
+    {
+      "id": "G4",
+      "name": "Dissent preservation",
+      "definition": "Protocol ensures minority positions are retained in decision outputs, not silently dropped.",
+      "a2a": "absent",
+      "a2a_transports": "Nothing. A losing position is a message nobody reads again.",
+      "a2a_cannot": "A decision transported over A2A carries its result and not its objections. The disagreement that produced it is unrecoverable from the wire.",
+      "here": {
+        "what": "deliberatic makes attacks first-class in the formal tuple (R-), and specifies that three vindicated dissents trigger constitutional review.",
+        "rung": "spec",
+        "detail": "Specified, no implementation."
+      },
+      "crosswalk": {
+        "cells": [
+          "19"
+        ],
+        "claim": "Dissent durability is the single cell in the table that names this, and it is sketched. It is also the strongest thing either census has to say about a dimension the paper finds absent in all five protocols."
+      }
+    },
+    {
+      "id": "G5",
+      "name": "Human escalation",
+      "definition": "Protocol defines conditions and mechanisms for routing decisions to human authority.",
+      "a2a": "absent",
+      "a2a_transports": "Push notifications, and TASK_STATE_INPUT_REQUIRED / TASK_STATE_AUTH_REQUIRED as interrupted states.",
+      "a2a_cannot": "Those are transport and status. Neither says under what condition a human MUST be reached, who counts as the authority, or what happens if nobody answers. An agent can ask; nothing obliges the escalation.",
+      "here": {
+        "what": "The RRABBIT mailbox. A message is 4 lanes x <=32 bits, so it carries an escalation signal and never prose. Mailbox is the only role with no ports, so 'beside the road' is forced by the algebra rather than chosen. Unread is a projection, never a stored count, because otherwise reading a message mutates the world.",
+        "rung": "live_local",
+        "detail": "node test/mail.mjs -> 68 passed, 0 failed (run 2026-08-17)."
+      },
+      "crosswalk": {
+        "cells": [
+          "24"
+        ],
+        "claim": "Escalation monotonicity is missing, and it is filed under Tier / Budget (OS-005, model tier adaptation) — escalating to a bigger model, not to a person. Read strictly, the table has no human-escalation cell at all; the working artifact is the RRABBIT mailbox, which is live_local and not in this table."
+      }
+    },
+    {
+      "id": "G6",
+      "name": "Audit and replay",
+      "definition": "Protocol produces tamper-evident event logs enabling deterministic reconstruction of the decision process.",
+      "a2a": "absent",
+      "a2a_transports": "A Traceability extension exists.",
+      "a2a_cannot": "The paper scores this absent despite that extension, because it does not define tamper-evident logs or replay semantics. You can observe the traffic; you cannot prove the log was not edited, and you cannot re-run it.",
+      "here": {
+        "what": "REPLAY — typed refusals, no silent repair. A step whose road is gone is refused by name, never remapped.",
+        "rung": "live_local",
+        "detail": "Five typed refusal codes: TRACK_EMPTY, TRACK_ROAD_GONE, TRACK_ROAD_CLOSED, TRACK_WINDOW_GONE, TRACK_BUSY (RRABBIT/docs/TRACKS_HANDOFF.md:135). An internal review said six; the file says five, and the file wins."
+      },
+      "crosswalk": {
+        "cells": [
+          "17",
+          "33"
+        ],
+        "claim": "Append-only audit is proved: history cannot be rewritten, which is half of what the dimension asks. The other half — deterministic reconstruction — maps to non-replay in Security & Federation, and that is missing. So this dimension is genuinely split, and the page should not round it up."
+      }
+    }
+  ],
+  "protocols": [
+    {
+      "id": "mcp",
+      "label": "MCP v1.1",
+      "scores": {
+        "G1": "absent",
+        "G2": "absent",
+        "G3": "absent",
+        "G4": "absent",
+        "G5": "absent",
+        "G6": "partial"
+      },
+      "coverage": "1/12"
+    },
+    {
+      "id": "a2a",
+      "label": "A2A v1.0.1",
+      "scores": {
+        "G1": "partial",
+        "G2": "absent",
+        "G3": "absent",
+        "G4": "absent",
+        "G5": "absent",
+        "G6": "absent"
+      },
+      "coverage": "1/12",
+      "focus": true
+    },
+    {
+      "id": "acp",
+      "label": "ACP",
+      "scores": {
+        "G1": "partial",
+        "G2": "partial",
+        "G3": "absent",
+        "G4": "absent",
+        "G5": "absent",
+        "G6": "absent"
+      },
+      "coverage": "2/12"
+    },
+    {
+      "id": "anp",
+      "label": "ANP",
+      "scores": {
+        "G1": "absent",
+        "G2": "absent",
+        "G3": "absent",
+        "G4": "absent",
+        "G5": "absent",
+        "G6": "absent"
+      },
+      "coverage": "0/12"
+    },
+    {
+      "id": "erc8004",
+      "label": "ERC-8004",
+      "scores": {
+        "G1": "partial",
+        "G2": "absent",
+        "G3": "absent",
+        "G4": "absent",
+        "G5": "absent",
+        "G6": "partial"
+      },
+      "coverage": "2/12"
+    }
+  ],
+  "scoring_note": "Two points per dimension, twelve available. full = 2, partial = 1, absent = 0. Best coverage of any protocol assessed is 2/12.",
+  "_version_note": "The paper assesses A2A v1.0.1. The current release is 1.0 per the spec site; 1.0.1 is a patch within that line. Nothing in the v1.0 changes re-derived in protocol.json adds a governance primitive, so the scores are not stale on that account — but they are the paper's reading of one version, and this site does not claim to have re-scored the protocol itself.",
+  "version_drift": {
+    "_comment": "Stated on the page. A matrix that quietly scores superseded versions is the same defect as a stale metric, and MCP shipped a major revision 28 days after this paper was submitted.",
+    "note": "This paper was submitted 2026-06-30. MCP shipped its largest revision since launch on 2026-07-28 — the version string is literally \"2026-07-28\"; the C# SDK calls its implementation v2.0 and much of the press calls it MCP 2. The paper therefore scores MCP v1.1, which is superseded.",
+    "rescored": false,
+    "why_the_row_still_stands": "Read against the 2026-07-28 release notes, that revision is about transport and deployment shape, not community governance: a stateless request/response core, an Extensions framework, Tasks moved out to the io.modelcontextprotocol/tasks extension, MCP Apps, Enterprise Managed Authorization, Multi Round-Trip Requests, and authorization hardening (RFC 9207 issuer validation, Dynamic Client Registration replaced by Client ID Metadata Documents). Roots, Sampling, Logging and the legacy HTTP+SSE transport are deprecated on a twelve-month window. Nothing in it adds membership, deliberation, voting, dissent preservation, human escalation or tamper-evident replay. So the G1-G6 row is very unlikely to have moved — but this site has NOT re-scored it, and 'unlikely to have moved' is not a measurement.",
+    "source": "https://blog.modelcontextprotocol.io/posts/2026-07-28/"
+  },
+  "crosswalk_note": {
+    "_comment": "Printed on the page verbatim. The mapping below is the only thing on this site that is neither a measurement nor a quotation.",
+    "kind": "judgement",
+    "whose": "Claude (Opus 5), session 2026-08-17, reviewing both sources side by side.",
+    "statement": "Which invariant answers which governance dimension is a reading, not a measurement. Nobody has published a mapping between these two vocabularies, the two were built independently and for different purposes, and no test enforces the correspondence. DOCTRINE.md rule 1: where a condition cannot be settled by a command, say that it is a judgement and whose. This is one, and it is mine.",
+    "what_is_not_a_judgement": "The A2A scores are the paper's. The invariant statuses are extracted from the canonical table by tools/sync-invariants.mjs and re-derived on every build. Only the arrows between them are argued."
+  }
+}

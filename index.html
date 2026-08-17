@@ -3,33 +3,31 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>
-            A2A Traffic — Agent-to-Agent Protocol Monitoring & Observability
-        </title>
+        <title>A2A Traffic — the A2A protocol observatory</title>
         <meta
             name="description"
-            content="A2A Traffic provides real-time monitoring, observability, and analytics for Agent-to-Agent protocol communications. The observability layer above the [&] Ampersand Box Design stack."
+            content="What the Agent2Agent protocol specifies, what it structurally cannot express, and what this surface has actually witnessed. A2A v1.0 reference, the six-dimension governance gap matrix, and a client-side Agent Card inspector."
         />
         <meta
             name="keywords"
-            content="A2A protocol, agent to agent, AI agent monitoring, agent observability, agent traffic, MCP, agentic AI, multi-agent systems"
+            content="A2A protocol, Agent2Agent, agent card, agent-card.json, A2A v1.0, supportedInterfaces, TASK_STATE, A2A vs MCP, agent governance, agent interoperability"
         />
-        <meta
-            property="og:title"
-            content="A2A Traffic — Agent Protocol Observability"
-        />
+        <link rel="canonical" href="https://a2atraffic.com/" />
+        <meta property="og:title" content="A2A Traffic — the A2A protocol observatory" />
         <meta
             property="og:description"
-            content="Real-time monitoring and analytics for A2A agent-to-agent communications."
+            content="What A2A specifies, what it cannot express, and what this surface has witnessed — which is nothing, stated plainly."
         />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://a2atraffic.com" />
+        <meta property="og:url" content="https://a2atraffic.com/" />
+        <meta name="twitter:card" content="summary_large_image" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link
             href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=JetBrains+Mono:wght@300;400;600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap"
             rel="stylesheet"
         />
+        <script type="module" src="/amp-nav.js"></script>
         <style>
             :root {
                 --cyan: #00d9ff;
@@ -46,1127 +44,1441 @@
                 --text-dim: #4a4f66;
                 --border: #1a1f30;
                 --border-hover: #2a3050;
+                --mono: "JetBrains Mono", "Space Mono", ui-monospace, monospace;
             }
-
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
-
-            html {
-                scroll-behavior: smooth;
-            }
-
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            html { scroll-behavior: smooth; }
             body {
-                font-family: "DM Sans", sans-serif;
+                font-family: "DM Sans", system-ui, sans-serif;
                 background: var(--bg-primary);
                 color: var(--text-primary);
                 line-height: 1.6;
                 overflow-x: hidden;
             }
+            a { color: var(--cyan); }
+            ::selection { background: rgba(0, 217, 255, 0.25); }
+            :focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
 
-            /* ── NAV ── */
-            nav {
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                z-index: 100;
-                padding: 0 2rem;
-                height: 60px;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                background: rgba(6, 8, 13, 0.82);
+            /* ── site nav ── */
+            nav.site {
+                position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+                padding: 0 2rem; height: 60px;
+                display: flex; align-items: center; justify-content: space-between;
+                background: rgba(6, 8, 13, 0.86);
                 backdrop-filter: blur(20px);
                 border-bottom: 1px solid var(--border);
-                transition: background 0.3s;
             }
             .nav-logo {
-                font-family: "Space Mono", monospace;
-                font-weight: 700;
-                font-size: 1.1rem;
-                letter-spacing: 0.08em;
-                display: flex;
-                align-items: center;
-                gap: 0.6rem;
-                text-decoration: none;
-                color: var(--text-primary);
+                font-family: "Space Mono", monospace; font-weight: 700;
+                font-size: 1.05rem; letter-spacing: 0.08em;
+                display: flex; align-items: center; gap: 0.6rem;
+                text-decoration: none; color: var(--text-primary);
             }
             .nav-logo .dot {
-                width: 8px;
-                height: 8px;
-                border-radius: 50%;
-                background: var(--cyan);
-                box-shadow: 0 0 12px var(--cyan);
-                animation: navPulse 2s ease-in-out infinite;
+                width: 8px; height: 8px; border-radius: 50%;
+                background: var(--text-dim);
             }
-            @keyframes navPulse {
-                0%,
-                100% {
-                    opacity: 1;
-                }
-                50% {
-                    opacity: 0.4;
-                }
-            }
-            .nav-links {
-                display: flex;
-                gap: 2rem;
-                align-items: center;
-                list-style: none;
-            }
+            .nav-links { display: flex; gap: 1.6rem; align-items: center; list-style: none; }
             .nav-links a {
-                color: var(--text-secondary);
-                text-decoration: none;
-                font-size: 0.85rem;
-                font-weight: 500;
-                letter-spacing: 0.02em;
-                transition: color 0.2s;
+                color: var(--text-secondary); text-decoration: none;
+                font-size: 0.82rem; font-family: var(--mono);
+                letter-spacing: 0.03em; transition: color 0.2s;
             }
-            .nav-links a:hover {
-                color: var(--text-primary);
+            .nav-links a:hover { color: var(--cyan); }
+            .cta-sm {
+                border: 1px solid var(--border-hover); padding: 0.4rem 0.9rem;
+                border-radius: 3px; color: var(--text-primary) !important;
             }
-            .nav-links .cta-sm {
-                padding: 0.45rem 1.1rem;
-                border: 1px solid var(--cyan);
-                color: var(--cyan);
-                border-radius: 4px;
-                font-size: 0.8rem;
-                font-family: "JetBrains Mono", monospace;
-                font-weight: 600;
-                letter-spacing: 0.05em;
-                transition: all 0.25s;
-            }
-            .nav-links .cta-sm:hover {
-                background: rgba(0, 217, 255, 0.1);
-                box-shadow: 0 0 20px rgba(0, 217, 255, 0.15);
+            .cta-sm:hover { border-color: var(--cyan); }
+            @media (max-width: 780px) {
+                nav.site { padding: 0 1rem; }
+                .nav-links { gap: 0.9rem; }
+                /* Drop Reference and Status, keep The gap + Inspector — those
+                   two are the reason to be here. Measured at 390px: three items
+                   plus the logo fit on one row, five do not. */
+                .nav-links li:nth-child(3),
+                .nav-links li:nth-child(4),
+                .nav-links li:nth-child(5) { display: none; }
             }
 
-            /* ── HERO ── */
-            .hero {
-                position: relative;
-                height: 100vh;
-                min-height: 700px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                overflow: hidden;
-            }
-            .hero canvas {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                z-index: 1;
-            }
-            .hero-content {
-                position: relative;
-                z-index: 10;
-                text-align: center;
-                pointer-events: none;
-                max-width: 800px;
-                padding: 0 2rem;
-            }
-            .hero-badge {
-                pointer-events: auto;
-                display: inline-flex;
-                align-items: center;
-                gap: 0.5rem;
-                padding: 0.4rem 1rem;
-                border: 1px solid var(--border);
-                border-radius: 100px;
-                font-size: 0.75rem;
-                color: var(--text-secondary);
-                font-family: "JetBrains Mono", monospace;
-                margin-bottom: 2rem;
-                background: rgba(12, 15, 23, 0.6);
-                backdrop-filter: blur(10px);
-                animation: fadeInDown 0.8s ease-out;
-            }
-            .hero-badge .live-dot {
-                width: 6px;
-                height: 6px;
-                border-radius: 50%;
-                background: var(--green);
-                box-shadow: 0 0 8px var(--green);
-                animation: navPulse 1.5s ease-in-out infinite;
-            }
-            .hero h1 {
-                font-family: "Space Mono", monospace;
-                font-size: clamp(2.5rem, 7vw, 5rem);
-                font-weight: 700;
-                letter-spacing: 0.1em;
-                margin-bottom: 1.2rem;
-                background: linear-gradient(
-                    135deg,
-                    var(--cyan) 0%,
-                    var(--green) 50%,
-                    var(--pink) 100%
-                );
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
-                animation: fadeInUp 0.8s ease-out 0.15s both;
-            }
-            .hero-sub {
-                font-size: clamp(0.95rem, 2vw, 1.2rem);
-                color: var(--text-secondary);
-                max-width: 560px;
-                margin: 0 auto 2.5rem;
-                font-weight: 400;
-                line-height: 1.7;
-                animation: fadeInUp 0.8s ease-out 0.3s both;
-            }
-            .hero-actions {
-                pointer-events: auto;
-                display: flex;
-                gap: 1rem;
-                justify-content: center;
-                flex-wrap: wrap;
-                animation: fadeInUp 0.8s ease-out 0.45s both;
-            }
-            .btn-primary {
-                padding: 1rem 2.4rem;
-                background: linear-gradient(135deg, var(--cyan), #0099cc);
-                color: var(--bg-primary);
-                text-decoration: none;
-                font-weight: 700;
-                font-size: 0.9rem;
-                letter-spacing: 0.05em;
-                border-radius: 6px;
-                transition: all 0.3s;
-                font-family: "JetBrains Mono", monospace;
-            }
-            .btn-primary:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 30px rgba(0, 217, 255, 0.35);
-            }
-            .btn-secondary {
-                padding: 1rem 2.4rem;
-                background: transparent;
-                border: 1px solid var(--border-hover);
-                color: var(--text-primary);
-                text-decoration: none;
-                font-weight: 600;
-                font-size: 0.9rem;
-                letter-spacing: 0.05em;
-                border-radius: 6px;
-                transition: all 0.3s;
-                font-family: "DM Sans", sans-serif;
-            }
-            .btn-secondary:hover {
-                border-color: var(--text-dim);
-                background: rgba(255, 255, 255, 0.03);
-            }
-
-            /* ── LIVE STATS TICKER ── */
-            .stats-bar {
-                background: var(--bg-secondary);
-                border-top: 1px solid var(--border);
-                border-bottom: 1px solid var(--border);
-                padding: 1.2rem 0;
-                overflow: hidden;
-            }
-            .stats-inner {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 3rem;
-                flex-wrap: wrap;
-                max-width: 1200px;
-                margin: 0 auto;
-                padding: 0 2rem;
-            }
-            .stat-item {
-                display: flex;
-                align-items: baseline;
-                gap: 0.5rem;
-                font-family: "JetBrains Mono", monospace;
-            }
-            .stat-value {
-                font-size: 1.5rem;
-                font-weight: 700;
-                color: var(--cyan);
-            }
-            .stat-value.green {
-                color: var(--green);
-            }
-            .stat-value.pink {
-                color: var(--pink);
-            }
-            .stat-value.orange {
-                color: var(--orange);
-            }
-            .stat-label {
-                font-size: 0.72rem;
-                color: var(--text-dim);
-                letter-spacing: 0.08em;
-                text-transform: uppercase;
-            }
-
-            /* ── SECTIONS ── */
-            section {
-                max-width: 1200px;
-                margin: 0 auto;
-                padding: 6rem 2rem;
-            }
+            /* ── layout ── */
+            section { max-width: 1140px; margin: 0 auto; padding: 6rem 2rem; }
+            .band { border-top: 1px solid var(--border); background: var(--bg-secondary); }
             .section-label {
-                font-family: "JetBrains Mono", monospace;
-                font-size: 0.7rem;
-                letter-spacing: 0.2em;
-                text-transform: uppercase;
-                color: var(--cyan);
-                margin-bottom: 1rem;
+                font-family: var(--mono); font-size: 0.72rem;
+                letter-spacing: 0.22em; text-transform: uppercase;
+                color: var(--text-dim); display: block; margin-bottom: 0.9rem;
             }
-            .section-title {
-                font-family: "Space Mono", monospace;
-                font-size: clamp(1.6rem, 4vw, 2.4rem);
-                font-weight: 700;
-                margin-bottom: 1rem;
-                letter-spacing: 0.02em;
-                line-height: 1.25;
+            h2.section-title {
+                font-size: clamp(1.7rem, 3.6vw, 2.5rem); font-weight: 600;
+                letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 1rem;
             }
             .section-desc {
-                color: var(--text-secondary);
-                font-size: 1.05rem;
-                max-width: 640px;
-                line-height: 1.7;
-                margin-bottom: 3rem;
+                color: var(--text-secondary); max-width: 62ch;
+                font-size: 1.02rem; margin-bottom: 2.5rem;
             }
+            .section-desc a { color: var(--cyan); }
 
-            /* ── WHAT IT DOES ── */
-            .features-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-                gap: 1.5rem;
+            /* ── rung chips ── */
+            .rung-chip {
+                display: inline-block; font-family: var(--mono);
+                font-size: 0.64rem; letter-spacing: 0.12em; text-transform: uppercase;
+                padding: 0.16rem 0.5rem; border-radius: 2px;
+                border: 1px solid currentColor; white-space: nowrap;
+                vertical-align: middle;
             }
-            .feature-card {
-                background: var(--bg-card);
-                border: 1px solid var(--border);
-                border-radius: 8px;
-                padding: 2rem;
-                transition: all 0.3s;
-                position: relative;
-                overflow: hidden;
-            }
-            .feature-card::before {
-                content: "";
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                height: 2px;
-                background: linear-gradient(
-                    90deg,
-                    transparent,
-                    var(--cyan),
-                    transparent
-                );
-                opacity: 0;
-                transition: opacity 0.3s;
-            }
-            .feature-card:hover {
-                border-color: var(--border-hover);
-                background: var(--bg-card-hover);
-                transform: translateY(-2px);
-            }
-            .feature-card:hover::before {
-                opacity: 1;
-            }
-            .feature-icon {
-                font-size: 1.8rem;
-                margin-bottom: 1rem;
-            }
-            .feature-card h3 {
-                font-family: "Space Mono", monospace;
-                font-size: 1rem;
-                font-weight: 700;
-                margin-bottom: 0.6rem;
-                letter-spacing: 0.02em;
-            }
-            .feature-card p {
-                color: var(--text-secondary);
-                font-size: 0.9rem;
-                line-height: 1.6;
-            }
+            .rung-chip[data-rung="spec"]        { color: var(--text-dim); }
+            .rung-chip[data-rung="proposed"]    { color: var(--text-dim); }
+            .rung-chip[data-rung="in_tree"]     { color: var(--orange); }
+            .rung-chip[data-rung="live_local"]  { color: var(--green); }
+            .rung-chip[data-rung="blocked"]     { color: var(--pink); }
+            .rung-chip[data-rung="reported"]    { color: var(--purple); }
 
-            /* ── HOW IT WORKS ── */
-            .how-flow {
-                display: flex;
-                align-items: flex-start;
-                gap: 0;
-                position: relative;
-                flex-wrap: wrap;
-                justify-content: center;
+            /* ── source note ── */
+            .src {
+                font-family: var(--mono); font-size: 0.7rem;
+                color: var(--text-dim); line-height: 1.7;
+                overflow-wrap: anywhere;
             }
-            .how-step {
-                flex: 1;
-                min-width: 200px;
-                max-width: 280px;
-                text-align: center;
-                padding: 2rem 1.5rem;
-                position: relative;
-            }
-            .how-step::after {
-                content: "→";
-                position: absolute;
-                right: -0.5rem;
-                top: 2.8rem;
-                font-size: 1.4rem;
-                color: var(--text-dim);
-                font-family: "JetBrains Mono", monospace;
-            }
-            .how-step:last-child::after {
-                display: none;
-            }
-            .step-num {
-                font-family: "Space Mono", monospace;
-                font-size: 2.2rem;
-                font-weight: 700;
-                color: var(--cyan);
-                opacity: 0.3;
-                margin-bottom: 0.8rem;
-            }
-            .how-step h3 {
-                font-family: "Space Mono", monospace;
-                font-size: 0.95rem;
-                margin-bottom: 0.5rem;
-            }
-            .how-step p {
-                color: var(--text-secondary);
-                font-size: 0.85rem;
-                line-height: 1.6;
-            }
+            .src a { color: var(--text-secondary); text-decoration: none; border-bottom: 1px dotted var(--border-hover); }
+            .src a:hover { color: var(--cyan); }
 
-            /* ── PROTOCOL DEEP DIVE ── */
-            .protocol-section {
-                background: var(--bg-secondary);
-                border-top: 1px solid var(--border);
+            /* ── hero ── */
+            .hero {
+                position: relative; min-height: 90vh; display: flex;
+                align-items: center; justify-content: center; overflow: hidden;
                 border-bottom: 1px solid var(--border);
             }
-            .protocol-section section {
-                padding-bottom: 4rem;
+            #network { position: absolute; inset: 0; width: 100%; height: 100%; }
+            .hero-content {
+                position: relative; z-index: 2; text-align: center;
+                padding: 8rem 1.5rem 4rem; max-width: 900px; pointer-events: none;
             }
-            .code-block {
-                background: var(--bg-primary);
-                border: 1px solid var(--border);
-                border-radius: 8px;
-                padding: 1.5rem;
-                font-family: "JetBrains Mono", monospace;
-                font-size: 0.78rem;
-                color: var(--text-secondary);
-                overflow-x: auto;
-                line-height: 1.8;
-                max-width: 700px;
-                white-space: pre;
-                tab-size: 2;
+            .hero-content a { pointer-events: auto; }
+            .hero-badge {
+                display: inline-flex; align-items: center; gap: 0.55rem;
+                font-family: var(--mono); font-size: 0.68rem;
+                letter-spacing: 0.2em; text-transform: uppercase;
+                color: var(--text-dim); border: 1px solid var(--border);
+                background: rgba(6, 8, 13, 0.8);
+                padding: 0.4rem 0.9rem; border-radius: 999px; margin-bottom: 1.8rem;
             }
-            .code-block .kw {
-                color: var(--pink);
+            .hero-badge .sim-dot {
+                width: 7px; height: 7px; border-radius: 50%;
+                background: var(--text-dim); box-shadow: 0 0 0 3px rgba(74, 79, 102, 0.15);
             }
-            .code-block .str {
-                color: var(--green);
+            .hero h1 {
+                font-family: "Space Mono", monospace; font-weight: 700;
+                font-size: clamp(2.6rem, 9vw, 6rem); letter-spacing: -0.03em;
+                line-height: 0.95; margin-bottom: 1.4rem;
             }
-            .code-block .cmt {
-                color: var(--text-dim);
-                font-style: italic;
+            .hero-sub {
+                font-size: clamp(1rem, 2vw, 1.2rem); color: var(--text-secondary);
+                max-width: 46rem; margin: 0 auto 1rem;
             }
-            .code-block .fn {
-                color: var(--cyan);
+            .hero-sub strong { color: var(--text-primary); font-weight: 500; }
+            .hero-note {
+                font-family: var(--mono); font-size: 0.74rem;
+                color: var(--text-dim); margin-bottom: 2.2rem;
             }
-            .code-block .num {
-                color: var(--orange);
+            .hero-actions {
+                display: flex; gap: 0.9rem; justify-content: center; flex-wrap: wrap;
             }
-
-            /* ── OBSERVATORY ── */
-            .observatory-layout {
-                display: grid;
-                grid-template-columns: auto 1fr;
-                gap: 3rem;
-                align-items: start;
+            .btn-primary, .btn-secondary {
+                font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.08em;
+                padding: 0.85rem 1.5rem; border-radius: 3px; text-decoration: none;
+                transition: all 0.2s; display: inline-block;
             }
-            .observatory-stack {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                gap: 0;
-                min-width: 240px;
-            }
-            .stack-observer {
-                background: var(--bg-primary);
-                border: 2px solid var(--cyan);
-                border-radius: 8px;
-                padding: 1rem 1.8rem;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                gap: 0.3rem;
-                position: relative;
-                box-shadow: 0 0 30px rgba(0, 217, 255, 0.12);
-            }
-            .observer-eye {
-                width: 16px;
-                height: 16px;
-                border-radius: 50%;
-                background: var(--cyan);
-                box-shadow: 0 0 12px var(--cyan);
-                animation: navPulse 2s ease-in-out infinite;
-            }
-            .stack-observer span:nth-child(2) {
-                font-family: "Space Mono", monospace;
-                font-weight: 700;
-                font-size: 0.85rem;
-                letter-spacing: 0.1em;
-            }
-            .observer-tag {
-                font-family: "JetBrains Mono", monospace;
-                font-size: 0.6rem !important;
-                letter-spacing: 0.15em !important;
-                text-transform: uppercase;
-                color: var(--cyan);
-                opacity: 0.7;
-            }
-            .stack-arrow {
-                font-family: "JetBrains Mono", monospace;
-                font-size: 0.65rem;
-                color: var(--text-dim);
-                letter-spacing: 0.1em;
-                padding: 0.6rem 0;
-            }
-            .stack-layers {
-                display: flex;
-                flex-direction: column;
-                gap: 4px;
-                width: 100%;
-            }
-            .stack-layer {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 0.55rem 1rem;
-                background: var(--bg-card);
-                border: 1px solid var(--border);
-                border-left: 3px solid var(--layer-color);
-                border-radius: 4px;
-                transition: all 0.2s;
-            }
-            .stack-layer:hover {
-                background: var(--bg-card-hover);
-                border-color: var(--border-hover);
-                border-left-color: var(--layer-color);
-            }
-            .layer-name {
-                font-family: "Space Mono", monospace;
-                font-size: 0.75rem;
-                font-weight: 700;
-            }
-            .layer-role {
-                font-family: "JetBrains Mono", monospace;
-                font-size: 0.6rem;
-                color: var(--text-dim);
-                letter-spacing: 0.05em;
-            }
-            .observatory-text {
-                padding-top: 0.5rem;
-            }
-            .observatory-text h3 {
-                font-family: "Space Mono", monospace;
-                font-size: 1.15rem;
-                margin-bottom: 1.2rem;
-                letter-spacing: 0.02em;
-            }
-            .observatory-text p {
-                color: var(--text-secondary);
-                font-size: 0.95rem;
-                line-height: 1.7;
-                margin-bottom: 1rem;
-            }
-            .observatory-text em {
-                color: var(--text-primary);
-                font-style: italic;
-            }
-            .btn-observatory {
-                display: inline-block;
-                margin-top: 1rem;
-                padding: 0.8rem 1.8rem;
+            .btn-primary {
+                background: var(--cyan); color: #04121a; font-weight: 600;
                 border: 1px solid var(--cyan);
-                color: var(--cyan);
-                text-decoration: none;
-                font-family: "JetBrains Mono", monospace;
-                font-size: 0.78rem;
-                font-weight: 600;
-                letter-spacing: 0.06em;
-                border-radius: 5px;
-                transition: all 0.25s;
             }
-            .btn-observatory:hover {
-                background: rgba(0, 217, 255, 0.08);
-                box-shadow: 0 0 20px rgba(0, 217, 255, 0.12);
+            .btn-primary:hover { background: transparent; color: var(--cyan); }
+            .btn-secondary {
+                border: 1px solid var(--border-hover); color: var(--text-primary);
             }
+            .btn-secondary:hover { border-color: var(--cyan); color: var(--cyan); }
 
-            /* ── A2A PROTOCOL CONTEXT ── */
-            .context-grid {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 2rem;
-                align-items: start;
+            /* ── ledger strip ── */
+            .ledger { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--bg-secondary); }
+            .ledger-inner { max-width: 1140px; margin: 0 auto; padding: 2.2rem 2rem 1.6rem; }
+            .ledger-head {
+                display: flex; justify-content: space-between; align-items: baseline;
+                flex-wrap: wrap; gap: 0.6rem; margin-bottom: 1.4rem;
             }
-            .context-text h3 {
-                font-family: "Space Mono", monospace;
-                font-size: 1.1rem;
-                margin-bottom: 1rem;
+            .ledger-head h2 {
+                font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.22em;
+                text-transform: uppercase; color: var(--text-dim); font-weight: 400;
             }
-            .context-text p {
-                color: var(--text-secondary);
-                font-size: 0.92rem;
-                line-height: 1.7;
-                margin-bottom: 1rem;
-            }
-            .context-partners {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 0.6rem;
-                margin-top: 1.5rem;
-            }
-            .partner-tag {
-                font-family: "JetBrains Mono", monospace;
-                font-size: 0.68rem;
-                padding: 0.35rem 0.7rem;
+            .ledger-grid {
+                display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+                gap: 1px; background: var(--border);
                 border: 1px solid var(--border);
-                border-radius: 4px;
-                color: var(--text-dim);
-                letter-spacing: 0.04em;
             }
-
-            /* ── CTA BANNER ── */
-            .cta-section {
-                text-align: center;
-                padding-bottom: 3rem;
-            }
-            .cta-section .section-title {
-                margin-bottom: 1.5rem;
-            }
-            .cta-section .section-desc {
-                margin-left: auto;
-                margin-right: auto;
-                margin-bottom: 2rem;
-            }
-
-            /* ── FOOTER ── */
-            footer {
-                border-top: 1px solid var(--border);
-                padding: 3rem 2rem;
-                max-width: 1200px;
-                margin: 0 auto;
-            }
-            .footer-grid {
-                display: grid;
-                grid-template-columns: 2fr 1fr 1fr 1fr;
-                gap: 3rem;
-                margin-bottom: 3rem;
-            }
-            .footer-brand .footer-logo {
-                font-family: "Space Mono", monospace;
-                font-weight: 700;
-                font-size: 1rem;
-                letter-spacing: 0.06em;
-                margin-bottom: 0.8rem;
-            }
-            .footer-brand p {
-                color: var(--text-dim);
-                font-size: 0.82rem;
-                line-height: 1.6;
-                max-width: 280px;
-            }
-            .footer-col h5 {
-                font-family: "Space Mono", monospace;
-                font-size: 0.75rem;
-                letter-spacing: 0.1em;
-                text-transform: uppercase;
-                color: var(--text-secondary);
-                margin-bottom: 1rem;
-            }
-            .footer-col a {
+            .ledger-cell { background: var(--bg-secondary); padding: 1.1rem 1.2rem; }
+            .ledger-val {
+                font-family: "Space Mono", monospace; font-size: 1.85rem;
+                font-weight: 700; letter-spacing: -0.02em; line-height: 1.1;
                 display: block;
-                color: var(--text-dim);
-                text-decoration: none;
-                font-size: 0.82rem;
-                margin-bottom: 0.5rem;
-                transition: color 0.2s;
             }
-            .footer-col a:hover {
-                color: var(--text-secondary);
+            .ledger-val.zero { color: var(--text-dim); }
+            .ledger-val.warn { color: var(--pink); }
+            .ledger-lab {
+                font-family: var(--mono); font-size: 0.72rem;
+                color: var(--text-secondary); display: block; margin-top: 0.35rem;
             }
+            .ledger-cell .src { margin-top: 0.5rem; display: block; }
+
+            /* ── gap matrix ── */
+            .matrix-wrap { overflow-x: auto; border: 1px solid var(--border); background: var(--bg-card); }
+            table.matrix { border-collapse: collapse; width: 100%; min-width: 720px; font-size: 0.86rem; }
+            table.matrix th, table.matrix td {
+                border: 1px solid var(--border); padding: 0.7rem 0.8rem; text-align: left;
+            }
+            table.matrix thead th {
+                font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.08em;
+                text-transform: uppercase; color: var(--text-secondary);
+                font-weight: 400; vertical-align: bottom; background: var(--bg-secondary);
+            }
+            table.matrix thead th .gname { display: block; color: var(--text-dim); font-size: 0.66rem; text-transform: none; letter-spacing: 0; }
+            table.matrix tbody th {
+                font-family: var(--mono); font-size: 0.8rem; font-weight: 400;
+                color: var(--text-primary); white-space: nowrap; background: var(--bg-secondary);
+            }
+            tr.focus th, tr.focus td { background: rgba(0, 217, 255, 0.05); }
+            tr.focus tbody th { color: var(--cyan); }
+            .cell { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; }
+            .cell[data-s="absent"]  { color: var(--pink); }
+            .cell[data-s="partial"] { color: var(--orange); }
+            .cell[data-s="full"]    { color: var(--green); }
+            td.cov { font-family: "Space Mono", monospace; font-weight: 700; }
+
+            .dim-list { margin-top: 2.5rem; display: grid; gap: 1px; background: var(--border); border: 1px solid var(--border); }
+            .dim {
+                background: var(--bg-card); padding: 1.6rem 1.7rem;
+            }
+            .dim-head { display: flex; align-items: baseline; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 0.2rem; }
+            .dim-id { font-family: "Space Mono", monospace; font-weight: 700; color: var(--cyan); font-size: 0.95rem; }
+            .dim-name { font-size: 1.05rem; font-weight: 600; }
+            .dim-def { color: var(--text-dim); font-size: 0.84rem; font-style: italic; margin-bottom: 1.1rem; }
+            .dim-rows { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.2rem; }
+            .dim-row h4 {
+                font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.14em;
+                text-transform: uppercase; color: var(--text-dim);
+                font-weight: 400; margin-bottom: 0.4rem;
+            }
+            .dim-row p { font-size: 0.9rem; color: var(--text-secondary); }
+            .dim-row.transports h4 { color: var(--green); }
+            .dim-row.cannot h4 { color: var(--pink); }
+            .dim-row.here h4 { color: var(--cyan); }
+            .dim-row .detail { display: block; margin-top: 0.45rem; font-family: var(--mono); font-size: 0.72rem; color: var(--text-dim); }
+
+            /* ── generic tables ── */
+            .tbl-wrap { overflow-x: auto; border: 1px solid var(--border); background: var(--bg-card); }
+            table.data { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 0.88rem; }
+            table.data th, table.data td { border-bottom: 1px solid var(--border); padding: 0.72rem 0.9rem; text-align: left; vertical-align: top; }
+            table.data thead th {
+                font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.12em;
+                text-transform: uppercase; color: var(--text-dim); font-weight: 400;
+                background: var(--bg-secondary);
+            }
+            table.data tbody tr:last-child th, table.data tbody tr:last-child td { border-bottom: none; }
+            table.data code, code.inline {
+                font-family: var(--mono); font-size: 0.8rem;
+                background: rgba(0, 217, 255, 0.07); color: var(--cyan);
+                padding: 0.1rem 0.35rem; border-radius: 2px; word-break: break-word;
+            }
+            table.data td.was code { background: rgba(255, 51, 102, 0.07); color: var(--pink); }
+            table.data td .why { display: block; color: var(--text-dim); font-size: 0.82rem; margin-top: 0.3rem; }
+
+            /* ── lifecycle ── */
+            /* min 250px so TASK_STATE_INPUT_REQUIRED fits on one line — the
+               longest id is 24 chars and breaking it mid-word reads as a typo. */
+            .life { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+            .life-cell { background: var(--bg-card); padding: 1.1rem 1.2rem; border-top: 2px solid var(--kind-color, var(--text-dim)); }
+            .life-cell[data-kind="open"]        { --kind-color: var(--cyan); }
+            .life-cell[data-kind="interrupted"] { --kind-color: var(--orange); }
+            .life-cell[data-kind="terminal"]    { --kind-color: var(--green); }
+            .life-cell[data-kind="unknown"]     { --kind-color: var(--text-dim); }
+            .life-id { font-family: var(--mono); font-size: 0.78rem; color: var(--text-primary); display: block; overflow-wrap: anywhere; }
+            .life-kind { font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--kind-color); display: block; margin: 0.35rem 0 0.5rem; }
+            .life-detail { font-size: 0.84rem; color: var(--text-secondary); }
+
+            /* ── code ── */
+            pre.code {
+                font-family: var(--mono); font-size: 0.78rem; line-height: 1.75;
+                background: var(--bg-card); border: 1px solid var(--border);
+                padding: 1.3rem 1.4rem; overflow-x: auto; color: var(--text-secondary);
+                border-radius: 3px;
+            }
+            pre.code .cmt { color: var(--text-dim); }
+            pre.code .str { color: var(--green); }
+            pre.code .kw  { color: var(--orange); }
+            pre.code .fn  { color: var(--cyan); }
+            pre.code .bad { color: var(--pink); }
+
+            /* ── inspector ── */
+            .insp { border: 1px solid var(--border); background: var(--bg-card); }
+            .insp-bar { display: flex; flex-wrap: wrap; gap: 0.6rem; padding: 1.2rem; border-bottom: 1px solid var(--border); }
+            .insp-bar input[type="url"] {
+                flex: 1 1 320px; min-width: 0; font-family: var(--mono); font-size: 0.85rem;
+                background: var(--bg-primary); border: 1px solid var(--border-hover);
+                color: var(--text-primary); padding: 0.7rem 0.9rem; border-radius: 3px;
+            }
+            .insp-bar input[type="url"]::placeholder { color: var(--text-dim); }
+            .insp-bar button {
+                font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.08em;
+                padding: 0.7rem 1.2rem; border-radius: 3px; cursor: pointer;
+                background: var(--cyan); color: #04121a; border: 1px solid var(--cyan); font-weight: 600;
+            }
+            .insp-bar button.ghost { background: transparent; color: var(--text-primary); border-color: var(--border-hover); font-weight: 400; }
+            .insp-bar button:hover { filter: brightness(1.12); }
+            .insp-examples { padding: 0 1.2rem 1.1rem; }
+            .insp-examples button {
+                font-family: var(--mono); font-size: 0.72rem; background: none;
+                border: 1px solid var(--border); color: var(--text-secondary);
+                padding: 0.3rem 0.6rem; border-radius: 2px; cursor: pointer; margin: 0.2rem 0.3rem 0 0;
+            }
+            .insp-examples button:hover { border-color: var(--cyan); color: var(--cyan); }
+            .insp-out { padding: 1.3rem; min-height: 120px; }
+            .insp-status {
+                font-family: var(--mono); font-size: 0.78rem; margin-bottom: 1rem;
+                display: flex; align-items: flex-start; gap: 0.6rem;
+            }
+            .insp-status .badge {
+                font-size: 0.64rem; letter-spacing: 0.12em; text-transform: uppercase;
+                padding: 0.16rem 0.5rem; border: 1px solid currentColor; border-radius: 2px; flex: none;
+            }
+            .insp-status[data-k="idle"]    { color: var(--text-dim); }
+            .insp-status[data-k="ok"]      { color: var(--green); }
+            .insp-status[data-k="refused"] { color: var(--orange); }
+            .insp-status[data-k="absent"]  { color: var(--pink); }
+            .insp-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); margin-bottom: 1.2rem; }
+            .insp-field { background: var(--bg-secondary); padding: 0.85rem 1rem; }
+            .insp-field .k { font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-dim); display: block; }
+            .insp-field .v { font-family: var(--mono); font-size: 0.82rem; color: var(--text-primary); display: block; margin-top: 0.3rem; word-break: break-word; }
+            .insp-field .v.miss { color: var(--pink); }
+            .insp-field .v.ok { color: var(--green); }
+            .insp-notes { font-size: 0.88rem; color: var(--text-secondary); }
+            .insp-notes li { margin: 0.4rem 0 0.4rem 1.1rem; }
+            textarea.paste {
+                width: 100%; min-height: 150px; font-family: var(--mono); font-size: 0.78rem;
+                background: var(--bg-primary); border: 1px solid var(--border-hover);
+                color: var(--text-primary); padding: 0.9rem; border-radius: 3px; resize: vertical;
+            }
+            .noscript-note {
+                font-family: var(--mono); font-size: 0.78rem; color: var(--orange);
+                border: 1px solid var(--border); padding: 0.9rem 1.1rem; background: var(--bg-card);
+            }
+
+            /* ── cards ── */
+            .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+            .card { background: var(--bg-card); padding: 1.6rem 1.7rem; transition: background 0.2s; }
+            .card:hover { background: var(--bg-card-hover); }
+            .card-head { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; margin-bottom: 0.7rem; }
+            .card h3 { font-size: 1.02rem; font-weight: 600; }
+            .card .icon { font-size: 1.2rem; color: var(--text-dim); }
+            .card p { font-size: 0.9rem; color: var(--text-secondary); }
+
+            /* ── empty state ── */
+            .empty {
+                border: 1px dashed var(--border-hover); background: var(--bg-card);
+                padding: 3rem 2rem; text-align: center;
+            }
+            .empty .big {
+                font-family: "Space Mono", monospace; font-size: 3.2rem; font-weight: 700;
+                color: var(--text-dim); display: block; line-height: 1;
+            }
+            .empty .lab { font-family: var(--mono); font-size: 0.74rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-dim); display: block; margin-top: 0.7rem; }
+            .empty p { max-width: 58ch; margin: 1.4rem auto 0; color: var(--text-secondary); font-size: 0.92rem; }
+
+            /* ── status block ── */
+            .status-block { border: 1px solid var(--border); background: var(--bg-card); }
+            .status-row { padding: 1.4rem 1.6rem; border-bottom: 1px solid var(--border); }
+            .status-row:last-child { border-bottom: none; }
+            .status-row h4 { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-dim); font-weight: 400; margin-bottom: 0.5rem; }
+            .status-row p { font-size: 0.93rem; color: var(--text-secondary); }
+            .status-row.limit h4 { color: var(--pink); }
+
+            /* ── partners ── */
+            .partners { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.2rem; }
+            .partner-tag {
+                font-family: var(--mono); font-size: 0.72rem; color: var(--text-secondary);
+                border: 1px solid var(--border); padding: 0.28rem 0.65rem; border-radius: 2px;
+            }
+
+            /* ── footer ── */
+            footer { border-top: 1px solid var(--border); background: var(--bg-secondary); padding: 3.5rem 2rem 2rem; }
+            .footer-grid { max-width: 1140px; margin: 0 auto; display: grid; grid-template-columns: 1.6fr repeat(3, 1fr); gap: 2.5rem; }
+            @media (max-width: 780px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
+            .footer-logo { font-family: "Space Mono", monospace; font-weight: 700; letter-spacing: 0.06em; margin-bottom: 0.7rem; }
+            .footer-brand p { font-size: 0.86rem; color: var(--text-secondary); max-width: 34ch; }
+            .footer-col h5 { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-dim); font-weight: 400; margin-bottom: 0.8rem; }
+            .footer-col a { display: block; font-size: 0.86rem; color: var(--text-secondary); text-decoration: none; margin-bottom: 0.45rem; }
+            .footer-col a:hover { color: var(--cyan); }
             .footer-bottom {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding-top: 2rem;
-                border-top: 1px solid var(--border);
-                font-size: 0.75rem;
-                color: var(--text-dim);
-            }
-            .footer-bottom a {
-                color: var(--cyan);
-                text-decoration: none;
-                transition: opacity 0.2s;
-            }
-            .footer-bottom a:hover {
-                opacity: 0.7;
+                max-width: 1140px; margin: 2.5rem auto 0; padding-top: 1.5rem;
+                border-top: 1px solid var(--border); display: flex; justify-content: space-between;
+                flex-wrap: wrap; gap: 0.8rem; font-family: var(--mono); font-size: 0.72rem; color: var(--text-dim);
             }
 
-            /* ── ANIMATIONS ── */
-            @keyframes fadeInUp {
-                from {
-                    opacity: 0;
-                    transform: translateY(20px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
+            /* ── reveal ── */
+            .reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.6s, transform 0.6s; }
+            .reveal.visible { opacity: 1; transform: none; }
+            @media (prefers-reduced-motion: reduce) {
+                .reveal { opacity: 1; transform: none; transition: none; }
+                html { scroll-behavior: auto; }
             }
-            @keyframes fadeInDown {
-                from {
-                    opacity: 0;
-                    transform: translateY(-10px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-            .reveal {
-                opacity: 0;
-                transform: translateY(30px);
-                transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-            }
-            .reveal.visible {
-                opacity: 1;
-                transform: translateY(0);
-            }
-
-            /* ── RESPONSIVE ── */
-            @media (max-width: 900px) {
-                .context-grid {
-                    grid-template-columns: 1fr;
-                }
-                .observatory-layout {
-                    grid-template-columns: 1fr;
-                }
-                .observatory-stack {
-                    max-width: 320px;
-                    margin: 0 auto;
-                }
-                .footer-grid {
-                    grid-template-columns: 1fr 1fr;
-                    gap: 2rem;
-                }
-            }
-            @media (max-width: 768px) {
-                nav {
-                    padding: 0 1rem;
-                }
-                .nav-links {
-                    gap: 1rem;
-                }
-                .nav-links a:not(.cta-sm) {
-                    display: none;
-                }
-                .how-step::after {
-                    display: none;
-                }
-                .how-flow {
-                    flex-direction: column;
-                    align-items: center;
-                }
-                .stats-inner {
-                    gap: 1.5rem;
-                }
-                .footer-grid {
-                    grid-template-columns: 1fr;
-                    gap: 1.5rem;
-                }
-                .footer-bottom {
-                    flex-direction: column;
-                    gap: 0.5rem;
-                    text-align: center;
-                }
-                section {
-                    padding: 4rem 1.5rem;
-                }
-            }
-            @media (max-width: 480px) {
-                .hero-actions {
-                    flex-direction: column;
-                    align-items: center;
-                }
-                .btn-primary,
-                .btn-secondary {
-                    width: 100%;
-                    text-align: center;
-                }
-            }
+            /* JS off: never leave content invisible */
+            .no-js .reveal { opacity: 1; transform: none; }
         </style>
     </head>
-    <body>
-        <!-- ═══════ NAV ═══════ -->
-        <nav>
-            <a href="#" class="nav-logo">
-                <span class="dot"></span>
-                A2A TRAFFIC
-            </a>
+    <body class="no-js">
+        <script>
+            document.body.classList.remove("no-js");
+        </script>
+
+        <amp-nav property="a2atraffic"></amp-nav>
+
+        <nav class="site">
+            <a href="/" class="nav-logo"><span class="dot"></span> A2A TRAFFIC</a>
             <ul class="nav-links">
-                <li><a href="#features">Features</a></li>
-                <li><a href="#protocol">Protocol</a></li>
-                <li><a href="#ecosystem">Observatory</a></li>
-                <li>
-                    <a href="https://ampersandboxdesign.com" class="cta-sm"
-                        >VIEW [&] →</a
-                    >
-                </li>
+                <li><a href="#gap">The gap</a></li>
+                <li><a href="#crosswalk">Crosswalk</a></li>
+                <li><a href="#inspect">Inspector</a></li>
+                <li><a href="#protocol">Reference</a></li>
+                <li><a href="#status">Status</a></li>
+                <li><a href="https://computedriven.com" class="cta-sm">ComputeDriven →</a></li>
             </ul>
         </nav>
 
         <!-- ═══════ HERO ═══════ -->
         <div class="hero">
-            <canvas id="network"></canvas>
+            <canvas id="network" aria-hidden="true"></canvas>
             <div class="hero-content">
                 <div class="hero-badge">
-                    <span class="live-dot"></span>
-                    MONITORING LIVE A2A TRAFFIC
+                    <span class="sim-dot"></span>
+                    Simulation · not live traffic
                 </div>
                 <h1>A2A TRAFFIC</h1>
                 <p class="hero-sub">
-                    Real-time observability for agent-to-agent protocol
-                    communications. Monitor, analyze, and optimize how your AI
-                    agents talk to each other.
+                    The observation layer for agent-to-agent protocol traffic.
+                    Today it observes <strong>the protocol</strong>, not your
+                    traffic — what A2A specifies, what it structurally cannot
+                    express, and what this surface has actually witnessed.
+                </p>
+                <p class="hero-note">
+                    Messages witnessed here: <!-- GEN:hero-witness --><strong>0</strong><!-- /GEN:hero-witness -->.
+                    The animation above is decorative.
                 </p>
                 <div class="hero-actions">
-                    <a href="https://ampersandboxdesign.com" class="btn-primary"
-                        >GET STARTED ON [&]</a
-                    >
-                    <a href="#features" class="btn-secondary"
-                        >See How It Works</a
-                    >
+                    <a href="#gap" class="btn-primary">READ THE GAP MATRIX</a>
+                    <a href="#inspect" class="btn-secondary">Inspect an Agent Card</a>
                 </div>
             </div>
         </div>
 
-        <!-- ═══════ LIVE STATS ═══════ -->
-        <div class="stats-bar">
-            <div class="stats-inner">
-                <div class="stat-item">
-                    <span class="stat-value" id="statMessages">0</span>
-                    <span class="stat-label">Messages / sec</span>
+        <!-- ═══════ LEDGER ═══════ -->
+        <div class="ledger">
+            <div class="ledger-inner">
+                <div class="ledger-head">
+                    <h2>// the ledger</h2>
+                    <span class="src"><!-- GEN:ledger-stamp -->verified 2026-08-17 · records frozen<!-- /GEN:ledger-stamp --></span>
                 </div>
-                <div class="stat-item">
-                    <span class="stat-value green" id="statAgents">0</span>
-                    <span class="stat-label">Active Agents</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-value pink" id="statLatency">0</span>
-                    <span class="stat-label">Avg Latency (ms)</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-value orange" id="statUptime">99.97</span>
-                    <span class="stat-label">% Uptime</span>
-                </div>
+                <!-- GEN:ledger --><div class="ledger-grid">
+                    <div class="ledger-cell">
+                        <span class="ledger-val">1.0</span>
+                        <span class="ledger-lab">A2A spec version</span>
+                        <span class="src">latest release · <a href="https://a2a-protocol.org/latest/specification/" target="_blank" rel="noopener">the specification</a></span>
+                    </div>
+                    <div class="ledger-cell">
+                        <span class="ledger-val">3</span>
+                        <span class="ledger-lab">Protocol bindings</span>
+                        <span class="src">officially supported · <a href="https://github.com/a2aproject/A2A/blob/main/specification/a2a.proto" target="_blank" rel="noopener">a2a.proto:341</a></span>
+                    </div>
+                    <div class="ledger-cell">
+                        <span class="ledger-val">9</span>
+                        <span class="ledger-lab">Task states</span>
+                        <span class="src">incl. UNSPECIFIED · <a href="https://github.com/a2aproject/A2A/blob/main/specification/a2a.proto" target="_blank" rel="noopener">a2a.proto:187</a></span>
+                    </div>
+                    <div class="ledger-cell">
+                        <span class="ledger-val warn">1/12</span>
+                        <span class="ledger-lab">Governance coverage</span>
+                        <span class="src">A2A v1.0.1 · <a href="https://arxiv.org/abs/2606.31498" target="_blank" rel="noopener">preprint 2606.31498</a></span>
+                    </div>
+                    <div class="ledger-cell">
+                        <span class="ledger-val zero">0</span>
+                        <span class="ledger-lab">Messages witnessed here</span>
+                        <span class="src"><a href="#receipts">why zero →</a></span>
+                    </div>
+                </div><!-- /GEN:ledger -->
             </div>
         </div>
 
-        <!-- ═══════ FEATURES ═══════ -->
-        <section id="features" class="reveal">
-            <span class="section-label">// capabilities</span>
-            <h2 class="section-title">What A2A Traffic Does</h2>
+        <!-- ═══════ THE GAP ═══════ -->
+        <section id="gap" class="reveal">
+            <span class="section-label">// what the protocol cannot say</span>
+            <h2 class="section-title">A2A scores 1 out of 12 on governance</h2>
             <p class="section-desc">
-                Purpose-built for the Agent-to-Agent protocol. Every message,
-                every task lifecycle, every agent card discovery — captured,
-                indexed, and visualized.
+                Generic A2A telemetry is a category with incumbents in it. This
+                is the other half of the picture, and nobody publishes it: a
+                six-dimension assessment of what five agent-interoperability
+                protocols can and cannot <em>express</em>. Not what they carry
+                slowly — what they have no vocabulary for at all.
             </p>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">◉</div>
-                    <h3>Message Tracing</h3>
-                    <p>
-                        Full distributed tracing across agent-to-agent request
-                        chains. Follow a task from client initiation through
-                        server execution, across multiple agent hops.
-                    </p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">⬡</div>
-                    <h3>Agent Discovery Map</h3>
-                    <p>
-                        Live topology of your agent network. See which agents
-                        are discovering each other via Agent Cards, their
-                        capabilities, and connection health.
-                    </p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">△</div>
-                    <h3>Task Lifecycle Analytics</h3>
-                    <p>
-                        Track tasks through every state transition — submitted,
-                        working, input-required, completed, failed. Identify
-                        bottlenecks and failure patterns.
-                    </p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">◇</div>
-                    <h3>Artifact Inspection</h3>
-                    <p>
-                        Inspect every artifact produced by remote agents —
-                        documents, images, structured data. Content-type
-                        negotiation visibility included.
-                    </p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">⊞</div>
-                    <h3>MCP + A2A Unified View</h3>
-                    <p>
-                        See both MCP tool calls and A2A agent communications in
-                        a single timeline. Understand the full picture of how
-                        your agents work.
-                    </p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">⏣</div>
-                    <h3>Streaming & SSE Monitor</h3>
-                    <p>
-                        Real-time monitoring of Server-Sent Events streams
-                        between agents. Measure throughput, detect dropped
-                        connections, track partial results.
-                    </p>
-                </div>
-            </div>
-        </section>
-
-        <!-- ═══════ HOW IT WORKS ═══════ -->
-        <section class="reveal">
-            <span class="section-label">// workflow</span>
-            <h2 class="section-title">From Deploy to Insight in Minutes</h2>
-            <p class="section-desc">
-                Drop the A2A Traffic agent into your existing multi-agent
-                system. No code changes required.
+            <!-- GEN:matrix --><div class="matrix-wrap">
+                <table class="matrix">
+                    <caption class="src" style="text-align:left;padding:0.8rem 0.9rem;caption-side:bottom">Two points per dimension, twelve available. full = 2, partial = 1, absent = 0. Best coverage of any protocol assessed is 2/12.</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Protocol</th>
+                            <th scope="col">G1<span class="gname">Membership</span></th>
+                            <th scope="col">G2<span class="gname">Deliberation</span></th>
+                            <th scope="col">G3<span class="gname">Voting</span></th>
+                            <th scope="col">G4<span class="gname">Dissent preservation</span></th>
+                            <th scope="col">G5<span class="gname">Human escalation</span></th>
+                            <th scope="col">G6<span class="gname">Audit and replay</span></th>
+                            <th scope="col">Coverage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="row">MCP v1.1</th>
+                            <td><span class="cell" data-s="absent">absent</span></td>
+                            <td><span class="cell" data-s="absent">absent</span></td>
+                            <td><span class="cell" data-s="absent">absent</span></td>
+                            <td><span class="cell" data-s="absent">absent</span></td>
+                            <td><span class="cell" data-s="absent">absent</span></td>
+                            <td><span class="cell" data-s="partial">partial</span></td>
+                            <td class="cov">1/12</td>
+                        </tr>
+                        <tr class="focus">
+                            <th scope="row">A2A v1.0.1</th>
+                            <td><span class="cell" data-s="partial">partial</span></td>
+                            <td><span class="cell" data-s="absent">absent</span></td>
+                            <td><span class="cell" data-s="absent">absent</span></td>
+                            <td><span class="cell" data-s="absent">absent</span></td>
+                            <td><span class="cell" data-s="absent">absent</span></td>
+                            <td><span class="cell" data-s="absent">absent</span></td>
+                            <td class="cov">1/12</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">ACP</th>
+                            <td><span class="cell" data-s="partial">partial</span></td>
+                            <td><span class="cell" data-s="partial">partial</span></td>
+                            <td><span class="cell" data-s="absent">absent</span></td>
+                            <td><span class="cell" data-s="absent">absent</span></td>
+                            <td><span class="cell" data-s="absent">absent</span></td>
+                            <td><span class="cell" data-s="absent">absent</span></td>
+                            <td class="cov">2/12</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">ANP</th>
+                            <td><span class="cell" data-s="absent">absent</span></td>
+                            <td><span class="cell" data-s="absent">absent</span></td>
+                            <td><span class="cell" data-s="absent">absent</span></td>
+                            <td><span class="cell" data-s="absent">absent</span></td>
+                            <td><span class="cell" data-s="absent">absent</span></td>
+                            <td><span class="cell" data-s="absent">absent</span></td>
+                            <td class="cov">0/12</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">ERC-8004</th>
+                            <td><span class="cell" data-s="partial">partial</span></td>
+                            <td><span class="cell" data-s="absent">absent</span></td>
+                            <td><span class="cell" data-s="absent">absent</span></td>
+                            <td><span class="cell" data-s="absent">absent</span></td>
+                            <td><span class="cell" data-s="absent">absent</span></td>
+                            <td><span class="cell" data-s="partial">partial</span></td>
+                            <td class="cov">2/12</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div><!-- /GEN:matrix -->
+            <p class="src" style="margin-top: 1rem">
+                <!-- GEN:matrix-cite --><a href="https://arxiv.org/abs/2606.31498" target="_blank" rel="noopener">Governance Gaps in Agent Interoperability Protocols: What MCP, A2A, and ACP Cannot Express</a> — Richard Kang, Yudho Diponegoro, submitted 2026-06-30, arXiv:2606.31498. <strong style="color:var(--orange)">arXiv preprint.</strong> Their finding, quoted: “Voting and dissent preservation are universally absent across all five protocols.” Scores are the paper's; this site has not re-scored the protocols.<br><br><strong style="color:var(--orange)">Version drift, stated:</strong> This paper was submitted 2026-06-30. MCP shipped its largest revision since launch on 2026-07-28 — the version string is literally &quot;2026-07-28&quot;; the C# SDK calls its implementation v2.0 and much of the press calls it MCP 2. The paper therefore scores MCP v1.1, which is superseded. Read against the 2026-07-28 release notes, that revision is about transport and deployment shape, not community governance: a stateless request/response core, an Extensions framework, Tasks moved out to the io.modelcontextprotocol/tasks extension, MCP Apps, Enterprise Managed Authorization, Multi Round-Trip Requests, and authorization hardening (RFC 9207 issuer validation, Dynamic Client Registration replaced by Client ID Metadata Documents). Roots, Sampling, Logging and the legacy HTTP+SSE transport are deprecated on a twelve-month window. Nothing in it adds membership, deliberation, voting, dissent preservation, human escalation or tamper-evident replay. So the G1-G6 row is very unlikely to have moved — but this site has NOT re-scored it, and 'unlikely to have moved' is not a measurement. <a href="https://blog.modelcontextprotocol.io/posts/2026-07-28/" target="_blank" rel="noopener">The 2026-07-28 release notes.</a><!-- /GEN:matrix-cite -->
             </p>
-            <div class="how-flow">
-                <div class="how-step">
-                    <div class="step-num">01</div>
-                    <h3>Register Agent Card</h3>
-                    <p>
-                        Add the A2A Traffic agent to your ecosystem. It
-                        discovers peers through standard Agent Card exchange.
-                    </p>
-                </div>
-                <div class="how-step">
-                    <div class="step-num">02</div>
-                    <h3>Intercept Traffic</h3>
-                    <p>
-                        Transparent proxy layer captures all JSON-RPC messages,
-                        SSE streams, and push notification payloads between
-                        agents.
-                    </p>
-                </div>
-                <div class="how-step">
-                    <div class="step-num">03</div>
-                    <h3>Analyze & Alert</h3>
-                    <p>
-                        Real-time dashboards show agent health, message flow,
-                        and task completion rates. Smart alerts on anomalies.
-                    </p>
-                </div>
-                <div class="how-step">
-                    <div class="step-num">04</div>
-                    <h3>Optimize Fleet</h3>
-                    <p>
-                        Use insights to improve agent coordination, reduce
-                        latency, and scale your multi-agent system with
-                        confidence.
-                    </p>
-                </div>
-            </div>
-        </section>
-
-        <!-- ═══════ A2A PROTOCOL CONTEXT ═══════ -->
-        <div class="protocol-section">
-            <section id="protocol" class="reveal">
-                <span class="section-label">// protocol</span>
-                <h2 class="section-title">Built for the A2A Standard</h2>
-                <div class="context-grid">
-                    <div class="context-text">
-                        <h3>The agent interoperability layer</h3>
-                        <p>
-                            The Agent2Agent (A2A) protocol, launched by Google
-                            and now maintained by the Linux Foundation, is the
-                            open standard for AI agents to communicate across
-                            platforms, frameworks, and vendors.
-                        </p>
-                        <p>
-                            A2A Traffic sits at the observation layer of this
-                            protocol — giving you full visibility into how
-                            agents discover capabilities via Agent Cards,
-                            negotiate content types, manage long-running tasks,
-                            and stream results via SSE.
-                        </p>
-                        <p>
-                            While MCP handles agent-to-tool connections, A2A
-                            handles agent-to-agent collaboration. A2A Traffic
-                            monitors both.
-                        </p>
-                        <div class="context-partners">
-                            <span class="partner-tag">Google Cloud</span>
-                            <span class="partner-tag">Linux Foundation</span>
-                            <span class="partner-tag">Salesforce</span>
-                            <span class="partner-tag">SAP</span>
-                            <span class="partner-tag">Atlassian</span>
-                            <span class="partner-tag">ServiceNow</span>
-                            <span class="partner-tag">100+ Partners</span>
+            <!-- GEN:dims --><div class="dim-list">
+                <div class="dim">
+                    <div class="dim-head">
+                        <span class="dim-id">G1</span>
+                        <span class="dim-name">Membership</span>
+                        <span class="cell" data-s="partial">A2A: partial</span>
+                    </div>
+                    <p class="dim-def">“Protocol encodes admission, invitation, removal, and role assignment for community participants.”</p>
+                    <div class="dim-rows">
+                        <div class="dim-row transports">
+                            <h4>What A2A transports</h4>
+                            <p>Agent Cards declare capabilities and can be registered in directories.</p>
+                        </div>
+                        <div class="dim-row cannot">
+                            <h4>What it cannot express</h4>
+                            <p>There is no protocol-native admission, invitation, or removal primitive. A card says what an agent claims it can do; nothing in A2A says whether it was allowed to join, or how it leaves.</p>
+                        </div>
+                        <div class="dim-row here">
+                            <h4>What a refusal looks like here <span class="rung-chip" data-rung="in_tree">in_tree</span></h4>
+                            <p>box-and-box deontic rung (rung 3 of eight) and the delegatic OS-006 governance shim.<span class="detail">The kernel answers 'is this permitted' with a certificate attached, over a floor that cannot be weakened. 118 enforced property-tested laws and 3 declared-open.</span></p>
                         </div>
                     </div>
-                    <div>
-                        <pre
-                            class="code-block"
-                        ><span class="cmt">// Agent Card discovery</span>
-<span class="fn">GET</span> /.well-known/agent.json
-
-{
-  <span class="str">"name"</span>: <span class="str">"a2a-traffic-monitor"</span>,
-  <span class="str">"description"</span>: <span class="str">"Observability agent
-    for A2A protocol traffic"</span>,
-  <span class="str">"url"</span>: <span class="str">"https://a2atraffic.com/agent"</span>,
-  <span class="str">"version"</span>: <span class="str">"1.0.0"</span>,
-  <span class="str">"capabilities"</span>: {
-    <span class="str">"streaming"</span>: <span class="kw">true</span>,
-    <span class="str">"pushNotifications"</span>: <span class="kw">true</span>
-  },
-  <span class="str">"skills"</span>: [
-    {
-      <span class="str">"id"</span>: <span class="str">"trace"</span>,
-      <span class="str">"name"</span>: <span class="str">"Message Tracing"</span>
-    },
-    {
-      <span class="str">"id"</span>: <span class="str">"topology"</span>,
-      <span class="str">"name"</span>: <span class="str">"Agent Topology"</span>
-    },
-    {
-      <span class="str">"id"</span>: <span class="str">"analytics"</span>,
-      <span class="str">"name"</span>: <span class="str">"Task Analytics"</span>
-    }
-  ]
-}</pre>
+                </div>
+                <div class="dim">
+                    <div class="dim-head">
+                        <span class="dim-id">G2</span>
+                        <span class="dim-name">Deliberation</span>
+                        <span class="cell" data-s="absent">A2A: absent</span>
+                    </div>
+                    <p class="dim-def">“Protocol encodes structured argument exchange with turn-taking, challenge, and response semantics.”</p>
+                    <div class="dim-rows">
+                        <div class="dim-row transports">
+                            <h4>What A2A transports</h4>
+                            <p>Messages and tasks. An argument can be sent as text.</p>
+                        </div>
+                        <div class="dim-row cannot">
+                            <h4>What it cannot express</h4>
+                            <p>Nothing distinguishes an argument from a message, a challenge from a reply, or a turn from a retry. Structure has to be re-invented above the protocol by every party, which means no two parties agree on it.</p>
+                        </div>
+                        <div class="dim-row here">
+                            <h4>What a refusal looks like here <span class="rung-chip" data-rung="spec">spec</span></h4>
+                            <p>deliberatic — Dung's argumentation framework extended to weighted bipolar (wBAF), graded semantics.<span class="detail">Specified, no implementation. Its own page says so.</span></p>
+                        </div>
                     </div>
                 </div>
+                <div class="dim">
+                    <div class="dim-head">
+                        <span class="dim-id">G3</span>
+                        <span class="dim-name">Voting</span>
+                        <span class="cell" data-s="absent">A2A: absent</span>
+                    </div>
+                    <p class="dim-def">“Protocol encodes preference aggregation with quorum, rounds, and position resolution.”</p>
+                    <div class="dim-rows">
+                        <div class="dim-row transports">
+                            <h4>What A2A transports</h4>
+                            <p>Nothing. A vote is an ordinary message.</p>
+                        </div>
+                        <div class="dim-row cannot">
+                            <h4>What it cannot express</h4>
+                            <p>No quorum, no round, no resolution rule. Two agents cannot disagree in a way the protocol can settle.</p>
+                        </div>
+                        <div class="dim-row here">
+                            <h4>What a refusal looks like here <span class="rung-chip" data-rung="spec">spec</span></h4>
+                            <p>deliberatic argues explicitly against majority voting and specifies graded semantics instead; agentromatic covers bidding, debate and election.<span class="detail">Specified, no implementation.</span></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="dim">
+                    <div class="dim-head">
+                        <span class="dim-id">G4</span>
+                        <span class="dim-name">Dissent preservation</span>
+                        <span class="cell" data-s="absent">A2A: absent</span>
+                    </div>
+                    <p class="dim-def">“Protocol ensures minority positions are retained in decision outputs, not silently dropped.”</p>
+                    <div class="dim-rows">
+                        <div class="dim-row transports">
+                            <h4>What A2A transports</h4>
+                            <p>Nothing. A losing position is a message nobody reads again.</p>
+                        </div>
+                        <div class="dim-row cannot">
+                            <h4>What it cannot express</h4>
+                            <p>A decision transported over A2A carries its result and not its objections. The disagreement that produced it is unrecoverable from the wire.</p>
+                        </div>
+                        <div class="dim-row here">
+                            <h4>What a refusal looks like here <span class="rung-chip" data-rung="spec">spec</span></h4>
+                            <p>deliberatic makes attacks first-class in the formal tuple (R-), and specifies that three vindicated dissents trigger constitutional review.<span class="detail">Specified, no implementation.</span></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="dim">
+                    <div class="dim-head">
+                        <span class="dim-id">G5</span>
+                        <span class="dim-name">Human escalation</span>
+                        <span class="cell" data-s="absent">A2A: absent</span>
+                    </div>
+                    <p class="dim-def">“Protocol defines conditions and mechanisms for routing decisions to human authority.”</p>
+                    <div class="dim-rows">
+                        <div class="dim-row transports">
+                            <h4>What A2A transports</h4>
+                            <p>Push notifications, and TASK_STATE_INPUT_REQUIRED / TASK_STATE_AUTH_REQUIRED as interrupted states.</p>
+                        </div>
+                        <div class="dim-row cannot">
+                            <h4>What it cannot express</h4>
+                            <p>Those are transport and status. Neither says under what condition a human MUST be reached, who counts as the authority, or what happens if nobody answers. An agent can ask; nothing obliges the escalation.</p>
+                        </div>
+                        <div class="dim-row here">
+                            <h4>What a refusal looks like here <span class="rung-chip" data-rung="live_local">live_local</span></h4>
+                            <p>The RRABBIT mailbox. A message is 4 lanes x &lt;=32 bits, so it carries an escalation signal and never prose. Mailbox is the only role with no ports, so 'beside the road' is forced by the algebra rather than chosen. Unread is a projection, never a stored count, because otherwise reading a message mutates the world.<span class="detail">node test/mail.mjs -&gt; 68 passed, 0 failed (run 2026-08-17).</span></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="dim">
+                    <div class="dim-head">
+                        <span class="dim-id">G6</span>
+                        <span class="dim-name">Audit and replay</span>
+                        <span class="cell" data-s="absent">A2A: absent</span>
+                    </div>
+                    <p class="dim-def">“Protocol produces tamper-evident event logs enabling deterministic reconstruction of the decision process.”</p>
+                    <div class="dim-rows">
+                        <div class="dim-row transports">
+                            <h4>What A2A transports</h4>
+                            <p>A Traceability extension exists.</p>
+                        </div>
+                        <div class="dim-row cannot">
+                            <h4>What it cannot express</h4>
+                            <p>The paper scores this absent despite that extension, because it does not define tamper-evident logs or replay semantics. You can observe the traffic; you cannot prove the log was not edited, and you cannot re-run it.</p>
+                        </div>
+                        <div class="dim-row here">
+                            <h4>What a refusal looks like here <span class="rung-chip" data-rung="live_local">live_local</span></h4>
+                            <p>REPLAY — typed refusals, no silent repair. A step whose road is gone is refused by name, never remapped.<span class="detail">Five typed refusal codes: TRACK_EMPTY, TRACK_ROAD_GONE, TRACK_ROAD_CLOSED, TRACK_WINDOW_GONE, TRACK_BUSY (RRABBIT/docs/TRACKS_HANDOFF.md:135). An internal review said six; the file says five, and the file wins.</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- /GEN:dims -->
+        </section>
+
+        <!-- ═══════ THE CROSSWALK ═══════ -->
+        <div class="band">
+            <section id="crosswalk" class="reveal">
+                <span class="section-label">// the crosswalk</span>
+                <h2 class="section-title">Two censuses, taken separately, agreeing about the holes</h2>
+                <p class="section-desc">
+                    The matrix above is an outside reading of five wire protocols.
+                    <a href="https://opensentience.org/invariants.html" target="_blank" rel="noopener">The Periodic Table of Agent Invariants</a>
+                    is an inside census of the measurements a system needs to know
+                    what position it is in and what authority that grants —
+                    <!-- GEN:crosswalk-total -->43<!-- /GEN:crosswalk-total --> cells,
+                    ten groups, built for a different purpose by different people.
+                    Laid side by side they point at the same places.
+                </p>
+
+                <div class="ledger-grid" style="margin-bottom:2.5rem">
+                    <!-- GEN:crosswalk-counts --><span class="ledger-cell" style="padding:0.9rem 1rem"><span class="ledger-val" style="font-size:1.5rem">6</span><span class="ledger-lab">proved</span></span>
+                    <span class="ledger-cell" style="padding:0.9rem 1rem"><span class="ledger-val zero" style="font-size:1.5rem">4</span><span class="ledger-lab">shipped</span></span>
+                    <span class="ledger-cell" style="padding:0.9rem 1rem"><span class="ledger-val zero" style="font-size:1.5rem">4</span><span class="ledger-lab">named</span></span>
+                    <span class="ledger-cell" style="padding:0.9rem 1rem"><span class="ledger-val zero" style="font-size:1.5rem">8</span><span class="ledger-lab">sketched</span></span>
+                    <span class="ledger-cell" style="padding:0.9rem 1rem"><span class="ledger-val warn" style="font-size:1.5rem">21</span><span class="ledger-lab">missing</span></span><!-- /GEN:crosswalk-counts -->
+                </div>
+
+                <!-- GEN:crosswalk --><div class="tbl-wrap">
+                <table class="data">
+                    <thead><tr>
+                        <th scope="col">Dimension</th>
+                        <th scope="col">A2A</th>
+                        <th scope="col">Invariant cell</th>
+                        <th scope="col">Status here</th>
+                    </tr></thead>
+                    <tbody>
+                        <tr>
+                            <th scope="row">G1 membership</th>
+                            <td><span class="cell" data-s="partial">partial</span></td>
+                            <td><span style="display:block"><code>⊘</code> No cycles <span class="src">· IV Governance</span></span><span style="display:block"><code>⊆</code> Monotonic <span class="src">· IV Governance</span></span><span style="display:block"><code>⊥</code> Deny default <span class="src">· IV Governance</span></span></td>
+                            <td><span style="display:block"><span class="cell" data-s="full">proved</span></span><span style="display:block"><span class="cell" data-s="full">proved</span></span><span style="display:block"><span class="cell" data-s="full">proved</span></span></td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" style="padding-top:0;color:var(--text-secondary);font-size:0.86rem">Membership is admission, removal and role assignment. The authority graph answers all three structurally: delegation cannot cycle, a child cannot exceed its parent, and absence of a grant is refusal. That is a membership rule a protocol could carry but does not.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">G2 deliberation</th>
+                            <td><span class="cell" data-s="absent">absent</span></td>
+                            <td><span style="display:block"><code>?</code> Convergence <span class="src">· V Deliberation</span></span><span style="display:block"><code>?</code> Seal integrity <span class="src">· V Deliberation</span></span></td>
+                            <td><span style="display:block"><span class="cell" data-s="absent">missing</span></span><span style="display:block"><span class="cell" data-s="absent">missing</span></span></td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" style="padding-top:0;color:var(--text-secondary);font-size:0.86rem">Both cells are missing. The table names convergence and seal integrity as the measurements a deliberation would need; neither exists. This dimension is as empty here as it is on the wire.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">G3 voting</th>
+                            <td><span class="cell" data-s="absent">absent</span></td>
+                            <td><span class="src">no cell exists</span></td>
+                            <td><span class="cell" data-s="absent">none</span></td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" style="padding-top:0;color:var(--text-secondary);font-size:0.86rem">There is no cell for voting anywhere in the table. deliberatic argues against majority voting and specifies graded semantics instead, at spec rung — so the absence may be deliberate rather than an oversight, but an absent cell is an absent cell.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">G4 dissent preservation</th>
+                            <td><span class="cell" data-s="absent">absent</span></td>
+                            <td><span style="display:block"><code>?</code> Dissent durability <span class="src">· V Deliberation</span></span></td>
+                            <td><span style="display:block"><span class="cell" data-s="partial">sketched</span></span></td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" style="padding-top:0;color:var(--text-secondary);font-size:0.86rem">Dissent durability is the single cell in the table that names this, and it is sketched. It is also the strongest thing either census has to say about a dimension the paper finds absent in all five protocols.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">G5 human escalation</th>
+                            <td><span class="cell" data-s="absent">absent</span></td>
+                            <td><span style="display:block"><code>?</code> Escalation monotonicity <span class="src">· VII Tier / Budget</span></span></td>
+                            <td><span style="display:block"><span class="cell" data-s="absent">missing</span></span></td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" style="padding-top:0;color:var(--text-secondary);font-size:0.86rem">Escalation monotonicity is missing, and it is filed under Tier / Budget (OS-005, model tier adaptation) — escalating to a bigger model, not to a person. Read strictly, the table has no human-escalation cell at all; the working artifact is the RRABBIT mailbox, which is live_local and not in this table.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">G6 audit and replay</th>
+                            <td><span class="cell" data-s="absent">absent</span></td>
+                            <td><span style="display:block"><code>⊕</code> Append-only <span class="src">· IV Governance</span></span><span style="display:block"><code>?</code> Non-replay <span class="src">· X Security &amp; Federation</span></span></td>
+                            <td><span style="display:block"><span class="cell" data-s="full">proved</span></span><span style="display:block"><span class="cell" data-s="absent">missing</span></span></td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" style="padding-top:0;color:var(--text-secondary);font-size:0.86rem">Append-only audit is proved: history cannot be rewritten, which is half of what the dimension asks. The other half — deterministic reconstruction — maps to non-replay in Security &amp; Federation, and that is missing. So this dimension is genuinely split, and the page should not round it up.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div><!-- /GEN:crosswalk -->
+
+                <div class="status-block" style="margin-top:2rem">
+                    <div class="status-row limit">
+                        <h4>This mapping is a judgement, not a measurement</h4>
+                        <p><!-- GEN:crosswalk-judgement -->Which invariant answers which governance dimension is a reading, not a measurement. Nobody has published a mapping between these two vocabularies, the two were built independently and for different purposes, and no test enforces the correspondence. DOCTRINE.md rule 1: where a condition cannot be settled by a command, say that it is a judgement and whose. This is one, and it is mine. <em>The A2A scores are the paper's. The invariant statuses are extracted from the canonical table by tools/sync-invariants.mjs and re-derived on every build. Only the arrows between them are argued.</em><!-- /GEN:crosswalk-judgement --></p>
+                    </div>
+                </div>
+
+                <p class="section-desc" style="margin-top:2rem">
+                    The short reading: where A2A is least weak, this stack is
+                    strongest — G1 and G6 land on invariants that are proved, and
+                    <!-- GEN:crosswalk-proved -->four of the six proved cells in the whole table are the one governance group<!-- /GEN:crosswalk-proved -->.
+                    Where A2A is empty, this stack is also
+                    mostly empty. That is not a marketing result. It says the
+                    delegation-and-audit half of agent governance has been done
+                    here and the deliberation half has been specified and not
+                    built — and that no shipping protocol has either.
+                </p>
             </section>
         </div>
 
-        <!-- ═══════ THE OBSERVATORY ═══════ -->
-        <section id="ecosystem" class="reveal">
-            <span class="section-label">// the observatory</span>
-            <h2 class="section-title">Above the Stack, Watching Everything</h2>
-            <p class="section-desc">
-                A2A Traffic doesn't live inside the [&] capability composition —
-                it sits above it. The observability layer that sees every agent
-                handshake, every task delegation, every message bounce across
-                the entire stack.
-            </p>
+        <!-- ═══════ INSPECTOR ═══════ -->
+        <div class="band">
+            <section id="inspect" class="reveal">
+                <span class="section-label">// the inspector <span class="rung-chip" data-rung="live_local">live_local</span></span>
+                <h2 class="section-title">Inspect an Agent Card</h2>
+                <p class="section-desc">
+                    Fetches <code class="inline">/.well-known/agent-card.json</code>
+                    from a domain and reads it against the v1.0 shape. This runs
+                    entirely in your browser — nothing is sent to this server,
+                    and nothing is logged. Most agents will refuse the
+                    cross-origin read; when that happens you get the exact
+                    <code class="inline">curl</code> to run instead, not a spinner.
+                </p>
 
-            <div class="observatory-layout">
-                <div class="observatory-stack">
-                    <div class="stack-observer">
-                        <div class="observer-eye"></div>
-                        <span>A2A TRAFFIC</span>
-                        <span class="observer-tag">observability layer</span>
+                <div class="insp">
+                    <div class="insp-bar">
+                        <input
+                            type="url"
+                            id="inspUrl"
+                            placeholder="https://agent.example.com"
+                            autocomplete="off"
+                            spellcheck="false"
+                        />
+                        <button id="inspGo" type="button">INSPECT →</button>
+                        <button id="inspPasteToggle" type="button" class="ghost">Paste a card</button>
                     </div>
-                    <div class="stack-arrow">▼ watches ▼</div>
-                    <div class="stack-layers">
-                        <div
-                            class="stack-layer"
-                            style="--layer-color: var(--green)"
-                        >
-                            <span class="layer-name">FleetPrompt</span>
-                            <span class="layer-role">orchestration</span>
+                    <div class="insp-examples">
+                        <span class="src">Try:</span>
+                        <button type="button" data-url="https://a2atraffic.com">a2atraffic.com (this site — see “our own card” below)</button>
+                        <button type="button" data-url="https://a2a-protocol.org">a2a-protocol.org</button>
+                        <button type="button" data-url="https://example.com">example.com (no agent)</button>
+                    </div>
+                    <div id="inspPasteWrap" style="display: none; padding: 0 1.2rem 1.2rem">
+                        <textarea class="paste" id="inspPaste" spellcheck="false" placeholder='{ "name": "…", "supportedInterfaces": [ … ], "skills": [ … ] }'></textarea>
+                        <div style="margin-top: 0.6rem">
+                            <button type="button" id="inspValidate" class="ghost" style="font-family: var(--mono); font-size: 0.78rem; padding: 0.6rem 1.1rem; border-radius: 3px; background: transparent; color: var(--text-primary); border: 1px solid var(--border-hover); cursor: pointer">VALIDATE PASTED CARD</button>
                         </div>
-                        <div
-                            class="stack-layer"
-                            style="--layer-color: var(--purple)"
-                        >
-                            <span class="layer-name">GeoFleetic</span>
-                            <span class="layer-role">knowledge graph</span>
-                        </div>
-                        <div
-                            class="stack-layer"
-                            style="--layer-color: var(--pink)"
-                        >
-                            <span class="layer-name">SpecPrompt</span>
-                            <span class="layer-role">agent specs</span>
-                        </div>
-                        <div class="stack-layer" style="--layer-color: #66ffcc">
-                            <span class="layer-name">Agentelic</span>
-                            <span class="layer-role">build &amp; test</span>
-                        </div>
-                        <div
-                            class="stack-layer"
-                            style="--layer-color: var(--cyan)"
-                        >
-                            <span class="layer-name">WebHost.Systems</span>
-                            <span class="layer-role">infrastructure</span>
+                    </div>
+                    <div class="insp-out" id="inspOut">
+                        <div class="insp-status" data-k="idle">
+                            <span class="badge">idle</span>
+                            <span>Enter a domain, or paste a card. Nothing has been fetched.</span>
                         </div>
                     </div>
                 </div>
-                <div class="observatory-text">
-                    <h3>Not a product. A vantage point.</h3>
-                    <p>
-                        Every agent in the [&] portfolio speaks A2A. FleetPrompt
-                        orchestrates them. Agentelic builds them. SpecPrompt
-                        defines them. WebHost.Systems runs them.
-                    </p>
-                    <p>
-                        A2A Traffic is the only thing that
-                        <em>sees all of it happen</em> — every JSON-RPC call,
-                        every Agent Card discovery, every SSE stream, every task
-                        state transition across the entire composition.
-                    </p>
-                    <p>
-                        Think of it as the final line on ampersandboxdesign.com
-                        — the quiet reveal that says:
-                        <em>"oh, and we can see everything."</em>
-                    </p>
-                    <a
-                        href="https://ampersandboxdesign.com"
-                        class="btn-observatory"
-                        >SEE THE FULL [&] STACK →</a
-                    >
-                </div>
-            </div>
+
+                <noscript>
+                    <div class="noscript-note" style="margin-top: 1rem">
+                        The inspector needs JavaScript. Without it, the check is one line:
+                        <code class="inline">curl -sS https://agent.example.com/.well-known/agent-card.json</code>
+                    </div>
+                </noscript>
+
+                <p class="src" style="margin-top: 1.2rem">
+                    Limit: a browser cannot read a cross-origin URL that does not
+                    send <code class="inline">Access-Control-Allow-Origin</code>. That is the
+                    common case, so the common result of this tool is a refusal
+                    that tells you what to run in a terminal. It is a reader, not
+                    a prover — it cannot verify a JWS signature, and it says so
+                    when it meets one.
+                </p>
+            </section>
+        </div>
+
+        <!-- ═══════ OUR CARD ═══════ -->
+        <section id="ourcard" class="reveal">
+            <span class="section-label">// our own card</span>
+            <h2 class="section-title">We publish the refusal, not the card</h2>
+            <!-- GEN:ourcard --><p class="section-desc">
+                A2A v1.0 requires <code class="inline">supportedInterfaces[]</code> on every
+                Agent Card — there is no spec-valid way to say “discoverable but not
+                serving”. This surface serves static files and answers no A2A task
+                method. So a card at the discovery path would advertise an endpoint
+                that refuses, which is the exact defect this page was rebuilt to remove.
+            </p>
+            <p class="section-desc">
+                An earlier draft of this section said the discovery path returns
+                <code class="inline">404</code>, and invited you to check. Then the
+                inspector below — written for this page, pointed at this domain as its
+                own first test — came back
+                <code class="inline">HTTP 200</code>.
+                The claim was wrong before anyone else could check it. Here is what is
+                actually true:
+            </p>
+            <pre class="code"><span class="cmt">// measured 2026-08-17 — a defect, not a design</span>
+<span class="fn">curl</span> -sS -o /dev/null -w <span class="str">"%{http_code} %{content_type}\n"</span> \
+     https://a2atraffic.com/.well-known/agent-card.json
+<span class="bad">200 text/html; charset=utf-8</span>   <span class="cmt">← the site's own index.html, served in full</span>
+
+<span class="cmt">// and any invented path does the same</span>
+<span class="fn">curl</span> ... https://a2atraffic.com/nonexistent-xyz
+<span class="bad">200 text/html; charset=utf-8</span></pre>
+            <p class="section-desc" style="margin-top:1.6rem">
+                For A2A specifically it is worse than a 404. A client performing well-known discovery against this domain gets a successful HTTP response whose body is an HTML page, not an Agent Card. Success plus wrong content is harder to handle correctly than an honest absence.
+                And it is not this domain's alone — the same check against three sibling ComputeDriven domains returns the same thing, so this is a hosting-level fault across the portfolio and it is reported here as one.
+                A <code class="inline">404.html</code> ships with this build as
+                the attempted fix. Whether it takes effect depends on routing
+                configuration this build cannot read, so its status is
+                <span class="rung-chip" data-rung="blocked">unverified</span>
+                and it must be re-measured against the deployed site before this page
+                claims otherwise.
+            </p>
+            <p class="section-desc">
+                The card that <em>would</em> be served is published as a draft, at a
+                draft path, so it can be read and argued with without being promised
+                to a client. Note <code class="inline">streaming: false</code> and
+                <code class="inline">pushNotifications: false</code> — the previous
+                version of this page printed both as <code class="inline">true</code>
+                for an agent that did not exist. It carries no
+                <code class="inline">signatures[]</code>, which is a real gap and is
+                stated rather than hidden.
+            </p>
+            <pre class="code">{
+  &quot;name&quot;: &quot;a2a-traffic-observatory&quot;,
+  &quot;description&quot;: &quot;Publishes what the A2A protocol specifies, what it structurally cannot express, and what this surface has witnessed. Read-only. Observes; does not orchestrate.&quot;,
+  &quot;supportedInterfaces&quot;: [
+    {
+      &quot;url&quot;: &quot;https://a2atraffic.com/a2a/json&quot;,
+      &quot;protocolBinding&quot;: &quot;HTTP+JSON&quot;,
+      &quot;protocolVersion&quot;: &quot;1.0&quot;
+    }
+  ],
+  &quot;provider&quot;: {
+    &quot;organization&quot;: &quot;ComputeDriven&quot;,
+    &quot;url&quot;: &quot;https://computedriven.com&quot;
+  },
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;documentationUrl&quot;: &quot;https://a2atraffic.com/#protocol&quot;,
+  &quot;capabilities&quot;: {
+    &quot;streaming&quot;: false,
+    &quot;pushNotifications&quot;: false,
+    &quot;extendedAgentCard&quot;: false
+  },
+  &quot;defaultInputModes&quot;: [
+    &quot;text/plain&quot;
+  ],
+  &quot;defaultOutputModes&quot;: [
+    &quot;application/json&quot;,
+    &quot;text/plain&quot;
+  ],
+  &quot;skills&quot;: [
+    {
+      &quot;id&quot;: &quot;gap-matrix&quot;,
+      &quot;name&quot;: &quot;Governance gap matrix&quot;,
+      &quot;description&quot;: &quot;Returns the six-dimension governance assessment (G1 membership, G2 deliberation, G3 voting, G4 dissent preservation, G5 human escalation, G6 audit and replay) for a named agent-interoperability protocol, with the source citation and the coverage score.&quot;,
+      &quot;tags&quot;: [
+        &quot;governance&quot;,
+        &quot;a2a&quot;,
+        &quot;mcp&quot;,
+        &quot;acp&quot;,
+        &quot;assessment&quot;
+      ],
+      &quot;examples&quot;: [
+        &quot;What can A2A not express about membership?&quot;,
+        &quot;Score MCP against the governance taxonomy.&quot;
+      ]
+    },
+    {
+      &quot;id&quot;: &quot;protocol-reference&quot;,
+      &quot;name&quot;: &quot;A2A v1.0 reference&quot;,
+      &quot;description&quot;: &quot;Returns verified facts about the A2A protocol: the discovery path, the three protocol bindings, the nine task states, the v1.0 method names, and the v0.3 to v1.0 migration deltas. Every entry carries the primary source it was derived from.&quot;,
+      &quot;tags&quot;: [
+        &quot;a2a&quot;,
+        &quot;reference&quot;,
+        &quot;migration&quot;,
+        &quot;v1.0&quot;
+      ],
+      &quot;examples&quot;: [
+        &quot;What is the well-known path for an Agent Card?&quot;,
+        &quot;What replaced preferredTransport in v1.0?&quot;
+      ]
+    }
+  ]
+}</pre>
+            <p class="src" style="margin-top:0.9rem">
+                <a href="/records/agent-card.draft.json">records/agent-card.draft.json</a> —
+                emitted from that record, with its annotation keys stripped.
+                Serving it at the discovery path is one flag in
+                <a href="/records/surface.json">surface.json</a>
+                (<code class="inline">serve_agent_card</code>, currently
+                <code class="inline">false</code>),
+                and it must not be flipped until an endpoint answers.
+            </p><!-- /GEN:ourcard -->
         </section>
 
-        <!-- ═══════ CTA ═══════ -->
-        <section class="cta-section reveal">
-            <span class="section-label">// observe</span>
+        <!-- ═══════ PROTOCOL REFERENCE ═══════ -->
+        <div class="band">
+            <section id="protocol" class="reveal">
+                <span class="section-label">// reference</span>
+                <h2 class="section-title">A2A v1.0, re-derived</h2>
+                <p class="section-desc">
+                    Every fact below was read from the specification or from
+                    <code class="inline">a2a.proto</code> on
+                    <!-- GEN:protocol-date -->2026-08-17<!-- /GEN:protocol-date -->, not
+                    copied from a summary. Where a field is marked required, that
+                    is <code class="inline">google.api.field_behavior</code> on the
+                    proto field, read directly.
+                </p>
+
+                <h3 style="font-size: 1.15rem; margin: 0 0 1rem">Discovery</h3>
+                <!-- GEN:discovery --><pre class="code"><span class="cmt">// the standard path — RFC 8615</span>
+<span class="fn">GET</span> https://{agent-server-domain}<span class="str">/.well-known/agent-card.json</span>
+
+<span class="cmt">// NOT this. An earlier-draft path. It is the one this site shipped until 2026-08-17.</span>
+<span class="fn">GET</span> https://{agent-server-domain}<span class="bad">/.well-known/agent.json</span></pre>
+                <div class="tbl-wrap" style="margin-top:1.4rem">
+                    <table class="data">
+                        <thead><tr><th scope="col">Mechanism</th><th scope="col">How it works</th></tr></thead>
+                        <tbody>
+                            <tr><th scope="row">Well-Known URI</th><td>The agent hosts its card at the standardised path. Public or domain-controlled discovery.</td></tr>
+                            <tr><th scope="row">Curated registries</th><td>A catalog service holds cards and answers queries by skill or tag. The spec does not yet prescribe a registry API.</td></tr>
+                            <tr><th scope="row">Direct configuration</th><td>Hardcoded details, config files, environment variables. For known, static relationships.</td></tr>
+                        </tbody>
+                    </table>
+                </div><!-- /GEN:discovery -->
+
+                <h3 style="font-size: 1.15rem; margin: 3rem 0 1rem">What v1.0 changed</h3>
+                <p class="section-desc" style="margin-bottom: 1.5rem">
+                    If you built against v0.3, this is the migration. It is not a
+                    rename pass — the Agent Card, the Part object and the stream
+                    events all changed shape.
+                </p>
+                <!-- GEN:changes --><div class="tbl-wrap">
+                    <table class="data">
+                        <thead><tr><th scope="col">Area</th><th scope="col">v0.3</th><th scope="col">v1.0</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <th scope="row">Agent Card</th>
+                                <td class="was"><code>url, preferredTransport, additionalInterfaces, protocolVersion at top level</code></td>
+                                <td><code>supportedInterfaces[] — each entry carries url, protocolBinding, protocolVersion, tenant</code><span class="why">One ordered list, first entry preferred. Protocol version is now per-interface, so an agent can serve 0.3 and 1.0 side by side.</span></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Task state</th>
+                                <td class="was"><code>&quot;working&quot;</code></td>
+                                <td><code>&quot;TASK_STATE_WORKING&quot;</code><span class="why">All states became SCREAMING_SNAKE_CASE with a TASK_STATE_ prefix. Nine values.</span></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Message role</th>
+                                <td class="was"><code>&quot;user&quot; / &quot;agent&quot;</code></td>
+                                <td><code>&quot;ROLE_USER&quot; / &quot;ROLE_AGENT&quot;</code><span class="why">Same normalisation.</span></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Part</th>
+                                <td class="was"><code>separate TextPart / FilePart / DataPart with a kind discriminator</code></td>
+                                <td><code>one Part with oneof content: text, raw, url, data</code><span class="why">Discriminate by member presence — 'text' in part — not by part.kind. mimeType became mediaType; filename applies to all kinds.</span></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Stream events</th>
+                                <td class="was"><code>{ kind: &quot;status-update&quot;, …, final: true }</code></td>
+                                <td><code>{ statusUpdate: { … } } / { artifactUpdate: { … } }</code><span class="why">Wrapper-based discrimination. The final boolean is gone; closing the stream signals completion.</span></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">HTTP+JSON paths</th>
+                                <td class="was"><code>POST /v1/message:send</code></td>
+                                <td><code>POST /message:send</code><span class="why">The /v1 prefix was dropped; version lives on the interface.</span></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Pagination</th>
+                                <td class="was"><code>page / perPage</code></td>
+                                <td><code>cursor / limit / nextCursor</code><span class="why">Cursor-based.</span></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Errors</th>
+                                <td class="was"><code>RFC 9457 application/problem+json</code></td>
+                                <td><code>google.rpc.Status + ErrorInfo, application/json</code><span class="why">Errors carry a details[] with reason in UPPER_SNAKE_CASE and domain a2a-protocol.org.</span></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">OAuth</th>
+                                <td class="was"><code>implicit and password flows</code></td>
+                                <td><code>device code (RFC 8628); pkce_required on authorization code</code><span class="why">The two deprecated flows were removed.</span></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Agent Card trust</th>
+                                <td class="was"><code>unsigned</code></td>
+                                <td><code>signatures[] — JWS (RFC 7515) over JCS-canonicalised JSON (RFC 8785)</code><span class="why">A card can now be cryptographically bound to a domain.</span></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Multi-tenancy</th>
+                                <td class="was"><code>—</code></td>
+                                <td><code>tenant on every request and on AgentInterface</code><span class="why">Route to one agent among many behind a shared endpoint.</span></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Capabilities</th>
+                                <td class="was"><code>supportsAuthenticatedExtendedCard at top level</code></td>
+                                <td><code>capabilities.extendedAgentCard</code><span class="why">Moved inside the capability set.</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div><!-- /GEN:changes -->
+
+                <h3 style="font-size: 1.15rem; margin: 3rem 0 1rem">Task lifecycle</h3>
+                <p class="section-desc" style="margin-bottom: 1.5rem">
+                    <!-- GEN:lifecycle-intro -->9 states — 4 terminal, 2 interrupted, 2 open, 1 unknown.<!-- /GEN:lifecycle-intro -->
+                    An interrupted task is waiting on somebody, which is the only
+                    place a human can currently be reached — see
+                    <a href="#gap">G5</a> for why that is not the same as escalation.
+                </p>
+                <!-- GEN:lifecycle --><div class="life">
+                    <div class="life-cell" data-kind="unknown">
+                        <span class="life-id">TASK_STATE_UNSPECIFIED</span>
+                        <span class="life-kind">unknown</span>
+                        <span class="life-detail">The task is in an unknown or indeterminate state.</span>
+                    </div>
+                    <div class="life-cell" data-kind="open">
+                        <span class="life-id">TASK_STATE_SUBMITTED</span>
+                        <span class="life-kind">open</span>
+                        <span class="life-detail">Successfully submitted and acknowledged.</span>
+                    </div>
+                    <div class="life-cell" data-kind="open">
+                        <span class="life-id">TASK_STATE_WORKING</span>
+                        <span class="life-kind">open</span>
+                        <span class="life-detail">Actively being processed by the agent.</span>
+                    </div>
+                    <div class="life-cell" data-kind="interrupted">
+                        <span class="life-id">TASK_STATE_INPUT_REQUIRED</span>
+                        <span class="life-kind">interrupted</span>
+                        <span class="life-detail">The agent requires additional user input to proceed.</span>
+                    </div>
+                    <div class="life-cell" data-kind="interrupted">
+                        <span class="life-id">TASK_STATE_AUTH_REQUIRED</span>
+                        <span class="life-kind">interrupted</span>
+                        <span class="life-detail">Authentication is required to proceed.</span>
+                    </div>
+                    <div class="life-cell" data-kind="terminal">
+                        <span class="life-id">TASK_STATE_COMPLETED</span>
+                        <span class="life-kind">terminal</span>
+                        <span class="life-detail">Finished successfully. Terminal.</span>
+                    </div>
+                    <div class="life-cell" data-kind="terminal">
+                        <span class="life-id">TASK_STATE_FAILED</span>
+                        <span class="life-kind">terminal</span>
+                        <span class="life-detail">Finished with an error. Terminal.</span>
+                    </div>
+                    <div class="life-cell" data-kind="terminal">
+                        <span class="life-id">TASK_STATE_CANCELED</span>
+                        <span class="life-kind">terminal</span>
+                        <span class="life-detail">Canceled before completion. Terminal.</span>
+                    </div>
+                    <div class="life-cell" data-kind="terminal">
+                        <span class="life-id">TASK_STATE_REJECTED</span>
+                        <span class="life-kind">terminal</span>
+                        <span class="life-detail">The agent decided not to perform the task. Terminal.</span>
+                    </div>
+                </div><!-- /GEN:lifecycle -->
+
+                <h3 style="font-size: 1.15rem; margin: 3rem 0 1rem">Methods</h3>
+                <!-- GEN:methods --><div class="tbl-wrap">
+                    <table class="data">
+                        <thead><tr><th scope="col">v1.0</th><th scope="col">was (v0.3)</th><th scope="col">What it does</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <th scope="row"><code>SendMessage</code></th>
+                                <td class="was"><code>message/send</code></td>
+                                <td>Send a message; may create a task.</td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><code>SendStreamingMessage</code></th>
+                                <td class="was"><code>message/stream</code></td>
+                                <td>Same, with a stream of updates back.</td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><code>GetTask</code></th>
+                                <td class="was"><code>tasks/get</code></td>
+                                <td>Read one task.</td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><code>ListTasks</code></th>
+                                <td class="was"><code>— (new in 1.0)</code></td>
+                                <td>Enumerate tasks. Cursor-paginated.</td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><code>CancelTask</code></th>
+                                <td class="was"><code>tasks/cancel</code></td>
+                                <td>Request cancellation.</td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><code>SubscribeToTask</code></th>
+                                <td class="was"><code>tasks/resubscribe</code></td>
+                                <td>Re-attach to a task's event stream.</td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><code>GetExtendedAgentCard</code></th>
+                                <td class="was"><code>agent/getAuthenticatedExtendedCard</code></td>
+                                <td>Fetch the authenticated extended card.</td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><code>CreateTaskPushNotificationConfig</code></th>
+                                <td class="was"><code>tasks/pushNotificationConfig/set</code></td>
+                                <td>Register a push target for a task.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div><!-- /GEN:methods -->
+
+                <h3 style="font-size: 1.15rem; margin: 3rem 0 1rem">Protocol bindings</h3>
+                <!-- GEN:bindings --><div class="tbl-wrap">
+                    <table class="data">
+                        <thead><tr><th scope="col">protocolBinding</th><th scope="col">Name</th><th scope="col">Notes</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <th scope="row"><code>JSONRPC</code></th>
+                                <td>JSON-RPC 2.0</td>
+                                <td>The original binding. Methods are called by name over a single endpoint.</td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><code>GRPC</code></th>
+                                <td>gRPC</td>
+                                <td>Address form is hostname:port, e.g. grpc.example.com:443.</td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><code>HTTP+JSON</code></th>
+                                <td>HTTP+JSON / REST</td>
+                                <td>Custom-verb paths, e.g. POST /message:send. The /v1 prefix was dropped in 1.0.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="src" style="margin-top:0.9rem">'This is an open form string... The core ones officially supported are JSONRPC, GRPC and HTTP+JSON.' Three is the count of officially supported bindings, not a closed set.</p><!-- /GEN:bindings -->
+
+                <h3 style="font-size: 1.15rem; margin: 3rem 0 1rem">A2A and MCP</h3>
+                <!-- GEN:vsmcp --><div class="cards">
+                    <div class="card">
+                        <div class="card-head"><h3>MCP</h3><span class="icon">⊞</span></div>
+                        <p>Agent to tool. An agent reaches a server to call a tool or read a resource.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-head"><h3>A2A</h3><span class="icon">⬡</span></div>
+                        <p>Agent to agent. Two independent agents discover each other, delegate a task, and exchange artifacts.</p>
+                    </div>
+                </div>
+                <p class="section-desc" style="margin-top:1.2rem">They are not competitors and a system usually runs both: A2A across the agent graph, MCP down from each agent to its tools. Both are now Linux Foundation projects. The A2A documentation states the two are 'highly complementary' and 'designed to work together'.</p>
+                <h4 style="font-family:var(--mono);font-size:0.68rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-dim);font-weight:400;margin:2rem 0 0.8rem">MCP moved — 2026-07-28</h4>
+                <p class="section-desc" style="margin-bottom:1rem">The spec identifies itself by date — the version string is &quot;2026-07-28&quot;. The official C# SDK calls its implementation v2.0 and much of the coverage calls it MCP 2; the specification does not. It is billed as the largest revision of the protocol since it launched.</p>
+                <ul class="insp-notes" style="font-size:0.9rem;margin-bottom:1rem">
+                    <li>Stateless core — from a bidirectional stateful protocol to request/response. Requests are self-describing and can land on any instance behind a load balancer.</li>
+                    <li>An Extensions framework, with Tasks moved out of experimental core into the io.modelcontextprotocol/tasks extension (poll-based retrieval and update).</li>
+                    <li>MCP Apps and Enterprise Managed Authorization as extensions.</li>
+                    <li>Multi Round-Trip Requests, replacing server-initiated requests that needed a held-open stream — mid-call user interaction without statefulness.</li>
+                    <li>Authorization hardening: RFC 9207 issuer validation, Dynamic Client Registration replaced by Client ID Metadata Documents, credentials bound to the issuing authorization server.</li>
+                    <li>A formal deprecation policy. Roots, Sampling and Logging are deprecated, as is the legacy HTTP+SSE transport, on a twelve-month minimum window.</li>
+                </ul>
+                <p class="section-desc" style="margin-bottom:1rem"><strong>Nothing for agent-to-agent communication, and nothing for governance — no membership, deliberation, voting, dissent preservation, human escalation or tamper-evident replay.</strong> It sharpens the boundary rather than blurring it. Both protocols now have a task concept, so 'A2A has tasks, MCP does not' is no longer the distinction — the distinction is the axis: MCP went further down toward tools and infrastructure, A2A stays across peers. And a stateless MCP makes the governance question louder, not quieter: a protocol that deliberately holds no session state is not the layer that will remember who was permitted to do what.</p>
+                <p class="src"><a href="https://blog.modelcontextprotocol.io/posts/2026-07-28/" target="_blank" rel="noopener">the 2026-07-28 specification announcement</a> · The gap matrix above scores <strong>MCP v1.1</strong>, because that is what the paper assessed and the paper predates this release by 28 days. It has not been re-scored here. <a href="#gap">See the version-drift note.</a></p><!-- /GEN:vsmcp -->
+
+                <h3 style="font-size: 1.15rem; margin: 3rem 0 1rem">Who is behind it</h3>
+                <!-- GEN:governance --><p class="section-desc" style="margin-bottom:1rem">Created by Google, announced April 2025, donated to the Linux Foundation June 2025. It is maintained by a Technical Steering Committee under the Linux Foundation.</p>
+                <p class="section-desc" style="margin-bottom:1rem">Reported August 2026: Google is transferring A2A into the Agentic AI Foundation, the Linux Foundation entity formed 2025-12-09 that already holds MCP, goose and AGENTS.md. Stated here as reported, not as verified — the primary source cited for it returned HTTP 403 and could not be read. <span class="rung-chip" data-rung="reported">reported</span></p>
+                <p class="src">Technical Steering Committee: AWS · Cisco · Google · IBM Research · Microsoft · Salesforce · SAP · ServiceNow</p>
+                <p class="src" style="margin-top:1.2rem">Adoption, as reported by the Linux Foundation on 2026-04-09: 150+ organizations, 22,000+ GitHub stars, SDKs in Python, JavaScript, Java, Go, .NET. <a href="https://www.linuxfoundation.org/press/a2a-protocol-surpasses-150-organizations-lands-in-major-cloud-platforms-and-sees-enterprise-production-use-in-first-year" target="_blank" rel="noopener">press release</a></p>
+                <div class="partners">
+                    <span class="src" style="width:100%;margin-bottom:0.3rem">Named in that release — the A2A ecosystem, not this site's customers:</span>
+                    <span class="partner-tag">AWS</span>
+                    <span class="partner-tag">Cisco</span>
+                    <span class="partner-tag">Google</span>
+                    <span class="partner-tag">IBM Research</span>
+                    <span class="partner-tag">Microsoft</span>
+                    <span class="partner-tag">Salesforce</span>
+                    <span class="partner-tag">SAP</span>
+                    <span class="partner-tag">ServiceNow</span>
+                    <span class="partner-tag">150+ organizations</span>
+                </div><!-- /GEN:governance -->
+            </section>
+        </div>
+
+        <!-- ═══════ CAPABILITIES (DESIGN) ═══════ -->
+        <section id="design" class="reveal">
+            <span class="section-label">// capabilities — design, not deployment</span>
+            <h2 class="section-title">What an A2A observatory would do</h2>
+            <p class="section-desc">
+                These are design notes for a product that does not exist. Every
+                card below is <span class="rung-chip" data-rung="proposed">proposed</span>.
+                A card flips to implemented when a receipt exists in
+                <a href="#receipts">the witness log</a> and not before — which is
+                the rule that would have stopped the previous version of this page.
+            </p>
+            <!-- GEN:capabilities --><div class="cards">
+                <div class="card">
+                    <div class="card-head">
+                        <h3>Message tracing</h3>
+                        <span class="icon">◉</span>
+                    </div>
+                    <p>Follow one task across agent hops — client initiation, delegation, artifact, completion — as a single chain rather than four unrelated POSTs.</p>
+                    <p style="margin-top:0.9rem"><span class="rung-chip" data-rung="proposed">proposed</span></p>
+                </div>
+                <div class="card">
+                    <div class="card-head">
+                        <h3>Agent discovery map</h3>
+                        <span class="icon">⬡</span>
+                    </div>
+                    <p>Topology built from Agent Cards: who has been discovered, what they declare, whether their card is signed, and what changed since it was last read.</p>
+                    <p style="margin-top:0.9rem"><span class="rung-chip" data-rung="proposed">proposed</span></p>
+                </div>
+                <div class="card">
+                    <div class="card-head">
+                        <h3>Task lifecycle analytics</h3>
+                        <span class="icon">△</span>
+                    </div>
+                    <p>State transitions across the nine TASK_STATE values, including how often a task ends interrupted and never returns.</p>
+                    <p style="margin-top:0.9rem"><span class="rung-chip" data-rung="proposed">proposed</span></p>
+                </div>
+                <div class="card">
+                    <div class="card-head">
+                        <h3>Artifact inspection</h3>
+                        <span class="icon">◇</span>
+                    </div>
+                    <p>The unified v1.0 Part — text, raw, url, data — read by member presence, with mediaType and filename surfaced.</p>
+                    <p style="margin-top:0.9rem"><span class="rung-chip" data-rung="proposed">proposed</span></p>
+                </div>
+                <div class="card">
+                    <div class="card-head">
+                        <h3>MCP and A2A in one timeline</h3>
+                        <span class="icon">⊞</span>
+                    </div>
+                    <p>Tool calls beneath an agent and messages between agents on the same clock. Two protocols, one execution graph.</p>
+                    <p style="margin-top:0.9rem"><span class="rung-chip" data-rung="proposed">proposed</span></p>
+                </div>
+                <div class="card">
+                    <div class="card-head">
+                        <h3>Streaming monitor</h3>
+                        <span class="icon">⏣</span>
+                    </div>
+                    <p>SSE streams for SendStreamingMessage: throughput, dropped connections, and the fact that v1.0 removed the final flag so closure is the signal.</p>
+                    <p style="margin-top:0.9rem"><span class="rung-chip" data-rung="proposed">proposed</span></p>
+                </div>
+            </div><!-- /GEN:capabilities -->
+        </section>
+
+        <!-- ═══════ RECEIPTS ═══════ -->
+        <div class="band">
+            <section id="receipts" class="reveal">
+                <span class="section-label">// receipts</span>
+                <h2 class="section-title">Witness log</h2>
+                <p class="section-desc">
+                    The only place a traffic number on this site may come from.
+                </p>
+                <!-- GEN:receipts --><div class="empty">
+                    <span class="big">0</span>
+                    <span class="lab">A2A messages witnessed by this surface</span>
+                    <p>There is no collector. This surface serves static files; nothing routes A2A traffic through it and no agent has been instrumented to report to it. Zero is not a placeholder for a number we have not looked up — it is the measurement.</p>
+                    <p>A receipt. One witnessed A2A message, recorded with its task id, context id, the two endpoints, the protocol binding, and a hash. Until a receipt exists in this file, the canvas on this page is a simulation and says so, and no capability card may flip from proposed to implemented.</p>
+                </div>
+                <h3 style="font-size:1.05rem;margin:2.5rem 0 1rem">The shape a receipt will take</h3>
+                <p class="section-desc" style="margin-bottom:1.2rem">Declared now, so the empty state is a schema and not a shrug.</p>
+                <div class="tbl-wrap">
+                    <table class="data">
+                        <thead><tr><th scope="col">Field</th><th scope="col">Value</th></tr></thead>
+                        <tbody>
+                            <tr><th scope="row"><code>id</code></th><td>sha256 of the canonicalised record</td></tr>
+                            <tr><th scope="row"><code>witnessed_at</code></th><td>ISO 8601 UTC, millisecond precision</td></tr>
+                            <tr><th scope="row"><code>method</code></th><td>one of the v1.0 method names in protocol.json</td></tr>
+                            <tr><th scope="row"><code>protocol_binding</code></th><td>JSONRPC | GRPC | HTTP+JSON</td></tr>
+                            <tr><th scope="row"><code>task_id</code></th><td>string</td></tr>
+                            <tr><th scope="row"><code>context_id</code></th><td>string</td></tr>
+                            <tr><th scope="row"><code>from</code></th><td>agent card origin</td></tr>
+                            <tr><th scope="row"><code>to</code></th><td>agent card origin</td></tr>
+                            <tr><th scope="row"><code>task_state</code></th><td>one of the TASK_STATE_* values in protocol.json</td></tr>
+                            <tr><th scope="row"><code>card_signature_verified</code></th><td>boolean | null — null when the card carried no signatures[]</td></tr>
+                        </tbody>
+                    </table>
+                </div><!-- /GEN:receipts -->
+            </section>
+        </div>
+
+        <!-- ═══════ STATUS ═══════ -->
+        <section id="status" class="reveal">
+            <span class="section-label">// status</span>
             <h2 class="section-title">
-                Your Agents Are Talking.<br />Are You Listening?
+                Where this surface actually stands
+                <!-- GEN:status-chip --><span class="rung-chip" data-rung="spec">spec</span><!-- /GEN:status-chip -->
             </h2>
-            <p class="section-desc">
-                A2A Traffic gives you eyes on every agent-to-agent interaction
-                in your system. The protocol is open. Your visibility shouldn't
-                be blind.
+            <!-- GEN:status --><div class="status-block">
+                <div class="status-row">
+                    <h4>What is claimed</h4>
+                    <p>This surface observes the A2A protocol, not your traffic. It publishes what the specification says, re-derived from primary sources on 2026-08-17; what a governance assessment finds the protocol structurally cannot express; and a count of the A2A messages it has itself witnessed, which is zero.</p>
+                </div>
+                <div class="status-row">
+                    <h4>How that was checked</h4>
+                    <p>records/protocol.json was derived from a2a-protocol.org/latest and a2aproject/A2A@main/specification/a2a.proto. records/gap-matrix.json was re-read from arxiv.org/html/2606.31498v1 Table II and Table III. records/witness.json is zero because there is no collector.</p>
+                </div>
+                <div class="status-row limit" data-quoted="limit">
+                    <h4>What is NOT claimed</h4>
+                    <p>There is no product. Nothing here proxies, captures, traces or stores A2A traffic, and no agent has been instrumented to report to this domain. The capability cards in the design section are proposed and labelled; none is implemented. The gap matrix is one preprint's reading of one version of five protocols, not our re-scoring of them, and the preprint is not peer-reviewed.</p>
+                </div>
+                <div class="status-row">
+                    <h4>Rung witness</h4>
+                    <p>There is no witness and the page says so. This surface specifies an observatory; it collects nothing. The only thing on it that RUNS is the Agent Card inspector, which is client-side and is labelled live_local where it appears. Everything else is a reading of published documents, which is exactly what a spec rung permits.</p>
+                </div>
+            </div><!-- /GEN:status -->
+            <h3 style="font-size: 1.05rem; margin: 2.5rem 0 1rem">Removed on <!-- GEN:removed-date -->2026-08-17<!-- /GEN:removed-date --></h3>
+            <p class="section-desc" style="margin-bottom: 1.2rem">
+                Retract out loud, in the same place it was published.
+                These claims were served from this domain until today.
             </p>
-            <div class="hero-actions" style="pointer-events: auto">
-                <a href="https://ampersandboxdesign.com" class="btn-primary"
-                    >DISCOVER [&] →</a
-                >
-                <a
-                    href="https://github.com/a2aproject/A2A"
-                    class="btn-secondary"
-                    target="_blank"
-                    >A2A Protocol Spec</a
-                >
-            </div>
+            <!-- GEN:removed --><ul class="insp-notes" style="font-size:0.9rem" data-quoted="retraction">
+                <li>99.97% Uptime — fabricated; no runtime existed to have uptime</li>
+                <li>Messages/sec, Active Agents, Avg Latency — animated from seeds 12,400 / 847 / 23ms in animateStats(); rendered 0 0 0 with JS off</li>
+                <li>GET /.well-known/agent.json with streaming: true — wrong path for v1.0 AND a falsifiable endpoint claim</li>
+                <li>Every agent in the [&amp;] portfolio speaks A2A — an unwitnessed universal</li>
+                <li>Transparent proxy layer captures all JSON-RPC messages / No code changes required / From Deploy to Insight in Minutes — present tense about a product that does not exist</li>
+                <li>MONITORING LIVE A2A TRAFFIC badge over a decorative canvas</li>
+                <li>100+ Partners in a strip that read as ours — recaptioned as the A2A ecosystem and corrected to the sourced 150+</li>
+                <li>Documentation and Changelog footer links pointing at #</li>
+            </ul><!-- /GEN:removed -->
+            <h3 style="font-size: 1.05rem; margin: 2.5rem 0 1rem">Deferred, and why</h3>
+            <!-- GEN:deferred --><div class="tbl-wrap">
+                <table class="data">
+                    <thead><tr><th scope="col">Deferred</th><th scope="col">Blocked on</th></tr></thead>
+                    <tbody>
+                        <tr><th scope="row"><code>compose_ledger</code> <span class="rung-chip" data-rung="blocked">blocked</span></th><td>Blocked on the [TRAVIS] shared-facts ruling and on a COMPOSE record existing. See records/witness.json compose_seam.</td></tr>
+                        <tr><th scope="row"><code>wrl_block</code> <span class="rung-chip" data-rung="blocked">blocked</span></th><td>Blocked on the grammar freeze, same dependency as every other surface's WRL block.</td></tr>
+                        <tr><th scope="row"><code>replay_hero</code> <span class="rung-chip" data-rung="blocked">blocked</span></th><td>The canvas graduates from labelled simulation to replay of a real receipt when a receipt exists. There are none.</td></tr>
+                    </tbody>
+                </table>
+            </div><!-- /GEN:deferred -->
         </section>
+
+        <!-- ═══════ CLOSING ═══════ -->
+        <div class="band">
+            <section class="reveal" style="text-align: center">
+                <span class="section-label">// observe</span>
+                <h2 class="section-title" style="max-width: 22ch; margin: 0 auto 1rem">
+                    The observatory reports what it has seen.
+                </h2>
+                <p class="section-desc" style="margin: 0 auto 2.5rem; max-width: 52ch">
+                    So far: the map. When there is traffic, the number above
+                    changes and the animation stops being a decoration. Until
+                    then, this page is a reading of published documents — which
+                    is a real thing to be, and a checkable one.
+                </p>
+                <div class="hero-actions">
+                    <a href="#gap" class="btn-primary">THE GAP MATRIX</a>
+                    <a href="https://a2a-protocol.org/latest/" class="btn-secondary" target="_blank" rel="noopener">A2A specification ↗</a>
+                </div>
+            </section>
+        </div>
 
         <!-- ═══════ FOOTER ═══════ -->
         <footer>
@@ -1174,775 +1486,61 @@
                 <div class="footer-brand">
                     <div class="footer-logo">A2A TRAFFIC</div>
                     <p>
-                        Agent-to-agent protocol monitoring and observability.
-                        Built for the multi-agent future.
+                        The A2A protocol observatory. What the protocol says,
+                        what it cannot say, and what this surface has witnessed.
                     </p>
                 </div>
                 <div class="footer-col">
-                    <h5>Product</h5>
-                    <a href="#features">Features</a>
-                    <a href="#protocol">Protocol</a>
-                    <a href="#">Documentation</a>
-                    <a href="#">Changelog</a>
+                    <h5>This site</h5>
+                    <a href="#gap">The gap matrix</a>
+                    <a href="#crosswalk">The crosswalk</a>
+                    <a href="#inspect">Agent Card inspector</a>
+                    <a href="#protocol">Protocol reference</a>
+                    <a href="#receipts">Witness log</a>
+                    <a href="#status">Status &amp; limits</a>
                 </div>
                 <div class="footer-col">
-                    <h5>[&] Stack</h5>
-                    <a href="https://ampersandboxdesign.com">[&] Portfolio</a>
-                    <a href="https://fleetprompt.com">FleetPrompt</a>
-                    <a href="https://webhost.systems">WebHost.Systems</a>
-                    <a href="https://geofleetic.com">GeoFleetic</a>
+                    <h5>Records</h5>
+                    <a href="/records/protocol.json">protocol.json</a>
+                    <a href="/records/gap-matrix.json">gap-matrix.json</a>
+                    <a href="/records/invariants.json">invariants.json</a>
+                    <a href="/records/witness.json">witness.json</a>
+                    <a href="/records/agent-card.draft.json">agent-card.draft.json</a>
+                    <a href="/records/surface.json">surface.json</a>
                 </div>
                 <div class="footer-col">
-                    <h5>Resources</h5>
-                    <a href="https://a2a-protocol.org/latest/" target="_blank"
-                        >A2A Spec</a
-                    >
-                    <a href="https://github.com/a2aproject/A2A" target="_blank"
-                        >GitHub</a
-                    >
-                    <a href="https://ampersandboxdesign.com">[&] Portfolio</a>
+                    <h5>Sources</h5>
+                    <a href="https://a2a-protocol.org/latest/" target="_blank" rel="noopener">A2A specification ↗</a>
+                    <a href="https://github.com/a2aproject/A2A" target="_blank" rel="noopener">a2aproject/A2A ↗</a>
+                    <a href="https://arxiv.org/abs/2606.31498" target="_blank" rel="noopener">The gap paper (preprint) ↗</a>
+                    <a href="https://computedriven.com">ComputeDriven</a>
                 </div>
             </div>
             <div class="footer-bottom">
-                <span
-                    >&copy; <span id="currentYear"></span> A2ATraffic.com — The
-                    observability layer by
-                    <a href="https://ampersandboxdesign.com"
-                        >[&] Ampersand Box Design</a
-                    ></span
-                >
-                <span
-                    >Powered by the A2A Protocol &middot; Linux Foundation</span
-                >
+                <span>© <!-- GEN:year -->2026<!-- /GEN:year --> A2ATraffic.com — a ComputeDriven surface</span>
+                <span><!-- GEN:footer-stamp -->verified 2026-08-17 · records frozen · generated from <a href="/records/surface.json" style="color:inherit">records/</a><!-- /GEN:footer-stamp --></span>
             </div>
         </footer>
 
-        <!-- ═══════ SCRIPTS ═══════ -->
+        <script src="/network.js" defer></script>
+        <script src="/inspector.js" defer></script>
         <script>
-            document.getElementById("currentYear").textContent =
-                new Date().getFullYear();
-
-            // ── Scroll Reveal ──
-            const reveals = document.querySelectorAll(".reveal");
-            const revealObserver = new IntersectionObserver(
-                (entries) => {
-                    entries.forEach((e) => {
-                        if (e.isIntersecting) {
-                            e.target.classList.add("visible");
-                        }
-                    });
-                },
-                { threshold: 0.1 },
-            );
-            reveals.forEach((r) => revealObserver.observe(r));
-
-            // ── Simulated Stats Counter ──
-            function animateStats() {
-                const msgs = document.getElementById("statMessages");
-                const agents = document.getElementById("statAgents");
-                const latency = document.getElementById("statLatency");
-                let msgVal = 12400;
-                let agentVal = 847;
-                let latVal = 23;
-                function tick() {
-                    msgVal += Math.floor(Math.random() * 80 - 30);
-                    agentVal += Math.floor(Math.random() * 6 - 3);
-                    latVal += Math.random() * 4 - 2;
-                    if (msgVal < 10000) msgVal = 10000;
-                    if (agentVal < 500) agentVal = 500;
-                    if (latVal < 8) latVal = 8;
-                    if (latVal > 60) latVal = 60;
-                    msgs.textContent = msgVal.toLocaleString();
-                    agents.textContent = agentVal.toLocaleString();
-                    latency.textContent = latVal.toFixed(1);
-                    setTimeout(tick, 2000 + Math.random() * 1000);
+            (function () {
+                var reveals = document.querySelectorAll(".reveal");
+                if (!("IntersectionObserver" in window)) {
+                    reveals.forEach(function (r) { r.classList.add("visible"); });
+                    return;
                 }
-                tick();
-            }
-            animateStats();
-
-            // ═══════════════════════════════════════════════════
-            // ORIGINAL NETWORK ANIMATION — preserved from current site
-            // ═══════════════════════════════════════════════════
-            const canvas = document.getElementById("network");
-            const ctx = canvas.getContext("2d");
-
-            let width = (canvas.width = window.innerWidth);
-            let height = (canvas.height = window.innerHeight);
-
-            window.addEventListener("resize", () => {
-                width = canvas.width = window.innerWidth;
-                height = canvas.height = window.innerHeight;
-                initializeGraph();
-            });
-
-            const config = {
-                playerSpeed: 0.015,
-                messageSpeed: 0.03,
-                nodeRadius: 4,
-                playerRadius: 8,
-                messageRadius: 4,
-                connectionOpacity: 0.12,
-                minNodeSpacing: 70,
-                maxConnectionDistance: 140,
-                playerSeekMessagesChance: 0.88,
-                playerSeekMessagesPower: 1.6,
-                colors: {
-                    leftNodes: "#00d9ff",
-                    rightNodes: "#00ff88",
-                    leftPlayer: "#00d9ff",
-                    rightPlayer: "#00ff88",
-                    messages: ["#ff3366", "#ffaa00", "#00d9ff", "#00ff88"],
-                    connections: "#444466",
-                },
-            };
-
-            class Node {
-                constructor(x, y, side, id) {
-                    this.x = x;
-                    this.y = y;
-                    this.side = side;
-                    this.id = id;
-                    this.neighbors = [];
-                    this.active = false;
-                }
-                draw() {
-                    const color =
-                        this.side === "left"
-                            ? config.colors.leftNodes
-                            : this.side === "right"
-                              ? config.colors.rightNodes
-                              : "#9933ff";
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, config.nodeRadius, 0, Math.PI * 2);
-                    ctx.fillStyle = color;
-                    ctx.fill();
-                    if (this.active) {
-                        ctx.strokeStyle = color;
-                        ctx.lineWidth = 2;
-                        ctx.globalAlpha = 0.6;
-                        ctx.beginPath();
-                        ctx.arc(
-                            this.x,
-                            this.y,
-                            config.nodeRadius * 2,
-                            0,
-                            Math.PI * 2,
-                        );
-                        ctx.stroke();
-                        ctx.globalAlpha = 1;
-                    }
-                }
-            }
-
-            class Player {
-                constructor(side, nodes) {
-                    this.side = side;
-                    this.color =
-                        side === "left"
-                            ? config.colors.leftPlayer
-                            : config.colors.rightPlayer;
-                    this.teamColor = side === "left" ? "#00d9ff" : "#00ff88";
-                    this.nodes = nodes;
-                    this.currentNodeIndex = 0;
-                    this.currentNode = nodes[0];
-                    this.targetNode = null;
-                    this.progress = 0;
-                    this.path = [];
-                    this.pathIndex = 0;
-                    this.selectNewTarget();
-                }
-                selectNewTarget() {
-                    const availableNodes = this.nodes.filter(
-                        (n) => n !== this.currentNode,
-                    );
-                    if (availableNodes.length === 0) return;
-                    const waitingCounts = getWaitingMessageCountsByNode();
-                    const hotNodes = availableNodes.filter(
-                        (n) => (waitingCounts.get(n) || 0) > 0,
-                    );
-                    let chosen = null;
-                    if (
-                        hotNodes.length > 0 &&
-                        Math.random() < config.playerSeekMessagesChance
-                    ) {
-                        chosen = weightedRandom(hotNodes, (n) =>
-                            Math.pow(
-                                waitingCounts.get(n) || 0,
-                                config.playerSeekMessagesPower,
-                            ),
-                        );
-                    }
-                    if (!chosen)
-                        chosen =
-                            availableNodes[
-                                Math.floor(
-                                    Math.random() * availableNodes.length,
-                                )
-                            ];
-                    this.targetNode = chosen;
-                    let attempts = 0;
-                    while (attempts < 6) {
-                        attempts++;
-                        this.path = dijkstra(
-                            this.currentNode,
-                            this.targetNode,
-                            allNodes,
-                        );
-                        if (this.path && this.path.length >= 2) break;
-                        this.targetNode =
-                            availableNodes[
-                                Math.floor(
-                                    Math.random() * availableNodes.length,
-                                )
-                            ];
-                    }
-                    this.pathIndex = 0;
-                    this.progress = 0;
-                }
-                update() {
-                    if (!this.path || this.path.length < 2) {
-                        this.selectNewTarget();
-                        return;
-                    }
-                    if (this.pathIndex >= this.path.length - 1) {
-                        this.currentNode = this.path[this.path.length - 1];
-                        this.handleMessages();
-                        this.selectNewTarget();
-                        return;
-                    }
-                    this.progress += config.playerSpeed;
-                    if (this.progress >= 1) {
-                        this.pathIndex++;
-                        this.progress = 0;
-                        this.currentNode = this.path[this.pathIndex];
-                        this.handleMessages();
-                        if (this.pathIndex >= this.path.length - 1)
-                            this.selectNewTarget();
-                    }
-                }
-                handleMessages() {
-                    messages.forEach((msg) => {
-                        if (!msg.path || msg.path.length === 0) return;
-                        const isWaitingHere =
-                            msg.targetNode === this.currentNode &&
-                            msg.pathIndex >= msg.path.length - 1;
-                        if (!isWaitingHere) return;
-                        const targetSide =
-                            this.side === "left" ? "right" : "left";
-                        const targetNodes =
-                            targetSide === "left" ? leftNodes : rightNodes;
-                        const newTarget =
-                            targetNodes[
-                                Math.floor(Math.random() * targetNodes.length)
-                            ];
-                        msg.color = this.teamColor;
-                        msg.targetNode = newTarget;
-                        msg.path = dijkstra(
-                            this.currentNode,
-                            newTarget,
-                            allNodes,
-                        );
-                        msg.pathIndex = 0;
-                        msg.progress = 0;
-                        msg.bounces++;
-                    });
-                }
-                getCurrentPosition() {
-                    if (!this.path || this.path.length === 0)
-                        return this.currentNode;
-                    if (this.pathIndex >= this.path.length - 1) {
-                        const last = this.path[this.path.length - 1];
-                        return { x: last.x, y: last.y };
-                    }
-                    const current = this.path[this.pathIndex];
-                    const next = this.path[this.pathIndex + 1];
-                    return {
-                        x: current.x + (next.x - current.x) * this.progress,
-                        y: current.y + (next.y - current.y) * this.progress,
-                    };
-                }
-                draw() {
-                    const pos = this.getCurrentPosition();
-                    const gradient = ctx.createRadialGradient(
-                        pos.x,
-                        pos.y,
-                        0,
-                        pos.x,
-                        pos.y,
-                        config.playerRadius * 2,
-                    );
-                    gradient.addColorStop(0, this.color + "ff");
-                    gradient.addColorStop(0.5, this.color + "44");
-                    gradient.addColorStop(1, this.color + "00");
-                    ctx.fillStyle = gradient;
-                    ctx.beginPath();
-                    ctx.arc(
-                        pos.x,
-                        pos.y,
-                        config.playerRadius * 2,
-                        0,
-                        Math.PI * 2,
-                    );
-                    ctx.fill();
-                    ctx.fillStyle = this.color;
-                    ctx.beginPath();
-                    ctx.arc(pos.x, pos.y, config.playerRadius, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.strokeStyle = "#ffffff";
-                    ctx.lineWidth = 2;
-                    ctx.stroke();
-                }
-            }
-
-            class Message {
-                constructor(startNode, targetSide, color) {
-                    this.startNode = startNode;
-                    this.currentNode = startNode;
-                    this.targetSide = targetSide;
-                    this.color = color;
-                    this.progress = 0;
-                    this.pathIndex = 0;
-                    this.bounces = 0;
-                    const targetNodes =
-                        targetSide === "left" ? leftNodes : rightNodes;
-                    this.targetNode =
-                        targetNodes[
-                            Math.floor(Math.random() * targetNodes.length)
-                        ];
-                    this.path = dijkstra(startNode, this.targetNode, allNodes);
-                }
-                update() {
-                    if (!this.path || this.pathIndex >= this.path.length - 1)
-                        return true;
-                    this.progress += config.messageSpeed;
-                    if (this.progress >= 1) {
-                        this.pathIndex++;
-                        this.progress = 0;
-                        this.currentNode = this.path[this.pathIndex];
-                    }
-                    return true;
-                }
-                draw() {
-                    let x, y;
-                    if (!this.path || this.pathIndex >= this.path.length - 1) {
-                        x = this.targetNode.x;
-                        y = this.targetNode.y;
-                        const pulse = Math.sin(Date.now() * 0.005) * 0.3 + 0.7;
-                        const gradient = ctx.createRadialGradient(
-                            x,
-                            y,
-                            0,
-                            x,
-                            y,
-                            config.messageRadius * 2 * pulse,
-                        );
-                        gradient.addColorStop(0, this.color);
-                        gradient.addColorStop(0.5, this.color + "80");
-                        gradient.addColorStop(1, this.color + "00");
-                        ctx.fillStyle = gradient;
-                        ctx.beginPath();
-                        ctx.arc(
-                            x,
-                            y,
-                            config.messageRadius * 2 * pulse,
-                            0,
-                            Math.PI * 2,
-                        );
-                        ctx.fill();
-                        ctx.fillStyle = this.color;
-                        ctx.beginPath();
-                        ctx.arc(x, y, config.messageRadius, 0, Math.PI * 2);
-                        ctx.fill();
-                        return;
-                    }
-                    const current = this.path[this.pathIndex];
-                    const next = this.path[this.pathIndex + 1];
-                    x = current.x + (next.x - current.x) * this.progress;
-                    y = current.y + (next.y - current.y) * this.progress;
-                    const gradient = ctx.createRadialGradient(
-                        x,
-                        y,
-                        0,
-                        x,
-                        y,
-                        config.messageRadius * 2,
-                    );
-                    gradient.addColorStop(0, this.color);
-                    gradient.addColorStop(0.5, this.color + "80");
-                    gradient.addColorStop(1, this.color + "00");
-                    ctx.fillStyle = gradient;
-                    ctx.beginPath();
-                    ctx.arc(x, y, config.messageRadius * 2, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.fillStyle = this.color;
-                    ctx.beginPath();
-                    ctx.arc(x, y, config.messageRadius, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-            }
-
-            function weightedRandom(items, weightFn) {
-                let total = 0;
-                const weights = items.map((item) => {
-                    const w = Math.max(0, Number(weightFn(item)) || 0);
-                    total += w;
-                    return w;
-                });
-                if (total <= 0)
-                    return items[Math.floor(Math.random() * items.length)];
-                let r = Math.random() * total;
-                for (let i = 0; i < items.length; i++) {
-                    r -= weights[i];
-                    if (r <= 0) return items[i];
-                }
-                return items[items.length - 1];
-            }
-
-            function getWaitingMessageCountsByNode() {
-                const counts = new Map();
-                messages.forEach((msg) => {
-                    if (!msg.path || msg.path.length === 0) return;
-                    if (msg.pathIndex < msg.path.length - 1) return;
-                    const node = msg.targetNode;
-                    counts.set(node, (counts.get(node) || 0) + 1);
-                });
-                return counts;
-            }
-
-            function dijkstra(start, end, nodes) {
-                if (!start || !end) return [];
-                if (start === end) return [start];
-                const distances = new Map();
-                const previous = new Map();
-                const unvisited = new Set(nodes);
-                nodes.forEach((node) => distances.set(node, Infinity));
-                distances.set(start, 0);
-                while (unvisited.size > 0) {
-                    let current = null;
-                    let minDist = Infinity;
-                    unvisited.forEach((node) => {
-                        const dist = distances.get(node);
-                        if (dist < minDist) {
-                            minDist = dist;
-                            current = node;
-                        }
-                    });
-                    if (!current || minDist === Infinity) break;
-                    if (current === end) break;
-                    unvisited.delete(current);
-                    current.neighbors.forEach(
-                        ({ node: neighbor, distance }) => {
-                            if (!unvisited.has(neighbor)) return;
-                            const alt = distances.get(current) + distance;
-                            if (alt < distances.get(neighbor)) {
-                                distances.set(neighbor, alt);
-                                previous.set(neighbor, current);
-                            }
-                        },
-                    );
-                }
-                if (distances.get(end) === Infinity) return [];
-                const path = [];
-                let current = end;
-                while (current) {
-                    path.unshift(current);
-                    if (current === start) break;
-                    current = previous.get(current);
-                }
-                return path;
-            }
-
-            let allNodes = [],
-                leftNodes = [],
-                rightNodes = [],
-                bridgeNodes = [];
-            let leftPlayer = null,
-                rightPlayer = null,
-                messages = [];
-
-            function initializeGraph() {
-                allNodes = [];
-                leftNodes = [];
-                rightNodes = [];
-                bridgeNodes = [];
-                messages = [];
-                const padding = 20;
-                const leftBounds = {
-                    x: padding,
-                    y: padding,
-                    width: width * 0.4 - padding,
-                    height: height - padding * 2,
-                };
-                const rightBounds = {
-                    x: width * 0.6,
-                    y: padding,
-                    width: width * 0.4 - padding,
-                    height: height - padding * 2,
-                };
-                const bridgeBounds = {
-                    x: width * 0.42,
-                    y: padding,
-                    width: width * 0.16,
-                    height: height - padding * 2,
-                };
-
-                function calculateNodeCount(bounds) {
-                    const area = bounds.width * bounds.height;
-                    const nodeArea =
-                        config.minNodeSpacing * config.minNodeSpacing;
-                    return Math.floor((area / nodeArea) * 0.85);
-                }
-
-                const leftNodeCount = calculateNodeCount(leftBounds);
-                const rightNodeCount = calculateNodeCount(rightBounds);
-                const bridgeNodeCount = calculateNodeCount(bridgeBounds);
-                let nodeId = 0;
-
-                function poissonDiscSampling(bounds, numPoints, minDist) {
-                    const points = [];
-                    const cellSize = minDist / Math.sqrt(2);
-                    const gridWidth = Math.ceil(bounds.width / cellSize);
-                    const gridHeight = Math.ceil(bounds.height / cellSize);
-                    const grid = Array(gridWidth * gridHeight).fill(null);
-                    const active = [];
-                    const getCell = (x, y) => {
-                        const col = Math.floor((x - bounds.x) / cellSize);
-                        const row = Math.floor((y - bounds.y) / cellSize);
-                        if (
-                            col < 0 ||
-                            col >= gridWidth ||
-                            row < 0 ||
-                            row >= gridHeight
-                        )
-                            return -1;
-                        return row * gridWidth + col;
-                    };
-                    const firstX = bounds.x + Math.random() * bounds.width;
-                    const firstY = bounds.y + Math.random() * bounds.height;
-                    points.push({ x: firstX, y: firstY });
-                    active.push({ x: firstX, y: firstY });
-                    grid[getCell(firstX, firstY)] = points.length - 1;
-                    let attempts = 0;
-                    const maxAttempts = numPoints * 50;
-                    while (
-                        active.length > 0 &&
-                        points.length < numPoints &&
-                        attempts < maxAttempts
-                    ) {
-                        attempts++;
-                        const idx = Math.floor(Math.random() * active.length);
-                        const point = active[idx];
-                        let found = false;
-                        for (let i = 0; i < 30; i++) {
-                            const angle = Math.random() * Math.PI * 2;
-                            const radius = minDist + Math.random() * minDist;
-                            const newX = point.x + Math.cos(angle) * radius;
-                            const newY = point.y + Math.sin(angle) * radius;
-                            if (
-                                newX < bounds.x ||
-                                newX >= bounds.x + bounds.width ||
-                                newY < bounds.y ||
-                                newY >= bounds.y + bounds.height
-                            )
-                                continue;
-                            const cell = getCell(newX, newY);
-                            if (cell === -1) continue;
-                            let valid = true;
-                            const searchRadius = 2;
-                            const col = Math.floor(
-                                (newX - bounds.x) / cellSize,
-                            );
-                            const row = Math.floor(
-                                (newY - bounds.y) / cellSize,
-                            );
-                            for (
-                                let dy = -searchRadius;
-                                dy <= searchRadius && valid;
-                                dy++
-                            ) {
-                                for (
-                                    let dx = -searchRadius;
-                                    dx <= searchRadius;
-                                    dx++
-                                ) {
-                                    const checkCol = col + dx;
-                                    const checkRow = row + dy;
-                                    if (
-                                        checkCol < 0 ||
-                                        checkCol >= gridWidth ||
-                                        checkRow < 0 ||
-                                        checkRow >= gridHeight
-                                    )
-                                        continue;
-                                    const checkCell =
-                                        checkRow * gridWidth + checkCol;
-                                    const otherIdx = grid[checkCell];
-                                    if (otherIdx !== null) {
-                                        const other = points[otherIdx];
-                                        const dist = Math.sqrt(
-                                            (newX - other.x) ** 2 +
-                                                (newY - other.y) ** 2,
-                                        );
-                                        if (dist < minDist) {
-                                            valid = false;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                            if (valid) {
-                                points.push({ x: newX, y: newY });
-                                active.push({ x: newX, y: newY });
-                                grid[cell] = points.length - 1;
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (!found) active.splice(idx, 1);
-                    }
-                    return points;
-                }
-
-                const leftPositions = poissonDiscSampling(
-                    leftBounds,
-                    leftNodeCount,
-                    config.minNodeSpacing,
-                );
-                leftPositions.forEach((pos) => {
-                    const node = new Node(pos.x, pos.y, "left", nodeId++);
-                    leftNodes.push(node);
-                    allNodes.push(node);
-                });
-                const rightPositions = poissonDiscSampling(
-                    rightBounds,
-                    rightNodeCount,
-                    config.minNodeSpacing,
-                );
-                rightPositions.forEach((pos) => {
-                    const node = new Node(pos.x, pos.y, "right", nodeId++);
-                    rightNodes.push(node);
-                    allNodes.push(node);
-                });
-                const bridgePositions = poissonDiscSampling(
-                    bridgeBounds,
-                    bridgeNodeCount,
-                    config.minNodeSpacing,
-                );
-                bridgePositions.forEach((pos) => {
-                    const node = new Node(pos.x, pos.y, "bridge", nodeId++);
-                    bridgeNodes.push(node);
-                    allNodes.push(node);
-                });
-
-                function connectSpatial(nodesA, nodesB, maxDist) {
-                    nodesA.forEach((node) => {
-                        (nodesB || nodesA).forEach((other) => {
-                            if (node !== other) {
-                                const dx = other.x - node.x;
-                                const dy = other.y - node.y;
-                                const distance = Math.sqrt(dx * dx + dy * dy);
-                                if (distance <= maxDist)
-                                    node.neighbors.push({
-                                        node: other,
-                                        distance,
-                                    });
-                            }
+                var io = new IntersectionObserver(
+                    function (entries) {
+                        entries.forEach(function (e) {
+                            if (e.isIntersecting) e.target.classList.add("visible");
                         });
-                    });
-                }
-
-                connectSpatial(leftNodes, null, config.maxConnectionDistance);
-                connectSpatial(rightNodes, null, config.maxConnectionDistance);
-                connectSpatial(bridgeNodes, null, config.maxConnectionDistance);
-
-                leftNodes.forEach((leftNode) => {
-                    bridgeNodes.forEach((bridge) => {
-                        const dx = bridge.x - leftNode.x;
-                        const dy = bridge.y - leftNode.y;
-                        const distance = Math.sqrt(dx * dx + dy * dy);
-                        if (distance <= config.maxConnectionDistance * 1.5) {
-                            leftNode.neighbors.push({ node: bridge, distance });
-                            bridge.neighbors.push({ node: leftNode, distance });
-                        }
-                    });
-                });
-                rightNodes.forEach((rightNode) => {
-                    bridgeNodes.forEach((bridge) => {
-                        const dx = bridge.x - rightNode.x;
-                        const dy = bridge.y - rightNode.y;
-                        const distance = Math.sqrt(dx * dx + dy * dy);
-                        if (distance <= config.maxConnectionDistance * 1.5) {
-                            rightNode.neighbors.push({
-                                node: bridge,
-                                distance,
-                            });
-                            bridge.neighbors.push({
-                                node: rightNode,
-                                distance,
-                            });
-                        }
-                    });
-                });
-
-                leftPlayer = new Player("left", leftNodes);
-                rightPlayer = new Player("right", rightNodes);
-            }
-
-            function drawConnections() {
-                ctx.strokeStyle = config.colors.connections;
-                ctx.globalAlpha = config.connectionOpacity;
-                ctx.lineWidth = 1;
-                allNodes.forEach((node) => {
-                    node.neighbors.forEach(({ node: neighbor }) => {
-                        ctx.beginPath();
-                        ctx.moveTo(node.x, node.y);
-                        ctx.lineTo(neighbor.x, neighbor.y);
-                        ctx.stroke();
-                    });
-                });
-                ctx.globalAlpha = 1;
-            }
-
-            function spawnMessage() {
-                const side = Math.random() > 0.5 ? "left" : "right";
-                const player = side === "left" ? leftPlayer : rightPlayer;
-                const color = side === "left" ? "#00d9ff" : "#00ff88";
-                messages.push(
-                    new Message(
-                        player.currentNode,
-                        side === "left" ? "right" : "left",
-                        color,
-                    ),
+                    },
+                    { threshold: 0.08 },
                 );
-            }
-
-            function animate() {
-                ctx.fillStyle = "rgba(6, 8, 13, 0.15)";
-                ctx.fillRect(0, 0, width, height);
-                drawConnections();
-                const waitingCounts = getWaitingMessageCountsByNode();
-                allNodes.forEach((node) => {
-                    node.active = (waitingCounts.get(node) || 0) > 0;
-                });
-                allNodes.forEach((node) => node.draw());
-                messages.forEach((message) => {
-                    message.update();
-                    message.draw();
-                });
-                leftPlayer.update();
-                rightPlayer.update();
-                leftPlayer.draw();
-                rightPlayer.draw();
-                requestAnimationFrame(animate);
-            }
-
-            initializeGraph();
-            animate();
-            setInterval(() => {
-                if (messages.length < 20) spawnMessage();
-            }, 800);
-            for (let i = 0; i < 5; i++) setTimeout(spawnMessage, i * 300);
+                reveals.forEach(function (r) { io.observe(r); });
+            })();
         </script>
     </body>
 </html>
