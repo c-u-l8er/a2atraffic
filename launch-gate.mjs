@@ -214,20 +214,31 @@ if (!surface.serve_agent_card) {
   // The page must state the MEASURED status of the discovery path. It promised
   // a 404 once; the host answers 200, and a page that promises an absence it
   // cannot deliver is the same defect class it was rebuilt to remove.
+  // Both measurements must survive. Once the fix landed it was tempting to show
+  // only the 404 — but the before-state is the retraction, and dropping it turns
+  // a correction into a page that was simply always right.
+  for (const k of ["before", "after"]) {
+    const m = host[k];
+    check(
+      `the page shows the ${k} measurement (${m.status})`,
+      scan.includes(`${m.status} ${m.content_type}`),
+      `expected "${m.status} ${m.content_type}" on the page`,
+    );
+    check(`the ${k} measurement is dated`, scan.includes(m.when));
+  }
   check(
-    "the page states the measured discovery-path status",
-    scan.includes(`${host.unmatched_path_status} ${host.unmatched_path_content_type}`),
-    `expected the measured "${host.unmatched_path_status} ${host.unmatched_path_content_type}" on the page`,
+    "the fix status on the page matches the record",
+    scan.includes(host.fix_status),
   );
   check(
-    "the page does not promise a 404 it cannot deliver",
-    !/404[\s\S]{0,80}deliberate/i.test(scan),
-  );
-  check(
-    "the 404.html fix is labelled unverified",
-    scan.includes(host.attempted_fix_status),
+    "a fix recorded as measured is not still described as a prediction",
+    host.fix_status !== "measured" || !/attempted fix[\s\S]{0,120}unverified/i.test(scan),
   );
   check("404.html is emitted", existsSync(R("404.html")));
+  check(
+    "the portfolio-wide finding is still stated while it is open",
+    !host.portfolio_wide || scan.includes(host.portfolio_wide_measured.slice(0, 40)),
+  );
 }
 
 // ── 6. the shared nav ──────────────────────────────────────────────────────

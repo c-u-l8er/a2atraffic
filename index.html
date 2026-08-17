@@ -925,26 +925,36 @@
                 inspector below — written for this page, pointed at this domain as its
                 own first test — came back
                 <code class="inline">HTTP 200</code>.
-                The claim was wrong before anyone else could check it. Here is what is
-                actually true:
+                The claim was wrong before anyone else could check it. Both
+                measurements are kept below, because a page that shows only the
+                number that flatters it is not showing the retraction.
             </p>
-            <pre class="code"><span class="cmt">// measured 2026-08-17 — a defect, not a design</span>
+            <pre class="code"><span class="cmt">// BEFORE — 2026-08-17, before this build was deployed</span>
 <span class="fn">curl</span> -sS -o /dev/null -w <span class="str">"%{http_code} %{content_type}\n"</span> \
      https://a2atraffic.com/.well-known/agent-card.json
-<span class="bad">200 text/html; charset=utf-8</span>   <span class="cmt">← the site's own index.html, served in full</span>
+<span class="bad">200 text/html; charset=utf-8</span>   <span class="cmt">← the site's own index.html, served in full — 77,879 bytes</span>
 
-<span class="cmt">// and any invented path does the same</span>
-<span class="fn">curl</span> ... https://a2atraffic.com/nonexistent-xyz
-<span class="bad">200 text/html; charset=utf-8</span></pre>
+<span class="cmt">// AFTER — 2026-08-17, immediately after deploying commit fd387b4</span>
+<span class="fn">curl</span> -sS -o /dev/null -w <span class="str">"%{http_code} %{content_type}\n"</span> \
+     https://a2atraffic.com/.well-known/agent-card.json
+<span class="str">404 text/html; charset=utf-8</span>   <span class="cmt">← 404.html, 1,905 bytes</span></pre>
             <p class="section-desc" style="margin-top:1.6rem">
-                For A2A specifically it is worse than a 404. A client performing well-known discovery against this domain gets a successful HTTP response whose body is an HTML page, not an Agent Card. Success plus wrong content is harder to handle correctly than an honest absence.
-                And it is not this domain's alone — the same check against three sibling ComputeDriven domains returns the same thing, so this is a hosting-level fault across the portfolio and it is reported here as one.
-                A <code class="inline">404.html</code> ships with this build as
-                the attempted fix. Whether it takes effect depends on routing
-                configuration this build cannot read, so its status is
-                <span class="rung-chip" data-rung="blocked">unverified</span>
-                and it must be re-measured against the deployed site before this page
-                claims otherwise.
+                For A2A specifically a 200 was worse than a 404. A client performing well-known discovery got a successful HTTP response whose body was an HTML page, and success plus wrong content is harder to handle correctly than an honest absence.
+                The fix was one file — a root
+                <code class="inline">404.html</code>, no configuration change —
+                and it shipped in the same build that admitted the problem. Its status
+                was published as <em>unverified</em>, because whether a root 404 page
+                takes effect depends on routing this build cannot read. It has since
+                been re-measured against the deployed site:
+                <span class="rung-chip" data-rung="live_local">measured</span>.
+                The 404 page you get says so itself.
+            </p>
+            <p class="section-desc">
+                <strong>It was never this domain's alone, and on the others it is still open.</strong>
+                2026-08-17, after this domain was fixed: runefort.com 200 (35,111 B) · fleetprompt.com 200 (41,975 B) · computedriven.com 200 (164,656 B) · specprompt.com 200 (38,795 B), all for /nonexistent-xyz-123.
+                So the same one-file fix is very likely to work across the portfolio,
+                and until it lands no path on those domains can be shown to be absent —
+                which makes “that endpoint does not exist” unverifiable on any of them.
             </p>
             <p class="section-desc">
                 The card that <em>would</em> be served is published as a draft, at a

@@ -26,11 +26,11 @@
      Agent Card at <code>/.well-known/agent-card.json</code> — it answers
      no A2A task method, so a card there would advertise an endpoint that refuses.</p>
   <div class="note">
-    If you are reading this page, the fix worked. As of 2026-08-17 this
-    domain answered <strong>HTTP 200</strong> with its
-    homepage for every unmatched path, which is the defect this file exists to correct.
-    That measurement is recorded in
-    <a href="/records/surface.json">records/surface.json</a> and the homepage states it.
+    If you are reading this page, the fix worked. Before it shipped, this domain answered
+    <strong>HTTP 200</strong> for every unmatched path,
+    including the discovery path above, and the body was the site's own index.html, served in full — 77,879 bytes.
+    Both measurements are recorded in
+    <a href="/records/surface.json">records/surface.json</a> and the homepage shows both.
   </div>
   <p><a href="/">← a2atraffic.com</a> · <a href="/#protocol">A2A v1.0 reference</a> · <a href="/#gap">the gap matrix</a></p>
 </main>

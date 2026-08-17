@@ -449,28 +449,42 @@ GEN.ourcard = `<p class="section-desc">
                 <code class="inline">404</code>, and invited you to check. Then the
                 inspector below — written for this page, pointed at this domain as its
                 own first test — came back
-                <code class="inline">HTTP ${esc(String(host.unmatched_path_status))}</code>.
-                The claim was wrong before anyone else could check it. Here is what is
-                actually true:
+                <code class="inline">HTTP ${esc(String(host.before.status))}</code>.
+                The claim was wrong before anyone else could check it. Both
+                measurements are kept below, because a page that shows only the
+                number that flatters it is not showing the retraction.
             </p>
-            <pre class="code"><span class="cmt">// measured ${esc(surface.verified_at)} — a defect, not a design</span>
+            <pre class="code"><span class="cmt">// BEFORE — ${esc(host.before.when)}</span>
 <span class="fn">curl</span> -sS -o /dev/null -w <span class="str">"%{http_code} %{content_type}\\n"</span> \\
      https://a2atraffic.com${esc(protocol.discovery.well_known_path)}
-<span class="bad">${esc(String(host.unmatched_path_status))} ${esc(host.unmatched_path_content_type)}</span>   <span class="cmt">← ${esc(host.unmatched_path_body)}</span>
+<span class="bad">${esc(String(host.before.status))} ${esc(host.before.content_type)}</span>   <span class="cmt">← ${esc(host.before.body)}</span>
 
-<span class="cmt">// and any invented path does the same</span>
-<span class="fn">curl</span> ... https://a2atraffic.com/nonexistent-xyz
-<span class="bad">${esc(String(host.unmatched_path_status))} ${esc(host.unmatched_path_content_type)}</span></pre>
+<span class="cmt">// AFTER — ${esc(host.after.when)}</span>
+<span class="fn">curl</span> -sS -o /dev/null -w <span class="str">"%{http_code} %{content_type}\\n"</span> \\
+     https://a2atraffic.com${esc(protocol.discovery.well_known_path)}
+<span class="str">${esc(String(host.after.status))} ${esc(host.after.content_type)}</span>   <span class="cmt">← ${esc(host.after.body)}</span></pre>
             <p class="section-desc" style="margin-top:1.6rem">
                 ${esc(host.why_it_matters_here)}
-                ${host.portfolio_wide ? "And it is not this domain's alone — the same check against three sibling ComputeDriven domains returns the same thing, so this is a hosting-level fault across the portfolio and it is reported here as one." : ""}
-                A <code class="inline">${esc(host.attempted_fix)}</code> ships with this build as
-                the attempted fix. Whether it takes effect depends on routing
-                configuration this build cannot read, so its status is
-                <span class="rung-chip" data-rung="blocked">${esc(host.attempted_fix_status)}</span>
-                and it must be re-measured against the deployed site before this page
-                claims otherwise.
+                The fix was one file — a root
+                <code class="inline">${esc(host.fix)}</code>, no configuration change —
+                and it shipped in the same build that admitted the problem. Its status
+                was published as <em>unverified</em>, because whether a root 404 page
+                takes effect depends on routing this build cannot read. It has since
+                been re-measured against the deployed site:
+                <span class="rung-chip" data-rung="live_local">${esc(host.fix_status)}</span>.
+                The 404 page you get says so itself.
             </p>
+            ${
+              host.portfolio_wide
+                ? `<p class="section-desc">
+                <strong>It was never this domain's alone, and on the others it is still open.</strong>
+                ${esc(host.portfolio_wide_measured)}
+                So the same one-file fix is very likely to work across the portfolio,
+                and until it lands no path on those domains can be shown to be absent —
+                which makes “that endpoint does not exist” unverifiable on any of them.
+            </p>`
+                : ""
+            }
             <p class="section-desc">
                 The card that <em>would</em> be served is published as a draft, at a
                 draft path, so it can be read and argued with without being promised
@@ -677,11 +691,11 @@ writeFileSync(
      Agent Card at <code>${esc(protocol.discovery.well_known_path)}</code> — it answers
      no A2A task method, so a card there would advertise an endpoint that refuses.</p>
   <div class="note">
-    If you are reading this page, the fix worked. As of ${esc(surface.verified_at)} this
-    domain answered <strong>HTTP ${esc(String(host.unmatched_path_status))}</strong> with its
-    homepage for every unmatched path, which is the defect this file exists to correct.
-    That measurement is recorded in
-    <a href="/records/surface.json">records/surface.json</a> and the homepage states it.
+    If you are reading this page, the fix worked. Before it shipped, this domain answered
+    <strong>HTTP ${esc(String(host.before.status))}</strong> for every unmatched path,
+    including the discovery path above, and the body was ${esc(host.before.body)}.
+    Both measurements are recorded in
+    <a href="/records/surface.json">records/surface.json</a> and the homepage shows both.
   </div>
   <p><a href="/">← a2atraffic.com</a> · <a href="/#protocol">A2A v1.0 reference</a> · <a href="/#gap">the gap matrix</a></p>
 </main>
