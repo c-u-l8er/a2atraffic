@@ -474,17 +474,22 @@ GEN.ourcard = `<p class="section-desc">
                 <span class="rung-chip" data-rung="live_local">${esc(host.fix_status)}</span>.
                 The 404 page you get says so itself.
             </p>
-            ${
-              host.portfolio_wide
-                ? `<p class="section-desc">
-                <strong>It was never this domain's alone, and on the others it is still open.</strong>
-                ${esc(host.portfolio_wide_measured)}
-                So the same one-file fix is very likely to work across the portfolio,
-                and until it lands no path on those domains can be shown to be absent —
-                which makes “that endpoint does not exist” unverifiable on any of them.
-            </p>`
-                : ""
-            }
+            <p class="section-desc">
+                <strong>It was never this domain's alone.</strong>
+                ${esc(host.portfolio_wide_history)}
+                ${
+                  host.portfolio_wide
+                    ? `It is still open on the others: ${esc(host.portfolio_wide_measured)}`
+                    : `${esc(host.portfolio_wide_measured)}`
+                }
+            </p>
+            <p class="section-desc">
+                Which is the whole argument for this surface, made once and at its
+                own expense: the page claimed something checkable about itself, a
+                tool built for the page checked it, the claim was wrong, and the
+                fault turned out to be everywhere rather than here. None of that
+                is available to a surface that invents its own numbers.
+            </p>
             <p class="section-desc">
                 The card that <em>would</em> be served is published as a draft, at a
                 draft path, so it can be read and argued with without being promised

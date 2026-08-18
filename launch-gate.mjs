@@ -235,9 +235,19 @@ if (!surface.serve_agent_card) {
     host.fix_status !== "measured" || !/attempted fix[\s\S]{0,120}unverified/i.test(scan),
   );
   check("404.html is emitted", existsSync(R("404.html")));
+  // The finding is stated whether open or closed. A fix is only checkable
+  // against the fault it repaired, so closing it must not delete it.
   check(
-    "the portfolio-wide finding is still stated while it is open",
-    !host.portfolio_wide || scan.includes(host.portfolio_wide_measured.slice(0, 40)),
+    "the portfolio-wide finding is stated",
+    scan.includes(host.portfolio_wide_measured.slice(0, 40)),
+  );
+  check(
+    "the portfolio-wide history survives the fix",
+    !host.portfolio_wide_history || scan.includes(host.portfolio_wide_history.slice(0, 40)),
+  );
+  check(
+    "a closed finding is not still described as open",
+    host.portfolio_wide || !/on the others it is still open/i.test(scan),
   );
 }
 
