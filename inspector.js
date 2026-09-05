@@ -76,13 +76,20 @@
     );
   }
 
-  function field(k, v, cls) {
+  // `v` is ESCAPED. Do not pass markup through it — an id smuggled in as HTML
+  // renders as visible text and the element it names never exists, which is
+  // exactly how the signature row shipped reading `<span id="inspSigState">1 —
+  // checking…</span>` and never updating. Pass `id` instead; it lands on the
+  // value span, where a later update can find it.
+  function field(k, v, cls, id) {
     return (
       '<div class="insp-field"><span class="k">' +
       esc(k) +
       '</span><span class="v' +
       (cls ? " " + cls : "") +
-      '">' +
+      '"' +
+      (id ? ' id="' + esc(id) + '"' : "") +
+      ">" +
       esc(v) +
       "</span></div>"
     );
@@ -207,8 +214,9 @@
     var sigs = Array.isArray(card.signatures) ? card.signatures.length : 0;
     html += field(
       "signatures",
-      sigs > 0 ? '<span id="inspSigState">' + String(sigs) + " — checking…</span>" : "none (unsigned)",
+      sigs > 0 ? String(sigs) + " — checking…" : "none (unsigned)",
       sigs > 0 ? "" : "miss",
+      sigs > 0 ? "inspSigState" : null,
     );
     if (sigs > 0) {
       notes.push('<span id="inspSigNote">Verifying the signature — canonicalising the card per RFC 8785 and fetching the key named by its <code class="inline">jku</code>.</span>');
@@ -338,7 +346,8 @@
     var el = document.getElementById("inspSigState");
     if (el) {
       el.textContent = text;
-      if (cls) el.className = cls;
+      // The id is on the value span itself, so its base class has to survive.
+      el.className = "v" + (cls ? " " + cls : "");
     }
   }
 
