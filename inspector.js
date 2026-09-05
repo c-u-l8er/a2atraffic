@@ -128,6 +128,9 @@
   function renderCard(card, sourceLabel) {
     var html = "";
     var notes = [];
+    // Work that must run AFTER this markup is in the document, because it
+    // updates elements this string is still building.
+    var pending = [];
 
     var missing = REQUIRED.filter(function (k) {
       return !(k in card);
@@ -534,7 +537,26 @@
           return null;
         });
       })
-      .catch(function () {
+      .catch(function (e) {
+        // This used to swallow the error and report every failure as a blocked
+        // cross-origin read. It then reported a ReferenceError in this file's own
+        // rendering — a bug entirely on this side — as the remote domain refusing
+        // us, which is a false claim about someone else's server made by the tool
+        // whose subject is false claims. Distinguish, or say plainly that we do
+        // not know which.
+        //
+        // fetch() rejects with TypeError for network and CORS failures, and only
+        // those. Anything else came from this page.
+        if (!(e instanceof TypeError)) {
+          out.innerHTML = status(
+            "refused",
+            "tool error",
+            "This tool threw while reading the response: <code class=\"inline\">" +
+              esc(String((e && e.name) || "Error") + ": " + String((e && e.message) || e)) +
+              "</code>. That is a defect here, not a problem with the card or the domain — the read itself succeeded. Please report it.",
+          ) + curlFor(url);
+          return;
+        }
         // Browsers deliberately refuse to tell a page why a cross-origin fetch
         // failed. Do not guess between CORS, DNS and offline — say which.
         out.innerHTML =
