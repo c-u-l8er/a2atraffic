@@ -22,9 +22,10 @@
 <main>
   <div class="code">404</div>
   <h1>No such path on a2atraffic.com.</h1>
-  <p>If you were performing A2A well-known discovery, this domain publishes no
-     Agent Card at <code>/.well-known/agent-card.json</code> — it answers
-     no A2A task method, so a card there would advertise an endpoint that refuses.</p>
+  <p>If you were performing A2A well-known discovery, the Agent Card is at
+     <code>/.well-known/agent-card.json</code> and the interface it declares
+     answers at <code>https://a2atraffic.com/a2a/json</code>. This path is
+     not part of either.</p>
   <div class="note">
     If you are reading this page, the fix worked. Before it shipped, this domain answered
     <strong>HTTP 200</strong> for every unmatched path,

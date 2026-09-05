@@ -1,9 +1,9 @@
 {
-  "_draft": "THIS IS A DRAFT AND IT IS NOT SERVED AT THE DISCOVERY PATH. https://a2atraffic.com/.well-known/agent-card.json returns 404, deliberately. See _why below. A card published at the well-known path is a promise that the interfaces it lists will answer; this surface serves static files and answers no A2A task method, so publishing it there would advertise an endpoint that refuses — the same defect this site was rebuilt to remove. Curl the discovery path: the 404 you get is the honest reading.",
+  "_draft": "THE FILENAME IS NOW A MISNOMER AND IS KEPT ANYWAY, because the homepage has linked this exact path since 2026-08-17 and breaking a published URL to improve a word is a bad trade. This is the SOURCE record. Since 2026-09-05 it is ALSO SERVED, with the _-prefixed keys stripped, at https://a2atraffic.com/.well-known/agent-card.json — because the interface it declares answers now. It did not for the 19 days before that, and during those 19 days the discovery path returned 404 on purpose. Both were the honest reading of their day.",
 
-  "_why": "A2A v1.0 requires supportedInterfaces[] on every AgentCard (a2a.proto:371, field_behavior REQUIRED). There is no spec-valid way to say 'discoverable but not serving'. So the refusal is published instead of the card, and this file records exactly what would be served on the day there is something behind it.",
+  "_why": "A2A v1.0 requires supportedInterfaces[] on every AgentCard (a2a.proto:371, field_behavior REQUIRED). There is no spec-valid way to say 'discoverable but not serving'. So while nothing answered, the refusal was published instead of the card. The condition written here as the price of publishing — that something answer at the declared URL — was met rather than waived. records/surface.json:a2a_endpoint holds the measurements, taken against the deployed site.",
 
-  "_flip": "records/surface.json -> serve_agent_card: true, then build-site.mjs copies this file to .well-known/agent-card.json with the _draft/_why/_flip keys stripped. Do not flip it until an endpoint answers.",
+  "_flip": "records/surface.json -> serve_agent_card. Now true; build-site.mjs emits this file to .well-known/agent-card.json with the _-prefixed keys stripped. launch-gate.mjs rule 5b refuses a true flag with no a2a_endpoint record behind it, a card whose declared interface disagrees with that record, and a capability declared false that nothing refuses on. Set it back to false if the endpoint ever stops answering — a card whose interface refuses is the defect this surface exists to refuse.",
 
   "_schema_note": "Field names and required-ness read from a2aproject/A2A@main/specification/a2a.proto:336-455 on 2026-08-17, not from an example.",
 
@@ -17,14 +17,15 @@
       "protocolVersion": "1.0"
     }
   ],
-  "_supportedInterfaces_note": "Declared, not deployed. Nothing is listening at that URL today and this file is not at the discovery path, so nothing has been promised to a client.",
+  "_supportedInterfaces_note": "Answering since 2026-09-05, as Cloudflare Pages Functions under functions/a2a/. Four methods implemented (SendMessage, ListTasks, GetTask, CancelTask); four refused by name, each citing the capability below that refuses it. The agent holds no state, so SendMessage returns a Message and never a Task — a Task is a retrievable resource, and returning one would promise a GetTask that could not be kept.",
 
   "provider": {
     "organization": "ComputeDriven",
     "url": "https://computedriven.com"
   },
 
-  "version": "0.1.0",
+  "version": "0.2.0",
+  "_version_note": "0.1.0 described an agent that did not exist — the interface was declared and nothing was behind it. 0.2.0 describes one that answers. The skills and the interface list did not change; whether they were true did.",
   "documentationUrl": "https://a2atraffic.com/#protocol",
 
   "capabilities": {
@@ -32,7 +33,7 @@
     "pushNotifications": false,
     "extendedAgentCard": false
   },
-  "_capabilities_note": "All false. The previous version of this site printed streaming: true and pushNotifications: true for an agent that did not exist.",
+  "_capabilities_note": "All false, and each is enforced rather than merely declared: the method that would need it returns the error the spec names for a capability the card does not declare. The previous version of this site printed streaming: true and pushNotifications: true for an agent that did not exist.",
 
   "defaultInputModes": ["text/plain"],
   "defaultOutputModes": ["application/json", "text/plain"],
@@ -60,5 +61,5 @@
     }
   ],
 
-  "_no_signatures_note": "signatures[] is absent. A2A v1.0 supports JWS over JCS-canonicalised JSON (RFC 7515 / RFC 8785) to bind a card to a domain. This card is unsigned, which is a real gap and is stated rather than hidden."
+  "_no_signatures_note": "signatures[] is absent. A2A v1.0 supports JWS over JCS-canonicalised JSON (RFC 7515 / RFC 8785) to bind a card to a domain. This card is unsigned, which is a real gap and is stated rather than hidden. It matters more now than it did as a draft: the card is at the discovery path, so it is the thing a client trusts, and nothing proves this domain issued it."
 }

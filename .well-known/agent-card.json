@@ -1,0 +1,62 @@
+{
+  "name": "a2a-traffic-observatory",
+  "description": "Publishes what the A2A protocol specifies, what it structurally cannot express, and what this surface has witnessed. Read-only. Observes; does not orchestrate.",
+  "supportedInterfaces": [
+    {
+      "url": "https://a2atraffic.com/a2a/json",
+      "protocolBinding": "HTTP+JSON",
+      "protocolVersion": "1.0"
+    }
+  ],
+  "provider": {
+    "organization": "ComputeDriven",
+    "url": "https://computedriven.com"
+  },
+  "version": "0.2.0",
+  "documentationUrl": "https://a2atraffic.com/#protocol",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "extendedAgentCard": false
+  },
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "application/json",
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "gap-matrix",
+      "name": "Governance gap matrix",
+      "description": "Returns the six-dimension governance assessment (G1 membership, G2 deliberation, G3 voting, G4 dissent preservation, G5 human escalation, G6 audit and replay) for a named agent-interoperability protocol, with the source citation and the coverage score.",
+      "tags": [
+        "governance",
+        "a2a",
+        "mcp",
+        "acp",
+        "assessment"
+      ],
+      "examples": [
+        "What can A2A not express about membership?",
+        "Score MCP against the governance taxonomy."
+      ]
+    },
+    {
+      "id": "protocol-reference",
+      "name": "A2A v1.0 reference",
+      "description": "Returns verified facts about the A2A protocol: the discovery path, the three protocol bindings, the nine task states, the v1.0 method names, and the v0.3 to v1.0 migration deltas. Every entry carries the primary source it was derived from.",
+      "tags": [
+        "a2a",
+        "reference",
+        "migration",
+        "v1.0"
+      ],
+      "examples": [
+        "What is the well-known path for an Agent Card?",
+        "What replaced preferredTransport in v1.0?"
+      ]
+    }
+  ]
+}

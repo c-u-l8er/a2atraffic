@@ -52,8 +52,65 @@
     "why_it_matters_here": "For A2A specifically a 200 was worse than a 404. A client performing well-known discovery got a successful HTTP response whose body was an HTML page, and success plus wrong content is harder to handle correctly than an honest absence.",
     "portfolio_wide_history": "OPEN 2026-08-17, measured on 4 spot-checked siblings: runefort.com 200 (35,111 B) · fleetprompt.com 200 (41,975 B) · computedriven.com 200 (164,656 B) · specprompt.com 200 (38,795 B). Widened to 24 affected domains before the fix went out."
   },
-  "serve_agent_card": false,
-  "_serve_agent_card_comment": "[TRAVIS] When false, records/agent-card.draft.json stays a draft and the page states the measured hosting behaviour above rather than promising an absence it cannot deliver. When true, build-site.mjs emits the card at the discovery path with its _-prefixed keys stripped. Do not flip until an endpoint answers an A2A task method. See PLAN.md 3.2.",
+  "a2a_endpoint": {
+    "_comment": "The interface supportedInterfaces[0] declares. This record is what makes serve_agent_card legitimate: a card at the discovery path is a promise that the URL it names will answer, and these measurements are that the promise is good. Every line below was taken against https://a2atraffic.com after the deploy, never against a local run — an earlier reading of these same paths caught a mixed rollout serving the previous error shape, so they were re-taken until six consecutive calls agreed.",
+    "url": "https://a2atraffic.com/a2a/json",
+    "protocol_binding": "HTTP+JSON",
+    "protocol_version": "1.0",
+    "implementation": "Cloudflare Pages Functions, functions/a2a/. No storage is bound to it, by choice.",
+    "declared_unanswered_for": "19 days",
+    "_declared_unanswered_for_comment": "The card declared this URL from 2026-08-17, when the draft was written, to 2026-09-05, when it began to answer. Through that window the card was NOT at the discovery path, which is the only reason declaring it was not a false promise.",
+    "measured_at": "2026-09-05",
+    "derived_from": "Paths are the google.api.http annotations on a2a.proto's A2AService (a2a.proto:23-135), taken relative to the interface URL. Media types and the error shape are §11.6 and the worked examples in §6 of a2a-protocol.org/latest/specification/, re-read 2026-09-05. See protocol.json:drift_2026_09_05 for what that re-reading corrected, and for one correction it nearly made in the wrong direction.",
+    "methods_note": "The agent holds no state, so it creates no Tasks: SendMessage answers with a Message, the arm of SendMessageResponse's oneof that promises nothing retrievable. ListTasks returns an empty page because the list IS empty, and GetTask returns TaskNotFoundError because no id has ever been issued. Those are true answers, not stubs.",
+    "implemented": [
+      { "method": "SendMessage", "http": "POST /message:send" },
+      { "method": "ListTasks", "http": "GET /tasks" },
+      { "method": "GetTask", "http": "GET /tasks/{id}" },
+      { "method": "CancelTask", "http": "POST /tasks/{id}:cancel" }
+    ],
+    "refused": [
+      { "method": "SendStreamingMessage", "error": "UnsupportedOperationError", "because": "capabilities.streaming is false" },
+      { "method": "SubscribeToTask", "error": "UnsupportedOperationError", "because": "capabilities.streaming is false" },
+      { "method": "CreateTaskPushNotificationConfig", "error": "PushNotificationNotSupportedError", "because": "capabilities.pushNotifications is false" },
+      { "method": "GetExtendedAgentCard", "error": "ExtendedAgentCardNotConfiguredError", "because": "capabilities.extendedAgentCard is false" }
+    ],
+    "limits": [
+      "It holds no state, so nothing it says can depend on anything you said before.",
+      "It has no model. Requests reach a skill by keyword match, not by understanding, and an unmatched request says so and lists what it can answer rather than guessing.",
+      "It answers only out of /records/*.json — the same published records this page is generated from, read at request time over this origin's own asset store, so the agent and the page cannot disagree.",
+      "The card carries no signatures[], so nothing here is cryptographically bound to this domain."
+    ],
+    "measured": [
+      {
+        "what": "the interface base URL — not an A2A method, a human-readable descriptor",
+        "curl": "-sS -o /dev/null -w '%{http_code} %{content_type}' https://a2atraffic.com/a2a/json",
+        "got": "200 application/json"
+      },
+      {
+        "what": "ListTasks — an empty page, because the list is empty",
+        "curl": "-sS https://a2atraffic.com/a2a/json/tasks",
+        "got": "200 application/a2a+json   {\"tasks\": [], \"nextPageToken\": \"\", \"pageSize\": 50, \"totalSize\": 0}"
+      },
+      {
+        "what": "GetTask — no id has ever been issued, in the google.rpc.Status shape §11.6 requires",
+        "curl": "-sS https://a2atraffic.com/a2a/json/tasks/task-123",
+        "got": "404 application/a2a+json   error.status NOT_FOUND, details[0].reason TASK_NOT_FOUND, domain a2a-protocol.org"
+      },
+      {
+        "what": "SendStreamingMessage — refused by the capability the card declares false",
+        "curl": "-sS -X POST https://a2atraffic.com/a2a/json/message:stream",
+        "got": "400 application/a2a+json   UNSUPPORTED_OPERATION"
+      },
+      {
+        "what": "SendMessage — an example the card advertises, answered out of records/gap-matrix.json",
+        "curl": "-sS -X POST https://a2atraffic.com/a2a/json/message:send -H 'content-type: application/a2a+json' -d '{\"message\":{\"messageId\":\"1\",\"role\":\"ROLE_USER\",\"parts\":[{\"text\":\"Score MCP against the governance taxonomy.\"}]}}'",
+        "got": "200 application/a2a+json   role ROLE_AGENT, skill gap-matrix, and the answer carries the preprint caveat with it"
+      }
+    ]
+  },
+  "serve_agent_card": true,
+  "_serve_agent_card_comment": "[TRAVIS] FLIPPED 2026-09-05, after a2a_endpoint above was measured against the deployed site and not before. When false, records/agent-card.draft.json stays a draft and the page states the measured hosting behaviour above rather than promising an absence it cannot deliver. When true, build-site.mjs emits the card at the discovery path with its _-prefixed keys stripped and the 'our own card' section switches to its served branch. The rule that governed this for 19 days still governs it: do not flip until an endpoint answers an A2A task method. It answers. See PLAN.md 3.2.",
   "status": {
     "statement": "This surface observes the A2A protocol, not your traffic. It publishes what the specification says, re-derived from primary sources on 2026-08-17; what a governance assessment finds the protocol structurally cannot express; and a count of the A2A messages it has itself witnessed, which is zero.",
     "source": "records/protocol.json was derived from a2a-protocol.org/latest and a2aproject/A2A@main/specification/a2a.proto. records/gap-matrix.json was re-read from arxiv.org/html/2606.31498v1 Table II and Table III. records/witness.json is zero because there is no collector.",

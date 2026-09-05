@@ -911,65 +911,70 @@
         <!-- ═══════ OUR CARD ═══════ -->
         <section id="ourcard" class="reveal">
             <span class="section-label">// our own card</span>
-            <h2 class="section-title"><!-- GEN:ourcard-title -->We publish the refusal, not the card<!-- /GEN:ourcard-title --></h2>
+            <h2 class="section-title"><!-- GEN:ourcard-title -->The card is served, because the interface answers<!-- /GEN:ourcard-title --></h2>
             <!-- GEN:ourcard --><p class="section-desc">
                 A2A v1.0 requires <code class="inline">supportedInterfaces[]</code> on every
                 Agent Card — there is no spec-valid way to say “discoverable but not
-                serving”. This surface serves static files and answers no A2A task
-                method. So a card at the discovery path would advertise an endpoint
-                that refuses, which is the exact defect this page was rebuilt to remove.
+                serving”. For 19 days this surface declared
+                <code class="inline">https://a2atraffic.com/a2a/json</code> and served nothing there, so the
+                card stayed a draft at a draft path and the discovery path returned
+                <code class="inline">404</code> on purpose.
             </p>
             <p class="section-desc">
-                An earlier draft of this section said the discovery path returns
-                <code class="inline">404</code>, and invited you to check. Then the
-                inspector below — written for this page, pointed at this domain as its
-                own first test — came back
-                <code class="inline">HTTP 200</code>.
-                The claim was wrong before anyone else could check it. Both
-                measurements are kept below, because a page that shows only the
-                number that flatters it is not showing the retraction.
+                <strong>That interface answers now</strong>, so the card is published at the
+                discovery path. It was measured on 2026-09-05, against the
+                deployed site rather than against the intention to deploy it:
             </p>
-            <pre class="code"><span class="cmt">// BEFORE — 2026-08-17, before this build was deployed</span>
-<span class="fn">curl</span> -sS -o /dev/null -w <span class="str">"%{http_code} %{content_type}\n"</span> \
-     https://a2atraffic.com/.well-known/agent-card.json
-<span class="bad">200 text/html; charset=utf-8</span>   <span class="cmt">← the site's own index.html, served in full — 77,879 bytes</span>
+            <pre class="code"><span class="cmt">// the interface base URL — not an A2A method, a human-readable descriptor</span>
+<span class="fn">curl</span> -sS -o /dev/null -w '%{http_code} %{content_type}' https://a2atraffic.com/a2a/json
+<span class="str">200 application/json</span>
 
-<span class="cmt">// AFTER — 2026-08-17, immediately after deploying commit fd387b4</span>
-<span class="fn">curl</span> -sS -o /dev/null -w <span class="str">"%{http_code} %{content_type}\n"</span> \
-     https://a2atraffic.com/.well-known/agent-card.json
-<span class="str">404 text/html; charset=utf-8</span>   <span class="cmt">← 404.html, 1,905 bytes</span></pre>
+<span class="cmt">// ListTasks — an empty page, because the list is empty</span>
+<span class="fn">curl</span> -sS https://a2atraffic.com/a2a/json/tasks
+<span class="str">200 application/a2a+json   {&quot;tasks&quot;: [], &quot;nextPageToken&quot;: &quot;&quot;, &quot;pageSize&quot;: 50, &quot;totalSize&quot;: 0}</span>
+
+<span class="cmt">// GetTask — no id has ever been issued, in the google.rpc.Status shape §11.6 requires</span>
+<span class="fn">curl</span> -sS https://a2atraffic.com/a2a/json/tasks/task-123
+<span class="str">404 application/a2a+json   error.status NOT_FOUND, details[0].reason TASK_NOT_FOUND, domain a2a-protocol.org</span>
+
+<span class="cmt">// SendStreamingMessage — refused by the capability the card declares false</span>
+<span class="fn">curl</span> -sS -X POST https://a2atraffic.com/a2a/json/message:stream
+<span class="str">400 application/a2a+json   UNSUPPORTED_OPERATION</span>
+
+<span class="cmt">// SendMessage — an example the card advertises, answered out of records/gap-matrix.json</span>
+<span class="fn">curl</span> -sS -X POST https://a2atraffic.com/a2a/json/message:send -H 'content-type: application/a2a+json' -d '{&quot;message&quot;:{&quot;messageId&quot;:&quot;1&quot;,&quot;role&quot;:&quot;ROLE_USER&quot;,&quot;parts&quot;:[{&quot;text&quot;:&quot;Score MCP against the governance taxonomy.&quot;}]}}'
+<span class="str">200 application/a2a+json   role ROLE_AGENT, skill gap-matrix, and the answer carries the preprint caveat with it</span></pre>
             <p class="section-desc" style="margin-top:1.6rem">
-                For A2A specifically a 200 was worse than a 404. A client performing well-known discovery got a successful HTTP response whose body was an HTML page, and success plus wrong content is harder to handle correctly than an honest absence.
-                The fix was one file — a root
-                <code class="inline">404.html</code>, no configuration change —
-                and it shipped in the same build that admitted the problem. Its status
-                was published as <em>unverified</em>, because whether a root 404 page
-                takes effect depends on routing this build cannot read. It has since
-                been re-measured against the deployed site:
+                <strong>What it does not do, stated where the claim is made.</strong>
+                It holds no state, so nothing it says can depend on anything you said before. It has no model. Requests reach a skill by keyword match, not by understanding, and an unmatched request says so and lists what it can answer rather than guessing. It answers only out of /records/*.json — the same published records this page is generated from, read at request time over this origin's own asset store, so the agent and the page cannot disagree. The card carries no signatures[], so nothing here is cryptographically bound to this domain.
+            </p>
+            <p class="section-desc">
+                The agent holds no state, so it creates no Tasks: SendMessage answers with a Message, the arm of SendMessageResponse's oneof that promises nothing retrievable. ListTasks returns an empty page because the list IS empty, and GetTask returns TaskNotFoundError because no id has ever been issued. Those are true answers, not stubs. The four methods the card marks unsupported are
+                refused by name, each citing the capability that refuses it:
+                <code class="inline">SendStreamingMessage</code> → UnsupportedOperationError · <code class="inline">SubscribeToTask</code> → UnsupportedOperationError · <code class="inline">CreateTaskPushNotificationConfig</code> → PushNotificationNotSupportedError · <code class="inline">GetExtendedAgentCard</code> → ExtendedAgentCardNotConfiguredError.
+            </p>
+            <p class="section-desc">
+                <strong>The retraction stays.</strong>
+                An earlier draft of this section promised the discovery path returned
+                <code class="inline">404</code> and invited you to check. The inspector
+                below — written for this page, pointed at this domain as its own first
+                test — came back
+                <code class="inline">200 text/html; charset=utf-8</code>
+                (2026-08-17, before this build was deployed, the site's own index.html, served in full — 77,879 bytes). The fix was a root
+                <code class="inline">404.html</code>; re-measured
+                <code class="inline">404 text/html; charset=utf-8</code>
+                on 2026-08-17, immediately after deploying commit fd387b4
                 <span class="rung-chip" data-rung="live_local">measured</span>.
-                The 404 page you get says so itself.
-            </p>
-            <p class="section-desc">
-                <strong>It was never this domain's alone.</strong>
-                OPEN 2026-08-17, measured on 4 spot-checked siblings: runefort.com 200 (35,111 B) · fleetprompt.com 200 (41,975 B) · computedriven.com 200 (164,656 B) · specprompt.com 200 (38,795 B). Widened to 24 affected domains before the fix went out.
+                It was never this domain's alone: OPEN 2026-08-17, measured on 4 spot-checked siblings: runefort.com 200 (35,111 B) · fleetprompt.com 200 (41,975 B) · computedriven.com 200 (164,656 B) · specprompt.com 200 (38,795 B). Widened to 24 affected domains before the fix went out.
                 CLOSED 2026-08-17. Found here, fixed everywhere: 24 domains shipped a root 404.html and all 24 re-measured 404 — agentelic, agentromatic, bendscript, computedriven, delegatic, deliberatic, fleetprompt, geofleetic, graphonomous, opensentience, runefort, specprompt, ticktickclock, webhost.systems, ampersandboxdesign, wrand.cc, academy, pulse, weave, workbench, traaviis, code, trvm, wrl. docs.ampersandboxdesign.com and prism.opensentience.org already answered 404 and were left alone.
+                A page that shows only the number that flatters it is not showing the
+                retraction, and the fault is only checkable against what repaired it.
             </p>
             <p class="section-desc">
-                Which is the whole argument for this surface, made once and at its
-                own expense: the page claimed something checkable about itself, a
-                tool built for the page checked it, the claim was wrong, and the
-                fault turned out to be everywhere rather than here. None of that
-                is available to a surface that invents its own numbers.
-            </p>
-            <p class="section-desc">
-                The card that <em>would</em> be served is published as a draft, at a
-                draft path, so it can be read and argued with without being promised
-                to a client. Note <code class="inline">streaming: false</code> and
-                <code class="inline">pushNotifications: false</code> — the previous
-                version of this page printed both as <code class="inline">true</code>
-                for an agent that did not exist. It carries no
-                <code class="inline">signatures[]</code>, which is a real gap and is
-                stated rather than hidden.
+                The card carries no <code class="inline">signatures[]</code>. A2A v1.0
+                supports JWS over JCS-canonicalised JSON, which would bind this card to
+                this domain; nothing here is bound to anything. That is a real gap and it
+                is stated rather than hidden.
             </p>
             <pre class="code">{
   &quot;name&quot;: &quot;a2a-traffic-observatory&quot;,
@@ -985,7 +990,7 @@
     &quot;organization&quot;: &quot;ComputeDriven&quot;,
     &quot;url&quot;: &quot;https://computedriven.com&quot;
   },
-  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;version&quot;: &quot;0.2.0&quot;,
   &quot;documentationUrl&quot;: &quot;https://a2atraffic.com/#protocol&quot;,
   &quot;capabilities&quot;: {
     &quot;streaming&quot;: false,
@@ -1034,13 +1039,12 @@
   ]
 }</pre>
             <p class="src" style="margin-top:0.9rem">
-                <a href="/records/agent-card.draft.json">records/agent-card.draft.json</a> —
-                emitted from that record, with its annotation keys stripped.
-                Serving it at the discovery path is one flag in
-                <a href="/records/surface.json">surface.json</a>
-                (<code class="inline">serve_agent_card</code>, currently
-                <code class="inline">false</code>),
-                and it must not be flipped until an endpoint answers.
+                Served at <a href="/.well-known/agent-card.json">/.well-known/agent-card.json</a>,
+                emitted from <a href="/records/agent-card.draft.json">records/agent-card.draft.json</a>
+                with its annotation keys stripped. The interface it declares is
+                <a href="https://a2atraffic.com/a2a/json">https://a2atraffic.com/a2a/json</a>
+                (<code class="inline">HTTP+JSON</code>,
+                protocol version <code class="inline">1.0</code>).
             </p><!-- /GEN:ourcard -->
         </section>
 
