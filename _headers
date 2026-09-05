@@ -1,0 +1,12 @@
+# The Agent Card is a public discovery document. A2A clients running in a
+# browser cannot read a cross-origin URL that sends no Access-Control-Allow-Origin
+# — which is the exact limitation this site's own inspector prints when it meets
+# a card it cannot fetch. Serving the card without CORS would publish that
+# limitation and then commit it.
+/.well-known/agent-card.json
+  Access-Control-Allow-Origin: *
+  Cache-Control: public, max-age=300
+
+# The draft is quoted on the homepage and linked from it; same reasoning.
+/records/*
+  Access-Control-Allow-Origin: *
