@@ -83,7 +83,7 @@
       "It holds no state, so nothing it says can depend on anything you said before.",
       "It has no model. Requests reach a skill by keyword match, not by understanding, and an unmatched request says so and lists what it can answer rather than guessing.",
       "It answers only out of /records/*.json — the same published records this page is generated from, read at request time over this origin's own asset store, so the agent and the page cannot disagree.",
-      "The card carries no signatures[], so nothing here is cryptographically bound to this domain."
+      "The card IS signed (ES256, A2A \u00a78.4, key at /.well-known/jwks.json) — but the verifying key is published on the same domain as the card, so the signature proves the card has not changed since signing, not who signed it. Anyone able to serve you a forged card could serve a forged key beside it. TLS carries the domain binding; the signature is not a second opinion about the same channel."
     ],
     "measured": [
       {

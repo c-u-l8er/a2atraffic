@@ -61,5 +61,6 @@
     }
   ],
 
-  "_no_signatures_note": "signatures[] is absent. A2A v1.0 supports JWS over JCS-canonicalised JSON (RFC 7515 / RFC 8785) to bind a card to a domain. This card is unsigned, which is a real gap and is stated rather than hidden. It matters more now than it did as a draft: the card is at the discovery path, so it is the thing a client trusts, and nothing proves this domain issued it."
+  "_signature_note": "SIGNED since 2026-09-05. A detached JWS per A2A \u00a78.4: ES256 over the card canonicalised by RFC 8785 with signatures[] excluded from the payload. The signature is NOT in this record — it lives in records/agent-card.signature.json, and build-site.mjs attaches it to the emitted card only after verifying it against records/signing-key.public.json. Edit any field above and the build refuses until `node tools/sign-card.mjs` re-signs, because a signature over content that has since changed is worse than no signature at all. The private key is not in this repository and never will be; losing it means publishing a new key, which is a real single point of failure and is stated rather than hidden.",
+  "_signature_limit_note": "What it does not prove: the verifying key is published on the same domain as the card, so a party who could serve a forged card could serve a forged key beside it. TLS is what actually binds this card to this domain. The signature proves integrity since signing and nothing about identity, and this file says so rather than letting the presence of a signature imply more."
 }

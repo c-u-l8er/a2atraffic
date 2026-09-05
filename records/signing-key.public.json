@@ -1,0 +1,15 @@
+{
+  "_comment": "The PUBLIC half of the Agent Card signing key, published at /.well-known/jwks.json and named by the jku in every signature's protected header. The private half is not in this repository and never will be; it lives at ~/.config/a2atraffic/signing-key.jwk, mode 0600, on one machine. If that file is lost the card cannot be re-signed and a new key must be published — which is a real single point of failure and is stated rather than hidden.",
+  "_kid_comment": "kid is the RFC 7638 thumbprint of the key itself, not a name. A named kid can be reused after a rotation and quietly point at a different key; a thumbprint cannot, and launch-gate.mjs re-derives it rather than trusting it.",
+  "keys": [
+    {
+      "kty": "EC",
+      "x": "uNXX3zSc5peyXSd93PXu2WgVJPmFxIfKuiFNMYltm9A",
+      "y": "QQsnGkr384vjcxdVlDc68BK-Fyl60kaG0H5q-EkHpT0",
+      "crv": "P-256",
+      "kid": "9FJSTEGgcO2dfw_JW_zCxypjsswP72p8RnXDataRAaE",
+      "alg": "ES256",
+      "use": "sig"
+    }
+  ]
+}

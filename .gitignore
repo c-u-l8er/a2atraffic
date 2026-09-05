@@ -1,0 +1,10 @@
+# Signing key material must never enter this repository. The private half of the
+# Agent Card signing key lives at ~/.config/a2atraffic/signing-key.jwk, mode
+# 0600, outside this tree. These patterns are a backstop for a stray copy, not
+# the mechanism — the mechanism is that tools/sign-card.mjs writes it outside the
+# repo and launch-gate.mjs refuses to publish a JWKS containing a `d` member.
+*.jwk
+signing-key*
+*.pem
+*.key
+!records/signing-key.public.json

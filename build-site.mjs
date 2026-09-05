@@ -14,6 +14,8 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync, copyFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { verifyCard, sha256 } from "./tools/card-signing.mjs";
+import { cardPayload } from "./tools/jcs.mjs";
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const R = (p) => join(ROOT, p);
@@ -432,6 +434,41 @@ ${protocol.governance.tsc_members
 const cardPublic = Object.fromEntries(
   Object.entries(draftCard).filter(([k]) => !k.startsWith("_")),
 );
+
+// ── the signature (A2A §8.4) ───────────────────────────────────────────────
+// The build NEVER signs. ECDSA is randomised, so a build that signed would not
+// be byte-identical to the one before it, and this repository treats that as
+// load-bearing. The signature is a committed input; `node tools/sign-card.mjs`
+// produces it, a human runs that, and the build's whole job here is to refuse a
+// signature that does not check out.
+//
+// Refusing rather than warning is the point. A stale signature is worse than no
+// signature: it is a claim of authenticity over content that has since changed,
+// which is the same defect class as a card at a discovery path with nothing
+// behind it — a promise whose subject moved.
+let jwks = null;
+if (surface.serve_agent_card) {
+  const sigRecord = readJSON("records/agent-card.signature.json");
+  jwks = Object.fromEntries(
+    Object.entries(readJSON("records/signing-key.public.json")).filter(([k]) => !k.startsWith("_")),
+  );
+
+  const currentHash = sha256(cardPayload(cardPublic));
+  if (sigRecord.payload_sha256 !== currentHash) {
+    fail(
+      `the Agent Card has changed since it was signed.\n` +
+        `  signed over  ${sigRecord.payload_sha256}\n` +
+        `  card is now  ${currentHash}\n` +
+        `  Re-sign it:  node tools/sign-card.mjs`,
+    );
+  }
+
+  const v = verifyCard(cardPublic, sigRecord.signature, jwks);
+  if (!v.ok) fail(`the committed Agent Card signature does not verify: ${v.reason}`);
+
+  cardPublic.signatures = [sigRecord.signature];
+}
+
 const cardJSON = JSON.stringify(cardPublic, null, 2);
 
 const host = surface.hosting;
@@ -524,6 +561,7 @@ const OURCARD_REFUSING = `<p class="section-desc">
 // found it.
 const ourCardServed = () => {
   const ep = surface.a2a_endpoint;
+  const sig = readJSON("records/agent-card.signature.json");
   if (!ep) fail("serve_agent_card is true but surface.a2a_endpoint is absent; the card may not be served without a record of the interface that makes it true.");
   return `<p class="section-desc">
                 A2A v1.0 requires <code class="inline">supportedInterfaces[]</code> on every
@@ -571,10 +609,35 @@ const ourCardServed = () => {
                 retraction, and the fault is only checkable against what repaired it.
             </p>
             <p class="section-desc">
-                The card carries no <code class="inline">signatures[]</code>. A2A v1.0
-                supports JWS over JCS-canonicalised JSON, which would bind this card to
-                this domain; nothing here is bound to anything. That is a real gap and it
-                is stated rather than hidden.
+                <strong>It is signed.</strong> A2A v1.0 §8.4 binds a card to a domain with
+                a detached JWS over the card canonicalised by
+                <a href="https://www.rfc-editor.org/rfc/rfc8785">RFC 8785</a>, with
+                <code class="inline">signatures[]</code> itself excluded from what is
+                signed. This one is <code class="inline">${esc(sig.alg)}</code>, signed
+                ${esc(sig.signed_at)}, over a canonical payload whose SHA-256 is
+                <code class="inline">${esc(sig.payload_sha256.slice(0, 16))}…</code>. The
+                verifying key is published at
+                <a href="${esc(sig.jku)}">${esc(new URL(sig.jku).pathname)}</a>, which is
+                the <code class="inline">jku</code> in the signature's own protected
+                header, and its <code class="inline">kid</code> is the key's RFC 7638
+                thumbprint rather than a name — a name can be reused after a rotation and
+                point at a different key.
+            </p>
+            <p class="section-desc">
+                <strong>What the signature does not prove.</strong> It proves this card
+                was signed by whoever holds that key and has not changed since. It does
+                not prove who that is: the key is published on this domain, so anyone who
+                could serve you a forged card could serve you a forged key beside it. That
+                is the ordinary limit of <code class="inline">jku</code>-on-the-same-origin
+                discovery, and TLS is what is actually carrying the domain binding. A
+                signature is not a second opinion about the same channel.
+            </p>
+            <p class="section-desc">
+                The build never signs — ECDSA is randomised, so a build that signed would
+                not be byte-identical to the one before it. The signature is a committed
+                input and the build only verifies it, refusing to publish when the card
+                has changed since it was signed. A stale signature is worse than none: it
+                claims authenticity over content that has since moved.
             </p>
             <pre class="code">${esc(cardJSON)}</pre>
             <p class="src" style="margin-top:0.9rem">
@@ -800,7 +863,11 @@ writeFileSync(
 if (surface.serve_agent_card) {
   mkdirSync(R(".well-known"), { recursive: true });
   writeFileSync(R(".well-known/agent-card.json"), JSON.stringify(cardPublic, null, 2) + "\n");
-  console.log("  .well-known/agent-card.json  EMITTED (serve_agent_card: true)");
+  // The jku in every protected header names this file. A signature whose key
+  // cannot be fetched is not checkable by anyone, which is most of the value.
+  writeFileSync(R(".well-known/jwks.json"), JSON.stringify(jwks, null, 2) + "\n");
+  console.log("  .well-known/agent-card.json  EMITTED (serve_agent_card: true), signed");
+  console.log("  .well-known/jwks.json        EMITTED");
 } else if (existsSync(R(".well-known/agent-card.json"))) {
   fail(
     ".well-known/agent-card.json exists on disk but surface.serve_agent_card is false. " +

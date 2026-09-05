@@ -58,5 +58,11 @@
         "What replaced preferredTransport in v1.0?"
       ]
     }
+  ],
+  "signatures": [
+    {
+      "protected": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpPU0UiLCJraWQiOiI5RkpTVEVHZ2NPMmRmd19KV196Q3h5cGpzc3dQNzJwOFJuWERhdGFSQWFFIiwiamt1IjoiaHR0cHM6Ly9hMmF0cmFmZmljLmNvbS8ud2VsbC1rbm93bi9qd2tzLmpzb24ifQ",
+      "signature": "VJCo6RQ1MANP0r28859dZ_13LbKburD6m59t0WAB1Xwr6kzrxA0g-qenZTooQm3tJAVRu0PbfkQ7k8bpF6W22Q"
+    }
   ]
 }

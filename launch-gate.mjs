@@ -10,6 +10,7 @@
 // Exit 0 = publishable. Exit 1 = do not push.
 
 import { readFileSync, existsSync } from "node:fs";
+import { verifyCard, thumbprint } from "./tools/card-signing.mjs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -352,6 +353,66 @@ if (surface.serve_agent_card) {
       "the page no longer says this domain publishes no card",
       !/publishes no\s+Agent Card/i.test(scan),
     );
+
+    // ── the signature, checked against what was EMITTED ────────────────────
+    // Not against the records. The records are what the build was told; these
+    // are the bytes a client will fetch, and the gate exists because a
+    // generator asked to check its own output always says yes.
+    check("the JWKS is emitted", existsSync(R(".well-known/jwks.json")));
+    if (existsSync(R(".well-known/jwks.json"))) {
+      const emittedJwks = JSON.parse(readFileSync(R(".well-known/jwks.json"), "utf8"));
+
+      // The one failure here that is a disclosure rather than a defect.
+      check(
+        "the published JWKS carries no private key material",
+        (emittedJwks.keys || []).every((k) => !("d" in k)),
+        "a private key would be PUBLISHED by this build — do not deploy",
+      );
+      check(
+        "no annotation key survived into the published JWKS",
+        !Object.keys(emittedJwks).some((k) => k.startsWith("_")),
+      );
+
+      const sigs = card.signatures || [];
+      check("the served card carries a signature", sigs.length > 0);
+
+      for (const [i, sg] of sigs.entries()) {
+        const v = verifyCard(card, sg, emittedJwks);
+        check(
+          `signature ${i} verifies over the emitted card's canonical payload`,
+          v.ok,
+          v.reason,
+        );
+        if (v.header) {
+          check(
+            `signature ${i} names a jku that this build actually publishes`,
+            v.header.jku === new URL("/.well-known/jwks.json", ep.url).toString(),
+            `jku is ${v.header.jku}`,
+          );
+          const named = (emittedJwks.keys || []).find((k) => k.kid === v.header.kid);
+          check(
+            `signature ${i}'s kid is the RFC 7638 thumbprint of the key it names`,
+            !!named && thumbprint(named) === v.header.kid,
+            "a kid that is a name rather than a derivation can outlive the key it named",
+          );
+        }
+      }
+
+      // A tampered card must fail. Verifying only the honest case tests the
+      // happy path of a library, not the property the signature is here for.
+      const tampered = JSON.parse(JSON.stringify(card));
+      tampered.supportedInterfaces[0].url = "https://evil.example/a2a/json";
+      check(
+        "the signature FAILS over a card whose interface URL was altered",
+        sigs.length > 0 && !verifyCard(tampered, sigs[0], emittedJwks).ok,
+        "the signature verifies over content it did not sign — it proves nothing",
+      );
+
+      check(
+        "the page no longer calls the card unsigned",
+        !/carries no\s*(<[^>]+>)?\s*signatures/i.test(scan) && !/none \(unsigned\)/i.test(scan),
+      );
+    }
     const four = readFileSync(R("404.html"), "utf8");
     check(
       "the 404 page no longer says this domain publishes no card",

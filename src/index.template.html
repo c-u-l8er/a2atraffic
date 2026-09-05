@@ -605,9 +605,20 @@
                     Limit: a browser cannot read a cross-origin URL that does not
                     send <code class="inline">Access-Control-Allow-Origin</code>. That is the
                     common case, so the common result of this tool is a refusal
-                    that tells you what to run in a terminal. It is a reader, not
-                    a prover — it cannot verify a JWS signature, and it says so
-                    when it meets one.
+                    that tells you what to run in a terminal.
+                </p>
+                <p class="src" style="margin-top: 0.8rem">
+                    It <em>does</em> verify an <code class="inline">ES256</code>
+                    signature, in your browser, canonicalising the card per RFC 8785
+                    and fetching the key the signature's own
+                    <code class="inline">jku</code> names. This paragraph used to say
+                    it could not, and that a reader in a page could not honestly claim
+                    to — which was simply wrong, and was corrected when this site
+                    signed its own card and had to read its own limit back.
+                    A verified signature proves the card has not changed since it was
+                    signed. It does not prove <em>who</em> signed it, and when the key
+                    is served by the same origin as the card the result says so:
+                    that is a tick for TLS, not for the signature.
                 </p>
             </section>
         </div>

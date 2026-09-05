@@ -1,8 +1,19 @@
 // a2atraffic.com — Agent Card inspector.
 //
 // Runs entirely in the visitor's browser. Nothing is sent to this server and
-// nothing is stored. It is a READER, not a prover: it cannot verify a JWS
-// signature, and when it meets one it says so rather than implying a check it
+// nothing is stored. It reads a card, and since 2026-09-05 it also VERIFIES a
+// signature when it meets one — ES256 via Web Crypto, over a payload it
+// canonicalises itself per RFC 8785. It used to say a reader in a page could not
+// honestly claim to do that. It can; the claim was the thing that was wrong.
+//
+// What it still refuses to imply: a verified signature proves the card has not
+// changed since signing. It proves WHO only as far as the key's origin is
+// trusted, so the result always names where the key came from and whether that
+// was the same origin as the card. A green tick over a key fetched from the same
+// place as the card it vouches for is a tick for TLS, not for the signature.
+//
+// (Historical note, kept because the reasoning is the point: it once said it
+// could not verify, and when it meets one it says so rather than implying a check it
 // did not run.
 //
 // The common outcome is a refusal. A browser cannot read a cross-origin URL
@@ -193,13 +204,14 @@
     var sigs = Array.isArray(card.signatures) ? card.signatures.length : 0;
     html += field(
       "signatures",
-      sigs > 0 ? String(sigs) + " — NOT verified here" : "none (unsigned)",
+      sigs > 0 ? '<span id="inspSigState">' + String(sigs) + " — checking…</span>" : "none (unsigned)",
       sigs > 0 ? "" : "miss",
     );
     if (sigs > 0) {
-      notes.push(
-        "This card is signed. <strong>This tool did not verify it.</strong> Verification means JWS (RFC 7515) over JCS-canonicalised JSON (RFC 8785) against a key the domain controls, and a reader in a page cannot honestly claim to have done that.",
-      );
+      notes.push('<span id="inspSigNote">Verifying the signature — canonicalising the card per RFC 8785 and fetching the key named by its <code class="inline">jku</code>.</span>');
+      pending.push(function () {
+        verifySignature(card, sourceLabel);
+      });
     } else {
       notes.push(
         "This card is unsigned. v1.0 added <code class=\"inline\">signatures[]</code> so a card can be cryptographically bound to its domain; nothing here is bound to anything.",
@@ -263,7 +275,183 @@
       });
       html += "</ul>";
     }
+    // renderCard returns a STRING; its caller puts it in the document. So the
+    // work that updates elements inside it is deferred by a task, not a
+    // microtask — a microtask would run before the caller's innerHTML assignment
+    // and find nothing to update.
+    if (pending.length) {
+      setTimeout(function () {
+        pending.forEach(function (fn) {
+          fn();
+        });
+      }, 0);
+    }
     return html;
+  }
+
+  // ── signature verification (A2A 8.4.3) ───────────────────────────────────
+  // The client steps the spec requires: exclude signatures, canonicalise with
+  // RFC 8785, resolve the key by kid from the jku, verify. Everything here runs
+  // in your browser against bytes you fetched.
+
+  function jcsSort(v) {
+    if (Object.prototype.toString.call(v) === "[object Array]") return v.map(jcsSort);
+    if (v && typeof v === "object") {
+      var out = {};
+      Object.keys(v)
+        .sort()
+        .forEach(function (k) {
+          out[k] = jcsSort(v[k]);
+        });
+      return out;
+    }
+    return v;
+  }
+
+  function b64uToBytes(str) {
+    var s = String(str).replace(/-/g, "+").replace(/_/g, "/");
+    while (s.length % 4) s += "=";
+    var bin = atob(s);
+    var out = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out;
+  }
+
+  function bytesToB64u(bytes) {
+    var bin = "";
+    for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  }
+
+  function thumbprint(jwk) {
+    // RFC 7638: sha256 over the required members only, lexicographic, no space.
+    var req = JSON.stringify({ crv: jwk.crv, kty: jwk.kty, x: jwk.x, y: jwk.y });
+    return crypto.subtle.digest("SHA-256", new TextEncoder().encode(req)).then(function (d) {
+      return bytesToB64u(new Uint8Array(d));
+    });
+  }
+
+  function sigState(text, cls) {
+    var el = document.getElementById("inspSigState");
+    if (el) {
+      el.textContent = text;
+      if (cls) el.className = cls;
+    }
+  }
+
+  function sigNote(html) {
+    var el = document.getElementById("inspSigNote");
+    if (el) el.innerHTML = html;
+  }
+
+  function verifySignature(card, sourceLabel) {
+    var sig = card.signatures[0];
+    var header;
+    try {
+      header = JSON.parse(new TextDecoder().decode(b64uToBytes(sig.protected)));
+    } catch (e) {
+      sigState("1 — malformed", "bad");
+      sigNote("The signature's <code class=\"inline\">protected</code> header is not base64url-encoded JSON, so there is nothing to check.");
+      return;
+    }
+
+    if (header.alg !== "ES256") {
+      sigState("1 — " + esc(String(header.alg)) + " not checked here", "");
+      sigNote(
+        "This card is signed with <code class=\"inline\">" +
+          esc(String(header.alg)) +
+          "</code>. This tool verifies <code class=\"inline\">ES256</code> only, which is the algorithm the spec's own example uses. It did <strong>not</strong> verify this one, and is saying so rather than implying a check it did not do.",
+      );
+      return;
+    }
+    if (!header.jku) {
+      sigState("1 — no jku", "bad");
+      sigNote("The protected header names no <code class=\"inline\">jku</code>, so there is no published key to fetch. It may be verifiable against a key store this tool does not have.");
+      return;
+    }
+
+    var cardOrigin = null;
+    try {
+      cardOrigin = new URL(sourceLabel).origin;
+    } catch (e) {}
+    var keyOrigin;
+    try {
+      keyOrigin = new URL(header.jku).origin;
+    } catch (e) {
+      sigState("1 — bad jku", "bad");
+      sigNote("The <code class=\"inline\">jku</code> is not a URL.");
+      return;
+    }
+
+    var payload = new TextEncoder().encode(
+      JSON.stringify(
+        jcsSort(
+          (function () {
+            var copy = {};
+            Object.keys(card).forEach(function (k) {
+              if (k !== "signatures") copy[k] = card[k];
+            });
+            return copy;
+          })(),
+        ),
+      ),
+    );
+    var input = new TextEncoder().encode(sig.protected + "." + bytesToB64u(payload));
+
+    fetch(header.jku, { mode: "cors", redirect: "follow" })
+      .then(function (r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      })
+      .then(function (jwks) {
+        var jwk = (jwks.keys || []).filter(function (k) {
+          return k.kid === header.kid;
+        })[0];
+        if (!jwk) throw new Error("no key in the JWKS has kid " + header.kid);
+        if (jwk.d) throw new Error("the published JWKS contains a PRIVATE key — do not trust this domain");
+        return thumbprint(jwk).then(function (tp) {
+          return crypto.subtle
+            .importKey("jwk", { kty: jwk.kty, crv: jwk.crv, x: jwk.x, y: jwk.y }, { name: "ECDSA", namedCurve: "P-256" }, false, ["verify"])
+            .then(function (key) {
+              return crypto.subtle.verify({ name: "ECDSA", hash: "SHA-256" }, key, b64uToBytes(sig.signature), input);
+            })
+            .then(function (ok) {
+              return { ok: ok, kidIsThumbprint: tp === header.kid };
+            });
+        });
+      })
+      .then(function (res) {
+        if (!res.ok) {
+          sigState("1 — DOES NOT VERIFY", "bad");
+          sigNote(
+            "The signature does <strong>not</strong> verify over this card's canonical payload. Either the card changed after it was signed, or it was not signed by the key it names. Do not trust this card.",
+          );
+          return;
+        }
+        var sameOrigin = cardOrigin && keyOrigin === cardOrigin;
+        sigState("1 — verified", "ok");
+        sigNote(
+          "<strong>Verified.</strong> ES256 over the card canonicalised per RFC 8785 with <code class=\"inline\">signatures[]</code> excluded, against the key at <code class=\"inline\">" +
+            esc(header.jku) +
+            "</code>" +
+            (res.kidIsThumbprint ? ", whose <code class=\"inline\">kid</code> is its own RFC 7638 thumbprint" : ", though its <code class=\"inline\">kid</code> is <em>not</em> that key's RFC 7638 thumbprint — a name, which can outlive the key it named") +
+            ". <strong>This proves the card has not changed since it was signed. It does not prove who signed it</strong> — " +
+            (sameOrigin
+              ? "the key was served by the same origin as the card, so anyone able to forge one could forge the other. Here TLS is what binds this card to this domain, not the signature."
+              : "the key came from <code class=\"inline\">" + esc(keyOrigin) + "</code>, a different origin from the card. Whether that origin is authoritative for this agent is a judgement this tool cannot make for you.") +
+            "",
+        );
+      })
+      .catch(function (e) {
+        sigState("1 — key unreachable", "");
+        sigNote(
+          "The signature could not be checked: " +
+            esc(String(e.message || e)) +
+            ". Most often this is CORS — the key at <code class=\"inline\">" +
+            esc(header.jku) +
+            "</code> is served without <code class=\"inline\">Access-Control-Allow-Origin</code>, so a browser may not read it. The card itself is unaffected; it is the check that is unavailable.",
+        );
+      });
   }
 
   // ── fetch ─────────────────────────────────────────────────────────────────

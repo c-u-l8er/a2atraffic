@@ -7,6 +7,14 @@
   Access-Control-Allow-Origin: *
   Cache-Control: public, max-age=300
 
+# The jku in every signature's protected header points here. A verifier running
+# in a browser has to fetch this cross-origin to check the card at all, so a JWKS
+# without CORS makes the signature unverifiable by exactly the clients most
+# likely to try. Short cache: this is the file a key rotation changes.
+/.well-known/jwks.json
+  Access-Control-Allow-Origin: *
+  Cache-Control: public, max-age=300
+
 # The draft is quoted on the homepage and linked from it; same reasoning.
 /records/*
   Access-Control-Allow-Origin: *

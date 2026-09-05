@@ -901,9 +901,20 @@
                     Limit: a browser cannot read a cross-origin URL that does not
                     send <code class="inline">Access-Control-Allow-Origin</code>. That is the
                     common case, so the common result of this tool is a refusal
-                    that tells you what to run in a terminal. It is a reader, not
-                    a prover — it cannot verify a JWS signature, and it says so
-                    when it meets one.
+                    that tells you what to run in a terminal.
+                </p>
+                <p class="src" style="margin-top: 0.8rem">
+                    It <em>does</em> verify an <code class="inline">ES256</code>
+                    signature, in your browser, canonicalising the card per RFC 8785
+                    and fetching the key the signature's own
+                    <code class="inline">jku</code> names. This paragraph used to say
+                    it could not, and that a reader in a page could not honestly claim
+                    to — which was simply wrong, and was corrected when this site
+                    signed its own card and had to read its own limit back.
+                    A verified signature proves the card has not changed since it was
+                    signed. It does not prove <em>who</em> signed it, and when the key
+                    is served by the same origin as the card the result says so:
+                    that is a tick for TLS, not for the signature.
                 </p>
             </section>
         </div>
@@ -946,7 +957,7 @@
 <span class="str">200 application/a2a+json   role ROLE_AGENT, skill gap-matrix, and the answer carries the preprint caveat with it</span></pre>
             <p class="section-desc" style="margin-top:1.6rem">
                 <strong>What it does not do, stated where the claim is made.</strong>
-                It holds no state, so nothing it says can depend on anything you said before. It has no model. Requests reach a skill by keyword match, not by understanding, and an unmatched request says so and lists what it can answer rather than guessing. It answers only out of /records/*.json — the same published records this page is generated from, read at request time over this origin's own asset store, so the agent and the page cannot disagree. The card carries no signatures[], so nothing here is cryptographically bound to this domain.
+                It holds no state, so nothing it says can depend on anything you said before. It has no model. Requests reach a skill by keyword match, not by understanding, and an unmatched request says so and lists what it can answer rather than guessing. It answers only out of /records/*.json — the same published records this page is generated from, read at request time over this origin's own asset store, so the agent and the page cannot disagree. The card IS signed (ES256, A2A §8.4, key at /.well-known/jwks.json) — but the verifying key is published on the same domain as the card, so the signature proves the card has not changed since signing, not who signed it. Anyone able to serve you a forged card could serve a forged key beside it. TLS carries the domain binding; the signature is not a second opinion about the same channel.
             </p>
             <p class="section-desc">
                 The agent holds no state, so it creates no Tasks: SendMessage answers with a Message, the arm of SendMessageResponse's oneof that promises nothing retrievable. ListTasks returns an empty page because the list IS empty, and GetTask returns TaskNotFoundError because no id has ever been issued. Those are true answers, not stubs. The four methods the card marks unsupported are
@@ -971,10 +982,35 @@
                 retraction, and the fault is only checkable against what repaired it.
             </p>
             <p class="section-desc">
-                The card carries no <code class="inline">signatures[]</code>. A2A v1.0
-                supports JWS over JCS-canonicalised JSON, which would bind this card to
-                this domain; nothing here is bound to anything. That is a real gap and it
-                is stated rather than hidden.
+                <strong>It is signed.</strong> A2A v1.0 §8.4 binds a card to a domain with
+                a detached JWS over the card canonicalised by
+                <a href="https://www.rfc-editor.org/rfc/rfc8785">RFC 8785</a>, with
+                <code class="inline">signatures[]</code> itself excluded from what is
+                signed. This one is <code class="inline">ES256</code>, signed
+                2026-09-05, over a canonical payload whose SHA-256 is
+                <code class="inline">e7612d215a8f18cf…</code>. The
+                verifying key is published at
+                <a href="https://a2atraffic.com/.well-known/jwks.json">/.well-known/jwks.json</a>, which is
+                the <code class="inline">jku</code> in the signature's own protected
+                header, and its <code class="inline">kid</code> is the key's RFC 7638
+                thumbprint rather than a name — a name can be reused after a rotation and
+                point at a different key.
+            </p>
+            <p class="section-desc">
+                <strong>What the signature does not prove.</strong> It proves this card
+                was signed by whoever holds that key and has not changed since. It does
+                not prove who that is: the key is published on this domain, so anyone who
+                could serve you a forged card could serve you a forged key beside it. That
+                is the ordinary limit of <code class="inline">jku</code>-on-the-same-origin
+                discovery, and TLS is what is actually carrying the domain binding. A
+                signature is not a second opinion about the same channel.
+            </p>
+            <p class="section-desc">
+                The build never signs — ECDSA is randomised, so a build that signed would
+                not be byte-identical to the one before it. The signature is a committed
+                input and the build only verifies it, refusing to publish when the card
+                has changed since it was signed. A stale signature is worse than none: it
+                claims authenticity over content that has since moved.
             </p>
             <pre class="code">{
   &quot;name&quot;: &quot;a2a-traffic-observatory&quot;,
@@ -1035,6 +1071,12 @@
         &quot;What is the well-known path for an Agent Card?&quot;,
         &quot;What replaced preferredTransport in v1.0?&quot;
       ]
+    }
+  ],
+  &quot;signatures&quot;: [
+    {
+      &quot;protected&quot;: &quot;eyJhbGciOiJFUzI1NiIsInR5cCI6IkpPU0UiLCJraWQiOiI5RkpTVEVHZ2NPMmRmd19KV196Q3h5cGpzc3dQNzJwOFJuWERhdGFSQWFFIiwiamt1IjoiaHR0cHM6Ly9hMmF0cmFmZmljLmNvbS8ud2VsbC1rbm93bi9qd2tzLmpzb24ifQ&quot;,
+      &quot;signature&quot;: &quot;VJCo6RQ1MANP0r28859dZ_13LbKburD6m59t0WAB1Xwr6kzrxA0g-qenZTooQm3tJAVRu0PbfkQ7k8bpF6W22Q&quot;
     }
   ]
 }</pre>
