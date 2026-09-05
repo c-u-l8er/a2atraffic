@@ -25,6 +25,14 @@ const call = async (method, path, body, headers = {}) => {
 const msg = (t) => ({ message: { messageId: "m1", role: "ROLE_USER", parts: [{ text: t }] } });
 let fails = 0;
 const t = async (label, fn) => { try { await fn(); console.log("  ok  ", label); } catch (e) { fails++; console.log("  FAIL", label, "->", e.message); } };
+const errOf = (body) => {
+  const e = JSON.parse(body).error;
+  if (!e) throw new Error("no `error` wrapper (spec §11.6)");
+  const d = (e.details || [])[0] || {};
+  if (d["@type"] !== "type.googleapis.com/google.rpc.ErrorInfo") throw new Error(`details[0].@type is ${d["@type"]}`);
+  if (d.domain !== "a2a-protocol.org") throw new Error(`domain is ${d.domain}`);
+  return { code: e.code, status: e.status, message: e.message, reason: d.reason, name: (d.metadata || {}).a2aError, meta: d.metadata || {} };
+};
 const eq = (a, b, w) => { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Error(`${w}: ${JSON.stringify(a)} != ${JSON.stringify(b)}`); };
 
 console.log("A2A endpoint, local exercise\n");
@@ -82,13 +90,13 @@ await t("a v0.3-shaped text Part is still READ (it carries `text`)", async () =>
 await t("a Part with no text member is refused, naming the v0.3 shape", async () => {
   const r = await call("POST", "/a2a/json/message:send", { message: { messageId: "m", role: "ROLE_USER", parts: [{ kind: "file", file: { uri: "x" } }] } });
   eq(r.status, 400, "status");
-  if (!JSON.parse(r.body).detail.includes("v0.3")) throw new Error("no v0.3 hint");
+  if (!errOf(r.body).message.includes("v0.3")) throw new Error("no v0.3 hint");
 });
 
-await t("missing messageId is a 400 problem+json", async () => {
+await t("missing messageId is a 400 in the google.rpc.Status shape", async () => {
   const r = await call("POST", "/a2a/json/message:send", { message: { role: "ROLE_USER", parts: [{ text: "hi" }] } });
-  eq(r.status, 400, "status"); if (!r.ct.startsWith("application/problem+json")) throw new Error(r.ct);
-  eq(JSON.parse(r.body).a2aError, "ContentTypeNotSupportedError", "error");
+  eq(r.status, 400, "status"); if (!r.ct.startsWith("application/a2a+json")) throw new Error(`errors use the a2a media type per §11.6, got ${r.ct}`);
+  eq(errOf(r.body).reason, "CONTENT_TYPE_NOT_SUPPORTED", "reason");
 });
 
 await t("ListTasks is an empty page, not an error", async () => {
@@ -104,34 +112,35 @@ await t("pageSize is clamped to the spec's 1..100", async () => {
 
 await t("GetTask is TaskNotFoundError 404", async () => {
   const r = await call("GET", "/a2a/json/tasks/abc-123");
-  eq(r.status, 404, "status"); eq(JSON.parse(r.body).a2aError, "TaskNotFoundError", "error");
-  eq(JSON.parse(r.body).type, "https://a2a-protocol.org/errors/task-not-found", "type");
+  eq(r.status, 404, "status");
+  const e = errOf(r.body);
+  eq(e.reason, "TASK_NOT_FOUND", "reason"); eq(e.status, "NOT_FOUND", "grpc status"); eq(e.code, 404, "code");
 });
 
 await t("CancelTask is TaskNotFoundError", async () => {
   const r = await call("POST", "/a2a/json/tasks/abc:cancel");
-  eq(r.status, 404, "status"); eq(JSON.parse(r.body).a2aError, "TaskNotFoundError", "error");
+  eq(r.status, 404, "status"); eq(errOf(r.body).reason, "TASK_NOT_FOUND", "reason");
 });
 
 await t("streaming refuses because the card says false", async () => {
   const r = await call("POST", "/a2a/json/message:stream", msg("hi"));
-  eq(r.status, 400, "status"); eq(JSON.parse(r.body).a2aError, "UnsupportedOperationError", "error");
+  eq(r.status, 400, "status"); eq(errOf(r.body).reason, "UNSUPPORTED_OPERATION", "reason");
 });
 
 await t("push config refuses with its own error name", async () => {
   const r = await call("POST", "/a2a/json/tasks/x/pushNotificationConfigs", {});
-  eq(JSON.parse(r.body).a2aError, "PushNotificationNotSupportedError", "error");
+  eq(errOf(r.body).reason, "PUSH_NOTIFICATION_NOT_SUPPORTED", "reason");
 });
 
 await t("extendedAgentCard refuses with its own error name", async () => {
   const r = await call("GET", "/a2a/json/extendedAgentCard");
-  eq(JSON.parse(r.body).a2aError, "ExtendedAgentCardNotConfiguredError", "error");
+  eq(errOf(r.body).reason, "EXTENDED_AGENT_CARD_NOT_CONFIGURED", "reason");
 });
 
 await t("A2A-Version negotiation", async () => {
   const r = await call("POST", "/a2a/json/message:send", msg("version"), { "a2a-version": "0.5" });
-  eq(r.status, 400, "status"); eq(JSON.parse(r.body).a2aError, "VersionNotSupportedError", "error");
-  eq(JSON.parse(r.body).supportedVersions, ["1.0"], "supportedVersions");
+  eq(r.status, 400, "status"); eq(errOf(r.body).reason, "VERSION_NOT_SUPPORTED", "reason");
+  eq(errOf(r.body).meta.supportedVersions, '["1.0"]', "supportedVersions (ErrorInfo.metadata is map<string,string>)");
   eq((await call("POST", "/a2a/json/message:send", msg("version"), { "a2a-version": "1.0" })).status, 200, "1.0 accepted");
 });
 
@@ -143,7 +152,7 @@ await t("contextId is echoed when the client sets one", async () => {
 
 await t("unknown method under the interface refuses", async () => {
   const r = await call("GET", "/a2a/json/nope");
-  eq(r.status, 400, "status"); eq(JSON.parse(r.body).a2aError, "UnsupportedOperationError", "error");
+  eq(r.status, 400, "status"); eq(errOf(r.body).reason, "UNSUPPORTED_OPERATION", "reason");
 });
 
 // The card advertises examples[] per skill. An example that routes to the OTHER

@@ -911,7 +911,7 @@
         <!-- ═══════ OUR CARD ═══════ -->
         <section id="ourcard" class="reveal">
             <span class="section-label">// our own card</span>
-            <h2 class="section-title">We publish the refusal, not the card</h2>
+            <h2 class="section-title"><!-- GEN:ourcard-title -->We publish the refusal, not the card<!-- /GEN:ourcard-title --></h2>
             <!-- GEN:ourcard --><p class="section-desc">
                 A2A v1.0 requires <code class="inline">supportedInterfaces[]</code> on every
                 Agent Card — there is no spec-valid way to say “discoverable but not
@@ -1118,12 +1118,12 @@
                             <tr>
                                 <th scope="row">Pagination</th>
                                 <td class="was"><code>page / perPage</code></td>
-                                <td><code>cursor / limit / nextCursor</code><span class="why">Cursor-based.</span></td>
+                                <td><code>pageSize / pageToken / nextPageToken, with totalSize on the response</code><span class="why">Page-token based. ListTasksRequest carries page_size and page_token; ListTasksResponse carries next_page_token, page_size and total_size. Corrected 2026-09-05 — see drift_2026_09_05.</span></td>
                             </tr>
                             <tr>
                                 <th scope="row">Errors</th>
                                 <td class="was"><code>RFC 9457 application/problem+json</code></td>
-                                <td><code>google.rpc.Status + ErrorInfo, application/json</code><span class="why">Errors carry a details[] with reason in UPPER_SNAKE_CASE and domain a2a-protocol.org.</span></td>
+                                <td><code>google.rpc.Status under an `error` key, application/a2a+json</code><span class="why">Errors carry a details[] whose first entry is a google.rpc.ErrorInfo with reason in UPPER_SNAKE_CASE and domain a2a-protocol.org, beside error.code (the HTTP status) and error.status (the gRPC status name). Required because several A2A errors share one HTTP status. Media type corrected 2026-09-05 — see drift_2026_09_05.</span></td>
                             </tr>
                             <tr>
                                 <th scope="row">OAuth</th>

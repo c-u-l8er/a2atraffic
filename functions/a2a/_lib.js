@@ -9,37 +9,42 @@
 //   - https://a2a-protocol.org/latest/specification/  (§5.4 error mappings and
 //     the worked request/response examples in §6)
 //
-// Two things measured there DISAGREE with records/protocol.json, which was
-// verified 2026-08-17. Both are recorded in records/protocol.json under
-// drift_2026_09_05 rather than silently corrected here, because a record is
-// changed by a dated re-measurement and not by an implementation that happens
-// to disagree with it:
-//   1. ListTasks pagination is pageSize / pageToken / nextPageToken. The record
-//      says cursor / limit / nextCursor. "cursor" appears nowhere in the proto.
-//   2. The HTTP+JSON binding carries errors as RFC 9457 application/problem+json
-//      (spec §6.4 shows one). The record says errors moved AWAY from problem+json
-//      to google.rpc.Status. google.rpc.Status is the gRPC binding's shape.
-// This file implements what the sources say, because that is what a client will
-// send and expect.
+// One thing measured there disagrees with records/protocol.json, verified
+// 2026-08-17, and it is recorded in that record under drift_2026_09_05 rather
+// than reconciled here: ListTasks pagination is pageSize / pageToken /
+// nextPageToken, not cursor / limit / nextCursor. "cursor" occurs nowhere in
+// the proto, and §6.5's worked example shows pageSize / nextPageToken /
+// totalSize. A record is changed by a dated re-measurement, not by an
+// implementation that happens to disagree with it.
+//
+// A SECOND disagreement was claimed here and WAS WRONG — this comment said the
+// binding carried errors as RFC 9457 problem+json and that the record had it
+// backwards. §11.6, the HTTP binding's own error section, is normative and says
+// the opposite: errors are the google.rpc.Status JSON representation, under an
+// `error` key, with Content-Type application/a2a+json, and an A2A-specific error
+// MUST carry a google.rpc.ErrorInfo in details[] with reason in UPPER_SNAKE_CASE
+// and domain a2a-protocol.org. That is exactly what the record said. The
+// problem+json in §6.4 is a single version-negotiation example and generalising
+// from it was the error. This file implements §11.6.
 
 export const A2A_VERSION = "1.0";
 export const CT_A2A = "application/a2a+json";
-export const CT_PROBLEM = "application/problem+json";
+// Errors use the same media type as success responses (§11.6 example).
 
-// a2a-protocol.org/latest/specification/ §5.4, the HTTP column. The `type` URI
-// slug is INFERRED from the single worked example in §6.4
-// (VersionNotSupportedError -> .../errors/version-not-supported); the spec does
-// not tabulate the slugs. Marked as inference, not measurement.
+// §5.4 maps every A2A error to a gRPC status and an HTTP status; §11.6 requires
+// the gRPC status NAME in error.status and a google.rpc.ErrorInfo in details[]
+// whose `reason` is the error in UPPER_SNAKE_CASE — the example there confirms
+// TaskNotFoundError -> TASK_NOT_FOUND, which is the rule the rest follow.
 const ERRORS = {
-  TaskNotFoundError: [404, "task-not-found", "Task Not Found"],
-  TaskNotCancelableError: [400, "task-not-cancelable", "Task Not Cancelable"],
-  PushNotificationNotSupportedError: [400, "push-notification-not-supported", "Push Notification Not Supported"],
-  UnsupportedOperationError: [400, "unsupported-operation", "Unsupported Operation"],
-  ContentTypeNotSupportedError: [400, "content-type-not-supported", "Content Type Not Supported"],
-  InvalidAgentResponseError: [500, "invalid-agent-response", "Invalid Agent Response"],
-  ExtendedAgentCardNotConfiguredError: [400, "extended-agent-card-not-configured", "Extended Agent Card Not Configured"],
-  ExtensionSupportRequiredError: [400, "extension-support-required", "Extension Support Required"],
-  VersionNotSupportedError: [400, "version-not-supported", "Version Not Supported"],
+  TaskNotFoundError: [404, "NOT_FOUND", "TASK_NOT_FOUND"],
+  TaskNotCancelableError: [400, "FAILED_PRECONDITION", "TASK_NOT_CANCELABLE"],
+  PushNotificationNotSupportedError: [400, "FAILED_PRECONDITION", "PUSH_NOTIFICATION_NOT_SUPPORTED"],
+  UnsupportedOperationError: [400, "FAILED_PRECONDITION", "UNSUPPORTED_OPERATION"],
+  ContentTypeNotSupportedError: [400, "INVALID_ARGUMENT", "CONTENT_TYPE_NOT_SUPPORTED"],
+  InvalidAgentResponseError: [500, "INTERNAL", "INVALID_AGENT_RESPONSE"],
+  ExtendedAgentCardNotConfiguredError: [400, "FAILED_PRECONDITION", "EXTENDED_AGENT_CARD_NOT_CONFIGURED"],
+  ExtensionSupportRequiredError: [400, "FAILED_PRECONDITION", "EXTENSION_SUPPORT_REQUIRED"],
+  VersionNotSupportedError: [400, "FAILED_PRECONDITION", "VERSION_NOT_SUPPORTED"],
 };
 
 const CORS = {
@@ -56,13 +61,32 @@ export function json(body, { status = 200, contentType = CT_A2A } = {}) {
   });
 }
 
-// RFC 9457 problem detail. `extra` carries the spec's non-standard members,
-// e.g. supportedVersions on a version error (§6.4).
-export function problem(name, detail, extra = {}) {
-  const [status, slug, title] = ERRORS[name] || [500, "internal", "Internal Error"];
+// google.rpc.Status JSON, per §11.6. `metadata` is google.rpc.ErrorInfo's
+// map<string, string>, so every value is stringified rather than nested.
+export function a2aError(name, message, metadata = {}) {
+  const [status, grpc, reason] = ERRORS[name] || [500, "INTERNAL", "INTERNAL"];
   return json(
-    { type: `https://a2a-protocol.org/errors/${slug}`, title, status, detail, a2aError: name, ...extra },
-    { status, contentType: CT_PROBLEM },
+    {
+      error: {
+        code: status,
+        status: grpc,
+        message,
+        details: [
+          {
+            "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+            reason,
+            domain: "a2a-protocol.org",
+            metadata: Object.fromEntries(
+              Object.entries({ a2aError: name, ...metadata }).map(([k, v]) => [
+                k,
+                typeof v === "string" ? v : JSON.stringify(v),
+              ]),
+            ),
+          },
+        ],
+      },
+    },
+    { status },
   );
 }
 
@@ -86,7 +110,7 @@ export async function record(env, request, name) {
 export function checkVersion(request) {
   const v = request.headers.get("a2a-version");
   if (v && v !== A2A_VERSION) {
-    return problem(
+    return a2aError(
       "VersionNotSupportedError",
       `The requested A2A protocol version ${v} is not supported by this agent.`,
       { supportedVersions: [A2A_VERSION] },
@@ -98,7 +122,7 @@ export function checkVersion(request) {
 export function checkContentType(request) {
   const ct = (request.headers.get("content-type") || "").split(";")[0].trim().toLowerCase();
   if (ct && ct !== CT_A2A && ct !== "application/json") {
-    return problem(
+    return a2aError(
       "ContentTypeNotSupportedError",
       `Request media type ${ct} is not supported. Send ${CT_A2A} (application/json is also accepted).`,
     );

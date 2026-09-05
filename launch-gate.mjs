@@ -209,7 +209,11 @@ check(
     ? "a card is on disk but the record says it is not served"
     : "the record says a card is served but none is on disk",
 );
-if (!surface.serve_agent_card) {
+// These hold in BOTH states. They used to run only while the card was refused,
+// which would have let the served branch quietly drop the retraction the moment
+// the flag flipped — and the retraction is the whole argument of that section.
+// A fix is only checkable against the fault it repaired.
+{
   const host = surface.hosting || {};
   // The page must state the MEASURED status of the discovery path. It promised
   // a 404 once; the host answers 200, and a page that promises an absence it
@@ -249,6 +253,72 @@ if (!surface.serve_agent_card) {
     "a closed finding is not still described as open",
     host.portfolio_wide || !/on the others it is still open/i.test(scan),
   );
+}
+
+// ── 5b. serving the card is only legitimate against a measured interface ───
+// The rule this section enforces is the one records/surface.json has stated
+// since the draft was written: a card at the discovery path is a promise that
+// the URL it names will answer. The gate cannot dial that URL, but it CAN refuse
+// to publish a promise with no measurement behind it, and it can refuse a card
+// whose declared interface disagrees with the record that measured one.
+if (surface.serve_agent_card) {
+  const ep = surface.a2a_endpoint;
+  check("a served card has an a2a_endpoint record behind it", !!ep);
+  if (ep) {
+    const card = JSON.parse(readFileSync(R(".well-known/agent-card.json"), "utf8"));
+    const iface = (card.supportedInterfaces || [])[0] || {};
+
+    check(
+      "the served card declares the interface the record measured",
+      iface.url === ep.url,
+      `card says ${iface.url}, record says ${ep.url}`,
+    );
+    check(
+      "the binding and version agree with the record",
+      iface.protocolBinding === ep.protocol_binding && iface.protocolVersion === ep.protocol_version,
+    );
+    check("the endpoint record carries measurements", Array.isArray(ep.measured) && ep.measured.length > 0);
+    check(
+      "every measurement states what was run and what came back",
+      (ep.measured || []).every((m) => m.what && m.curl && m.got),
+    );
+    check("the page states the interface URL", scan.includes(ep.url));
+    check("the page is dated by the endpoint measurement", scan.includes(ep.measured_at));
+
+    // A capability declared false must be REFUSED, not merely undeclared. The
+    // previous version of this site printed streaming: true for an agent that
+    // did not exist; the inverse defect is declaring false and answering anyway.
+    const caps = card.capabilities || {};
+    const refusedBecause = (ep.refused || []).map((r) => r.because).join(" ");
+    for (const [cap, val] of Object.entries(caps)) {
+      if (val === false) {
+        check(
+          `capabilities.${cap} is false and something refuses on that ground`,
+          refusedBecause.includes(`capabilities.${cap} is false`),
+          `no entry in a2a_endpoint.refused cites capabilities.${cap}`,
+        );
+      }
+    }
+
+    // The emitted card must be spec-shaped, checked against the field list that
+    // was read off google.api.field_behavior rather than off an example.
+    const missing = protocol.agent_card_required_fields.filter((f) => !(f in card));
+    check("the served card carries every REQUIRED AgentCard field", missing.length === 0, `missing: ${missing.join(", ")}`);
+    check(
+      "no annotation key survived into the served card",
+      !Object.keys(card).some((k) => k.startsWith("_")),
+    );
+    check(
+      "the page no longer says this domain publishes no card",
+      !/publishes no\s+Agent Card/i.test(scan),
+    );
+    const four = readFileSync(R("404.html"), "utf8");
+    check(
+      "the 404 page no longer says this domain publishes no card",
+      !/publishes no\s+Agent Card/i.test(four),
+      "404.html still states the refusal the homepage has retracted",
+    );
+  }
 }
 
 // ── 6. the shared nav ──────────────────────────────────────────────────────

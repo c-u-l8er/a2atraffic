@@ -26,7 +26,7 @@
 // card, so the streaming and push methods return the errors the spec requires
 // for a capability the card does not declare (spec §3.3.4).
 
-import { problem, json, preflight, checkVersion, checkContentType, textOf, agentMessage, record, A2A_VERSION } from "../_lib.js";
+import { a2aError, json, preflight, checkVersion, checkContentType, textOf, agentMessage, record, A2A_VERSION } from "../_lib.js";
 import { protocolReference, gapMatrix, route } from "../_skills.js";
 import { baseDescriptor } from "../_base.js";
 
@@ -58,7 +58,7 @@ export async function onRequest(ctx) {
 
   // POST /message:stream — capabilities.streaming is false
   if (path === "message:stream") {
-    return problem(
+    return a2aError(
       "UnsupportedOperationError",
       "This agent does not support streaming. capabilities.streaming is false in its Agent Card. Every answer it can give is complete inside a single SendMessage response, so there is nothing to stream.",
     );
@@ -66,7 +66,7 @@ export async function onRequest(ctx) {
 
   // GET /extendedAgentCard — capabilities.extendedAgentCard is false
   if (path === "extendedAgentCard") {
-    return problem(
+    return a2aError(
       "ExtendedAgentCardNotConfiguredError",
       "No extended Agent Card is configured. capabilities.extendedAgentCard is false, and this agent has no authenticated surface to describe: everything it knows is already public at /records/.",
     );
@@ -74,7 +74,7 @@ export async function onRequest(ctx) {
 
   // push notification configs — capabilities.pushNotifications is false
   if (segs.includes("pushNotificationConfigs")) {
-    return problem(
+    return a2aError(
       "PushNotificationNotSupportedError",
       "This agent does not support push notifications. capabilities.pushNotifications is false in its Agent Card, and it creates no tasks to notify about.",
     );
@@ -92,7 +92,7 @@ export async function onRequest(ctx) {
 
   // GET /tasks/{id}:subscribe — capabilities.streaming is false
   if (segs[0] === "tasks" && segs.length === 2 && segs[1].endsWith(":subscribe")) {
-    return problem(
+    return a2aError(
       "UnsupportedOperationError",
       "This agent does not support task subscription. capabilities.streaming is false and no task exists to subscribe to.",
     );
@@ -101,7 +101,7 @@ export async function onRequest(ctx) {
   // POST /tasks/{id}:cancel — CancelTask
   if (segs[0] === "tasks" && segs.length === 2 && segs[1].endsWith(":cancel")) {
     const id = segs[1].slice(0, -":cancel".length);
-    return problem(
+    return a2aError(
       "TaskNotFoundError",
       `No task with id "${decodeURIComponent(id)}" exists. This agent creates no tasks — SendMessage answers with a Message, so there has never been a task to cancel.`,
     );
@@ -110,20 +110,20 @@ export async function onRequest(ctx) {
   // GET /tasks/{id} — GetTask
   if (segs[0] === "tasks" && segs.length === 2) {
     if (M !== "GET") return methodNotAllowed(M, "GET", path);
-    return problem(
+    return a2aError(
       "TaskNotFoundError",
       `No task with id "${decodeURIComponent(segs[1])}" exists. This agent creates no tasks — SendMessage answers with a Message, so no id has ever been issued.`,
     );
   }
 
-  return problem(
+  return a2aError(
     "UnsupportedOperationError",
     `"/${path}" is not an A2A method on this interface. Implemented: POST /message:send, GET /tasks, GET /tasks/{id}, POST /tasks/{id}:cancel. Declared-and-refused: /message:stream, /tasks/{id}:subscribe, /tasks/{id}/pushNotificationConfigs, /extendedAgentCard.`,
   );
 }
 
 function methodNotAllowed(got, want, path) {
-  return problem(
+  return a2aError(
     "UnsupportedOperationError",
     `${got} is not allowed on /${path}. The A2A HTTP+JSON binding defines it as ${want}.`,
   );
@@ -134,21 +134,21 @@ async function sendMessage(request, env) {
   try {
     body = await request.json();
   } catch {
-    return problem("ContentTypeNotSupportedError", "Request body is not valid JSON.");
+    return a2aError("ContentTypeNotSupportedError", "Request body is not valid JSON.");
   }
 
   const message = body && body.message;
   if (!message || typeof message !== "object") {
-    return problem("ContentTypeNotSupportedError", "SendMessageRequest.message is REQUIRED (a2a.proto: field_behavior REQUIRED).");
+    return a2aError("ContentTypeNotSupportedError", "SendMessageRequest.message is REQUIRED (a2a.proto: field_behavior REQUIRED).");
   }
   if (!message.messageId) {
-    return problem("ContentTypeNotSupportedError", "Message.messageId is REQUIRED and was absent.");
+    return a2aError("ContentTypeNotSupportedError", "Message.messageId is REQUIRED and was absent.");
   }
   if (!Array.isArray(message.parts) || message.parts.length === 0) {
-    return problem("ContentTypeNotSupportedError", "Message.parts is REQUIRED and must contain at least one Part.");
+    return a2aError("ContentTypeNotSupportedError", "Message.parts is REQUIRED and must contain at least one Part.");
   }
   if (message.role && message.role !== "ROLE_USER") {
-    return problem(
+    return a2aError(
       "ContentTypeNotSupportedError",
       `Message.role was "${message.role}". A client message must carry ROLE_USER; v1.0 replaced the bare "user" string with the ROLE_USER enum name.`,
     );
@@ -156,7 +156,7 @@ async function sendMessage(request, env) {
 
   const text = textOf(message);
   if (!text) {
-    return problem(
+    return a2aError(
       "ContentTypeNotSupportedError",
       'No text Part was present. This agent reads only text parts. In v1.0 a Part is discriminated by member presence — send {"text": "..."} , not {"kind": "text", ...}, which is the v0.3 shape.',
     );
@@ -170,7 +170,7 @@ async function sendMessage(request, env) {
         ? gapMatrix(text, await record(env, request, "gap-matrix"))
         : protocolReference(text, await record(env, request, "protocol"));
   } catch (e) {
-    return problem("InvalidAgentResponseError", `The record backing skill "${skill}" could not be read: ${e.message}`);
+    return a2aError("InvalidAgentResponseError", `The record backing skill "${skill}" could not be read: ${e.message}`);
   }
 
   return json(agentMessage(answer.parts, { contextId: message.contextId }));

@@ -437,7 +437,7 @@ const cardJSON = JSON.stringify(cardPublic, null, 2);
 const host = surface.hosting;
 if (!host) fail("surface.hosting is absent; the 'our own card' section is written from a measurement and cannot be written without one.");
 
-GEN.ourcard = `<p class="section-desc">
+const OURCARD_REFUSING = `<p class="section-desc">
                 A2A v1.0 requires <code class="inline">supportedInterfaces[]</code> on every
                 Agent Card — there is no spec-valid way to say “discoverable but not
                 serving”. This surface serves static files and answers no A2A task
@@ -510,6 +510,88 @@ GEN.ourcard = `<p class="section-desc">
                 <code class="inline">${String(surface.serve_agent_card)}</code>),
                 and it must not be flipped until an endpoint answers.
             </p>`;
+
+
+// The served branch. It must NOT drop the retraction: a fix is only checkable
+// against the fault it repaired, and this section's whole argument is that the
+// page was wrong about itself once and said so. What changes is the reason the
+// discovery path behaves as it does — it used to 404 because there was nothing
+// honest to put there, and now it resolves because there is.
+// Built LAZILY. An eager version of this refused every build while the flag was
+// false, because the guard below and the ${ep.*} reads run whether or not the
+// branch is used — so turning the card OFF became impossible, which is the one
+// operation this flag exists to make possible. Only exercising the other branch
+// found it.
+const ourCardServed = () => {
+  const ep = surface.a2a_endpoint;
+  if (!ep) fail("serve_agent_card is true but surface.a2a_endpoint is absent; the card may not be served without a record of the interface that makes it true.");
+  return `<p class="section-desc">
+                A2A v1.0 requires <code class="inline">supportedInterfaces[]</code> on every
+                Agent Card — there is no spec-valid way to say “discoverable but not
+                serving”. For ${esc(ep.declared_unanswered_for)} this surface declared
+                <code class="inline">${esc(ep.url)}</code> and served nothing there, so the
+                card stayed a draft at a draft path and the discovery path returned
+                <code class="inline">404</code> on purpose.
+            </p>
+            <p class="section-desc">
+                <strong>That interface answers now</strong>, so the card is published at the
+                discovery path. It was measured on ${esc(ep.measured_at)}, against the
+                deployed site rather than against the intention to deploy it:
+            </p>
+            <pre class="code">${ep.measured
+              .map(
+                (m) =>
+                  `<span class="cmt">// ${esc(m.what)}</span>\n<span class="fn">curl</span> ${esc(m.curl)}\n<span class="str">${esc(m.got)}</span>`,
+              )
+              .join("\n\n")}</pre>
+            <p class="section-desc" style="margin-top:1.6rem">
+                <strong>What it does not do, stated where the claim is made.</strong>
+                ${ep.limits.map((l) => esc(l)).join(" ")}
+            </p>
+            <p class="section-desc">
+                ${esc(ep.methods_note)} The four methods the card marks unsupported are
+                refused by name, each citing the capability that refuses it:
+                ${ep.refused.map((r) => `<code class="inline">${esc(r.method)}</code> → ${esc(r.error)}`).join(" · ")}.
+            </p>
+            <p class="section-desc">
+                <strong>The retraction stays.</strong>
+                An earlier draft of this section promised the discovery path returned
+                <code class="inline">404</code> and invited you to check. The inspector
+                below — written for this page, pointed at this domain as its own first
+                test — came back
+                <code class="inline">${esc(String(host.before.status))} ${esc(host.before.content_type)}</code>
+                (${esc(host.before.when)}, ${esc(host.before.body)}). The fix was a root
+                <code class="inline">${esc(host.fix)}</code>; re-measured
+                <code class="inline">${esc(String(host.after.status))} ${esc(host.after.content_type)}</code>
+                on ${esc(host.after.when)}
+                <span class="rung-chip" data-rung="live_local">${esc(host.fix_status)}</span>.
+                It was never this domain's alone: ${esc(host.portfolio_wide_history)}
+                ${esc(host.portfolio_wide_measured)}
+                A page that shows only the number that flatters it is not showing the
+                retraction, and the fault is only checkable against what repaired it.
+            </p>
+            <p class="section-desc">
+                The card carries no <code class="inline">signatures[]</code>. A2A v1.0
+                supports JWS over JCS-canonicalised JSON, which would bind this card to
+                this domain; nothing here is bound to anything. That is a real gap and it
+                is stated rather than hidden.
+            </p>
+            <pre class="code">${esc(cardJSON)}</pre>
+            <p class="src" style="margin-top:0.9rem">
+                Served at <a href="${esc(protocol.discovery.well_known_path)}">${esc(protocol.discovery.well_known_path)}</a>,
+                emitted from <a href="/records/agent-card.draft.json">records/agent-card.draft.json</a>
+                with its annotation keys stripped. The interface it declares is
+                <a href="${esc(ep.url)}">${esc(ep.url)}</a>
+                (<code class="inline">${esc(ep.protocol_binding)}</code>,
+                protocol version <code class="inline">${esc(ep.protocol_version)}</code>).
+            </p>`;
+
+};
+
+GEN["ourcard-title"] = surface.serve_agent_card
+  ? "The card is served, because the interface answers"
+  : "We publish the refusal, not the card";
+GEN.ourcard = surface.serve_agent_card ? ourCardServed() : OURCARD_REFUSING;
 
 // ── GEN: capability cards ──────────────────────────────────────────────────
 const CAPABILITIES = [
@@ -692,9 +774,16 @@ writeFileSync(
 <main>
   <div class="code">404</div>
   <h1>No such path on a2atraffic.com.</h1>
-  <p>If you were performing A2A well-known discovery, this domain publishes no
+  <p>${
+    surface.serve_agent_card
+      ? `If you were performing A2A well-known discovery, the Agent Card is at
+     <code>${esc(protocol.discovery.well_known_path)}</code> and the interface it declares
+     answers at <code>${esc((surface.a2a_endpoint || {}).url || "")}</code>. This path is
+     not part of either.`
+      : `If you were performing A2A well-known discovery, this domain publishes no
      Agent Card at <code>${esc(protocol.discovery.well_known_path)}</code> — it answers
-     no A2A task method, so a card there would advertise an endpoint that refuses.</p>
+     no A2A task method, so a card there would advertise an endpoint that refuses.`
+  }</p>
   <div class="note">
     If you are reading this page, the fix worked. Before it shipped, this domain answered
     <strong>HTTP ${esc(String(host.before.status))}</strong> for every unmatched path,

@@ -80,8 +80,8 @@
     { "area": "Part", "from": "separate TextPart / FilePart / DataPart with a kind discriminator", "to": "one Part with oneof content: text, raw, url, data", "why": "Discriminate by member presence — 'text' in part — not by part.kind. mimeType became mediaType; filename applies to all kinds." },
     { "area": "Stream events", "from": "{ kind: \"status-update\", …, final: true }", "to": "{ statusUpdate: { … } } / { artifactUpdate: { … } }", "why": "Wrapper-based discrimination. The final boolean is gone; closing the stream signals completion." },
     { "area": "HTTP+JSON paths", "from": "POST /v1/message:send", "to": "POST /message:send", "why": "The /v1 prefix was dropped; version lives on the interface." },
-    { "area": "Pagination", "from": "page / perPage", "to": "cursor / limit / nextCursor", "why": "Cursor-based." },
-    { "area": "Errors", "from": "RFC 9457 application/problem+json", "to": "google.rpc.Status + ErrorInfo, application/json", "why": "Errors carry a details[] with reason in UPPER_SNAKE_CASE and domain a2a-protocol.org." },
+    { "area": "Pagination", "from": "page / perPage", "to": "pageSize / pageToken / nextPageToken, with totalSize on the response", "why": "Page-token based. ListTasksRequest carries page_size and page_token; ListTasksResponse carries next_page_token, page_size and total_size. Corrected 2026-09-05 — see drift_2026_09_05." },
+    { "area": "Errors", "from": "RFC 9457 application/problem+json", "to": "google.rpc.Status under an `error` key, application/a2a+json", "why": "Errors carry a details[] whose first entry is a google.rpc.ErrorInfo with reason in UPPER_SNAKE_CASE and domain a2a-protocol.org, beside error.code (the HTTP status) and error.status (the gRPC status name). Required because several A2A errors share one HTTP status. Media type corrected 2026-09-05 — see drift_2026_09_05." },
     { "area": "OAuth", "from": "implicit and password flows", "to": "device code (RFC 8628); pkce_required on authorization code", "why": "The two deprecated flows were removed." },
     { "area": "Agent Card trust", "from": "unsigned", "to": "signatures[] — JWS (RFC 7515) over JCS-canonicalised JSON (RFC 8785)", "why": "A card can now be cryptographically bound to a domain." },
     { "area": "Multi-tenancy", "from": "—", "to": "tenant on every request and on AgentInterface", "why": "Route to one agent among many behind a shared endpoint." },
@@ -115,6 +115,26 @@
     "what_it_does_not_add": "Nothing for agent-to-agent communication, and nothing for governance — no membership, deliberation, voting, dissent preservation, human escalation or tamper-evident replay.",
     "why_that_matters_here": "It sharpens the boundary rather than blurring it. Both protocols now have a task concept, so 'A2A has tasks, MCP does not' is no longer the distinction — the distinction is the axis: MCP went further down toward tools and infrastructure, A2A stays across peers. And a stateless MCP makes the governance question louder, not quieter: a protocol that deliberately holds no session state is not the layer that will remember who was permitted to do what.",
     "source": "https://blog.modelcontextprotocol.io/posts/2026-07-28/"
+  },
+
+  "drift_2026_09_05": {
+    "_comment": "Re-measured 2026-09-05 while implementing the interface recorded at surface.a2a_endpoint, against a2aproject/A2A@main/specification/a2a.proto and a2a-protocol.org/latest/specification/. Two rows of changes_v03_to_v10 were corrected in place; what they said before is kept here, because a row that is quietly swapped is not a correction. Whether the sources changed since 2026-08-17 or the first reading was wrong is NOT determinable from here and is not claimed either way.",
+    "re_measured_at": "2026-09-05",
+    "corrected": [
+      {
+        "area": "Pagination",
+        "said": "cursor / limit / nextCursor",
+        "says_now": "pageSize / pageToken / nextPageToken, with totalSize on the response",
+        "evidence": "The string \"cursor\" occurs nowhere in a2a.proto. ListTasksRequest has page_size and page_token; ListTasksResponse has next_page_token, page_size and total_size, all REQUIRED. §6.5's worked example requests ?pageSize=10 and answers with nextPageToken and totalSize."
+      },
+      {
+        "area": "Errors",
+        "said": "google.rpc.Status + ErrorInfo, application/json",
+        "says_now": "google.rpc.Status under an `error` key, application/a2a+json",
+        "evidence": "§11.6, the HTTP binding's own error section, with a worked 404: Content-Type application/a2a+json and a body of { error: { code, status, message, details: [ { @type .../google.rpc.ErrorInfo, reason, domain, metadata } ] } }. The record's substance was right; only its media type was wrong.",
+        "a_wrong_reading_that_was_nearly_published": "This row was first re-read as being BACKWARDS — that the HTTP binding uses RFC 9457 application/problem+json and that this record had inverted the direction — and the interface was implemented that way, deployed, and said so in a commit message. The source of the error was §6.4, a single version-negotiation example which does answer problem+json. Generalising one example over a normative section is what went wrong, and it was caught only by going back for the section instead of stopping at the example. §10.6 is the gRPC binding's error section and §11.6 is HTTP's; both are google.rpc.Status."
+      }
+    ]
   },
 
   "sources": {
