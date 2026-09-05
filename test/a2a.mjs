@@ -1,7 +1,11 @@
 import { readFileSync } from "node:fs";
 const ROOT = new URL("..", import.meta.url).pathname.replace(/\/$/, "");
-const { onRequest: methods } = await import(`${ROOT}/functions/a2a/json/[[path]].js`);
-const { onRequest: base } = await import(`${ROOT}/functions/a2a/json.js`);
+// ONE entry point, because Cloudflare has one: the catch-all at
+// functions/a2a/json/[[path]].js matches /a2a/json AND everything under it. The
+// first version of this harness dispatched the base URL to a separate module,
+// which is why it did not catch that module being shadowed in production. A test
+// harness that routes differently from the platform tests a different program.
+const { onRequest: handler } = await import(`${ROOT}/functions/a2a/json/[[path]].js`);
 
 const env = { ASSETS: { fetch: async (req) => {
   const p = new URL(req.url).pathname;
@@ -13,8 +17,7 @@ const call = async (method, path, body, headers = {}) => {
   const url = `https://a2atraffic.com${path}`;
   const req = new Request(url, { method, headers: { ...(body ? { "content-type": "application/a2a+json" } : {}), ...headers }, body: body ? JSON.stringify(body) : undefined });
   const segs = path.split("?")[0].replace(/^\/a2a\/json\/?/, "").split("/").filter(Boolean);
-  const res = path === "/a2a/json" ? await base({ request: req, env, params: {} })
-                                   : await methods({ request: req, env, params: { path: segs } });
+  const res = await handler({ request: req, env, params: { path: segs } });
   const txt = await res.text();
   return { status: res.status, ct: res.headers.get("content-type"), body: txt };
 };
@@ -26,7 +29,7 @@ const eq = (a, b, w) => { if (JSON.stringify(a) !== JSON.stringify(b)) throw new
 
 console.log("A2A endpoint, local exercise\n");
 
-await t("GET base is application/json and not a2a+json", async () => {
+await t("the base URL reaches the descriptor through the catch-all", async () => {
   const r = await call("GET", "/a2a/json");
   eq(r.status, 200, "status"); if (!r.ct.startsWith("application/json")) throw new Error(r.ct);
   const j = JSON.parse(r.body); eq(j.implemented.length, 4, "implemented");

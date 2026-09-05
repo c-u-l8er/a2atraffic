@@ -28,6 +28,7 @@
 
 import { problem, json, preflight, checkVersion, checkContentType, textOf, agentMessage, record, A2A_VERSION } from "../_lib.js";
 import { protocolReference, gapMatrix, route } from "../_skills.js";
+import { baseDescriptor } from "../_base.js";
 
 export async function onRequest(ctx) {
   const { request, env, params } = ctx;
@@ -39,6 +40,13 @@ export async function onRequest(ctx) {
   const segs = (Array.isArray(params.path) ? params.path : [params.path]).filter(Boolean);
   const path = segs.join("/");
   const M = request.method;
+
+  // The interface base URL. A catch-all matches its own parent with no segments,
+  // so /a2a/json arrives here rather than at a sibling route; see _base.js.
+  if (segs.length === 0) {
+    if (M !== "GET") return methodNotAllowed(M, "GET", "a2a/json");
+    return baseDescriptor(request);
+  }
 
   // POST /message:send
   if (path === "message:send") {

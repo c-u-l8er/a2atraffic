@@ -1,4 +1,11 @@
-// GET /a2a/json — the interface base URL itself.
+// The interface base URL itself, GET /a2a/json.
+//
+// MEASURED 2026-09-05: this cannot be its own route. A Pages catch-all at
+// functions/a2a/json/[[path]].js also matches the PARENT path /a2a/json, with an
+// empty segment list, and shadows a sibling functions/a2a/json.js completely —
+// the sibling deployed and was never reached, and /a2a/json answered the
+// catch-all's "no such method" 400. So this is an underscore module the
+// catch-all calls when it sees no segments, not a route of its own.
 //
 // This is NOT an A2A method. The HTTP+JSON binding defines no operation at the
 // base URL; every method hangs off it (POST /message:send, GET /tasks, ...).
@@ -9,11 +16,9 @@
 // It answers application/json, deliberately NOT application/a2a+json, so that
 // nothing here can be mistaken for a protocol response.
 
-import { preflight, json, A2A_VERSION } from "./_lib.js";
+import { json, A2A_VERSION } from "./_lib.js";
 
-export function onRequest({ request }) {
-  if (request.method === "OPTIONS") return preflight();
-
+export function baseDescriptor(request) {
   const base = new URL("/a2a/json", request.url).toString();
 
   return json(
