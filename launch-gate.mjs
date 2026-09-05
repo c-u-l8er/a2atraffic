@@ -482,6 +482,28 @@ if (surface.serve_agent_card) {
   }
 }
 
+// ── 5c. the inspector's examples ───────────────────────────────────────────
+// The gate can hold the page to this record. It CANNOT hold the record to
+// someone else's server: if a2a-protocol.org starts publishing a card tomorrow,
+// nothing here will notice and the label will be wrong until a human
+// re-measures. So the page must print the date, and these checks are about
+// drift between the template and the record, not about truth.
+{
+  const ex = surface.inspector_examples;
+  check("the inspector's examples come from a record", !!ex && Array.isArray(ex.items));
+  if (ex) {
+    for (const i of ex.items) {
+      check(`the ${i.label} example is offered`, scan.includes(`data-url="${i.url}"`));
+      check(`the ${i.label} example says what it demonstrates`, scan.includes(i.shows));
+    }
+    check(
+      "no example is hand-written into the page outside the record",
+      [...html.matchAll(/data-url="([^"]+)"/g)].every((m) => ex.items.some((i) => i.url === m[1])),
+    );
+    check("the page dates those outcomes", scan.includes(ex.measured_at));
+  }
+}
+
 // ── 6. the shared nav ──────────────────────────────────────────────────────
 check("<amp-nav> is embedded", html.includes(`<amp-nav property="${surface.nav_property}"`));
 check("amp-nav.js is vendored", existsSync(R("amp-nav.js")));

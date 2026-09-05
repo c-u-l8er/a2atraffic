@@ -715,6 +715,22 @@ GEN["ourcard-title"] = surface.serve_agent_card
   : "We publish the refusal, not the card";
 GEN.ourcard = surface.serve_agent_card ? ourCardServed() : OURCARD_REFUSING;
 
+// ── GEN: inspector examples ────────────────────────────────────────────────
+// A button that says only "a2a-protocol.org" makes its own correct 404 look
+// like a broken tool. Each one states what it demonstrates, and the date those
+// outcomes were measured — they are third-party domains, and nothing here can
+// notice when one of them changes.
+const ex = surface.inspector_examples;
+if (!ex) fail("surface.inspector_examples is absent; the Try: buttons are generated from it.");
+GEN.examples =
+  ex.items
+    .map(
+      (i) =>
+        `<button type="button" data-url="${esc(i.url)}">${esc(i.label)} <span class="src">(${esc(i.shows)})</span></button>`,
+    )
+    .join("\n                        ") +
+  `\n                        <span class="src">outcomes measured ${esc(ex.measured_at)}</span>`;
+
 // ── GEN: capability cards ──────────────────────────────────────────────────
 const CAPABILITIES = [
   {

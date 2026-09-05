@@ -56,6 +56,31 @@
     "why_it_matters_here": "For A2A specifically a 200 was worse than a 404. A client performing well-known discovery got a successful HTTP response whose body was an HTML page, and success plus wrong content is harder to handle correctly than an honest absence.",
     "portfolio_wide_history": "OPEN 2026-08-17, measured on 4 spot-checked siblings: runefort.com 200 (35,111 B) · fleetprompt.com 200 (41,975 B) · computedriven.com 200 (164,656 B) · specprompt.com 200 (38,795 B). Widened to 24 affected domains before the fix went out."
   },
+  "inspector_examples": {
+    "_comment": "The Try: buttons under the inspector, generated from here and never hand-written into the template. Each carries what it DEMONSTRATES, because a button labelled only with a domain makes a correct 404 read as a broken tool — which is exactly what happened on 2026-09-05, when a2a-protocol.org's honest 404 was reported as something to fix. Two of these three demonstrate the same outcome and the page now says so.",
+    "_staleness_comment": "These are measurements of THIRD-PARTY domains and can go stale without anything here noticing. launch-gate.mjs can check that the page matches this record; it cannot check that this record still matches someone else's server. That is why measured_at is printed on the page rather than kept in the file, and why the labels say what each domain IS rather than only what it returned.",
+    "measured_at": "2026-09-05",
+    "items": [
+      {
+        "url": "https://a2atraffic.com",
+        "label": "a2atraffic.com",
+        "shows": "this site \u2014 a signed card",
+        "measured": "200, card verified"
+      },
+      {
+        "url": "https://a2a-protocol.org",
+        "label": "a2a-protocol.org",
+        "shows": "the spec's own docs site, not an agent \u2014 no card",
+        "measured": "404 at the discovery path and at the superseded one"
+      },
+      {
+        "url": "https://example.com",
+        "label": "example.com",
+        "shows": "no agent at all",
+        "measured": "404"
+      }
+    ]
+  },
   "a2a_endpoint": {
     "_comment": "The interface supportedInterfaces[0] declares. This record is what makes serve_agent_card legitimate: a card at the discovery path is a promise that the URL it names will answer, and these measurements are that the promise is good. Every line below was taken against https://a2atraffic.com after the deploy, never against a local run — an earlier reading of these same paths caught a mixed rollout serving the previous error shape, so they were re-taken until six consecutive calls agreed.",
     "url": "https://a2atraffic.com/a2a/json",
