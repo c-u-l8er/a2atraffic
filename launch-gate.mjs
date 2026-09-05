@@ -239,6 +239,46 @@ check(
     host.fix_status !== "measured" || !/attempted fix[\s\S]{0,120}unverified/i.test(scan),
   );
   check("404.html is emitted", existsSync(R("404.html")));
+
+  // The byte count of the 404 body is the one number on this surface that
+  // nothing re-derived, and it went stale twice without being noticed: correct
+  // at fd387b4 (1,905), wrong one commit later at 7acb1c9 (1,956), wrong again
+  // when the Agent Card began being served (1,970). A record that states a
+  // measurable fact about a file this build emits should be refused when it
+  // disagrees with that file, which is all this check is.
+  //
+  // It compares against the EMITTED file, which is what a build can reach. That
+  // the emitted bytes are the served bytes is a separate claim, and the only
+  // thing that settles it is a curl — which is why not_found_bytes carries the
+  // date it was measured against the deployed site.
+  const fourOhFourBytes = readFileSync(R("404.html")).length;
+  check(
+    `not_found_bytes agrees with the emitted 404.html (${fourOhFourBytes} B)`,
+    host.not_found_bytes === fourOhFourBytes,
+    `record says ${host.not_found_bytes}, the file this build emitted is ${fourOhFourBytes} bytes`,
+  );
+  check(
+    "the current-state 404 body carries no hand-typed byte count",
+    !/[\d,]+\s*bytes/i.test(host.unmatched_path_body || ""),
+    "put the number in not_found_bytes, where it is checked, not in prose where it is not",
+  );
+
+  // The before/after blocks are DATED measurements and their numbers must not be
+  // "corrected" to today's — but they must agree with themselves. A half-applied
+  // correction, one line updated and two left behind, is how a record starts
+  // saying two things at once.
+  for (const k of ["before", "after"]) {
+    const m = host[k];
+    const nums = new Set(
+      [m.body, ...(m.measured || [])]
+        .flatMap((line) => [...String(line).matchAll(/([\d,]+) bytes/g)].map((x) => x[1])),
+    );
+    check(
+      `the ${k} block quotes one byte count, not several (${[...nums].join(" / ") || "none"})`,
+      nums.size <= 1,
+      `${k} states ${nums.size} different sizes: ${[...nums].join(", ")} — a half-applied correction`,
+    );
+  }
   // The finding is stated whether open or closed. A fix is only checkable
   // against the fault it repaired, so closing it must not delete it.
   check(

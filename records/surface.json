@@ -21,7 +21,10 @@
     "_comment": "Two measurements, both kept. The BEFORE state is why this section exists and must not be dropped now that it is fixed — a page that only shows the current number is not showing the retraction. Found because the inspector built for this page, pointed at this domain, returned 200 where the page had promised 404.",
     "unmatched_path_status": 404,
     "unmatched_path_content_type": "text/html; charset=utf-8",
-    "unmatched_path_body": "the 404 page, 1,905 bytes",
+    "unmatched_path_body": "the 404 page",
+    "not_found_bytes": 1970,
+    "not_found_bytes_measured_at": "2026-09-05",
+    "_not_found_bytes_comment": "THE ONLY CURRENT-STATE BYTE COUNT FOR THE 404 IN THIS RECORD, and it is checked rather than trusted: launch-gate.mjs asserts it equals the actual byte size of the 404.html this build emits, so editing the 404 page and not re-measuring refuses the build. It exists because the number that used to live in unmatched_path_body — hand-typed, undated, present tense — went stale twice without anything noticing. It was 1,905 and CORRECT when written at commit fd387b4; commit 7acb1c9 changed the page to 1,956 bytes the same day and did not touch the record; serving the Agent Card changed it again to 1,970. The defect was never a wrong number, it was a number nothing re-derived. Measured against the deployed site with six consecutive calls, all 1970 B, byte-identical to the emitted file.",
     "before": {
       "when": "2026-08-17, before this build was deployed",
       "status": 200,
@@ -37,6 +40,7 @@
       "status": 404,
       "content_type": "text/html; charset=utf-8",
       "body": "404.html, 1,905 bytes",
+      "_body_comment": "1,905 is DATED and correct for `when` above — that is genuinely what commit fd387b4 served. Do NOT 'correct' it to the current size: it is the measurement that closed the finding, and the current size lives in not_found_bytes. The gate checks that this number and the three measured lines below agree with each other, so a half-correction is refused.",
       "measured": [
         "curl https://a2atraffic.com/.well-known/agent-card.json -> 404, 1,905 bytes",
         "curl https://a2atraffic.com/nonexistent-xyz -> 404, 1,905 bytes",
