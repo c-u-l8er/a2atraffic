@@ -15,6 +15,12 @@
   Access-Control-Allow-Origin: *
   Cache-Control: public, max-age=300
 
+# The signatures over every published record. A verifier fetches this and the
+# record it covers, so it needs the same cross-origin permission as the JWKS.
+/.well-known/records-signatures.json
+  Access-Control-Allow-Origin: *
+  Cache-Control: public, max-age=300
+
 # The draft is quoted on the homepage and linked from it; same reasoning.
 /records/*
   Access-Control-Allow-Origin: *

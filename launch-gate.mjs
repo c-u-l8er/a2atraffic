@@ -10,7 +10,9 @@
 // Exit 0 = publishable. Exit 1 = do not push.
 
 import { readFileSync, existsSync } from "node:fs";
-import { verifyCard, thumbprint } from "./tools/card-signing.mjs";
+import { verifyCard, verifyPayload, thumbprint, sha256, manifestSigningPayload } from "./tools/card-signing.mjs";
+import { canonicalBytes } from "./tools/jcs.mjs";
+import { readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -412,6 +414,64 @@ if (surface.serve_agent_card) {
         "the page no longer calls the card unsigned",
         !/carries no\s*(<[^>]+>)?\s*signatures/i.test(scan) && !/none \(unsigned\)/i.test(scan),
       );
+
+      // ── the record signatures, checked against what was EMITTED ──────────
+      // The build already verified these. That is not a reason to skip them: a
+      // generator asked to check its own output always says yes, and the file a
+      // client fetches is this one, not the record the build read.
+      const SIGS = ".well-known/records-signatures.json";
+      check("the records signature manifest is emitted", existsSync(R(SIGS)));
+      if (existsSync(R(SIGS))) {
+        const man = JSON.parse(readFileSync(R(SIGS), "utf8"));
+        check(
+          "no annotation key survived into the published manifest",
+          !Object.keys(man).some((k) => k.startsWith("_")),
+        );
+        check(
+          "the manifest's own signature verifies",
+          verifyPayload(manifestSigningPayload(man), man.signature, emittedJwks).ok,
+          "the list of signed records could be added to or removed from unnoticed",
+        );
+
+        const UNSIGNED = ["records-manifest.json", "signing-key.public.json"];
+        const published = readdirSync(R("records")).filter(
+          (f) => f.endsWith(".json") && !UNSIGNED.includes(f),
+        );
+        check(
+          `every published record is covered (${published.length})`,
+          published.every((f) => man.records.some((r) => r.path === `/records/${f}`)),
+          `uncovered: ${published.filter((f) => !man.records.some((r) => r.path === `/records/${f}`)).join(", ")}`,
+        );
+
+        for (const entry of man.records) {
+          const file = entry.path.replace(/^\//, "");
+          const bytes = existsSync(R(file)) ? readFileSync(R(file)) : null;
+          check(`${entry.path} exists`, !!bytes);
+          if (!bytes) continue;
+          check(
+            `${entry.path} signature verifies`,
+            verifyPayload(canonicalBytes(JSON.parse(bytes.toString("utf8"))), entry.signature, emittedJwks).ok,
+          );
+          // file_sha256 is the cheap check a reader can run with sha256sum and
+          // no JCS implementation. If it drifts while the signature still
+          // verifies, the file was reformatted rather than altered — true, but
+          // it makes the published one-command check wrong, so it is enforced.
+          check(`${entry.path} file_sha256 matches the bytes served`, sha256(bytes) === entry.file_sha256);
+        }
+
+        // Tamper, and require failure. Same reason as the card: verifying only
+        // the honest case tests a library, not the property.
+        const victim = man.records.find((r) => r.path === "/records/witness.json") || man.records[0];
+        if (victim) {
+          const altered = JSON.parse(readFileSync(R(victim.path.replace(/^\//, "")), "utf8"));
+          altered.__injected = "a claim nobody signed";
+          check(
+            `an altered ${victim.path} FAILS its signature`,
+            !verifyPayload(canonicalBytes(altered), victim.signature, emittedJwks).ok,
+            "a record signature verifies over content it did not sign",
+          );
+        }
+      }
     }
     const four = readFileSync(R("404.html"), "utf8");
     check(

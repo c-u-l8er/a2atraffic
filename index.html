@@ -1006,6 +1006,20 @@
                 signature is not a second opinion about the same channel.
             </p>
             <p class="section-desc">
+                <strong>So are the records underneath it.</strong> A signed card that
+                points at unsigned evidence moves the problem rather than solving it, so
+                all 7 published records —
+                every file this page is generated from — carry their own detached
+                signature under the same key, listed at
+                <a href="/.well-known/records-signatures.json">/.well-known/records-signatures.json</a>,
+                which is itself signed so an entry cannot be quietly removed. Each entry
+                also states the plain SHA-256 of the bytes served, so the cheap check needs
+                <code class="inline">sha256sum</code> and nothing else. Two files are
+                deliberately outside it: the manifest, which carries its own signature, and
+                the public key, because a key vouching for itself adds nothing — whoever
+                could swap it could swap a signature over it.
+            </p>
+            <p class="section-desc">
                 The build never signs — ECDSA is randomised, so a build that signed would
                 not be byte-identical to the one before it. The signature is a committed
                 input and the build only verifies it, refusing to publish when the card

@@ -1,0 +1,85 @@
+{
+  "_comment": "Detached JWS signatures over every published record, produced by `node tools/sign-records.mjs` and verified — never produced — by build-site.mjs and launch-gate.mjs. Same key as the Agent Card, same construction: the payload is the record canonicalised per RFC 8785, and the signature is not carried inside the record it covers. Served at /.well-known/records-signatures.json with the annotation keys stripped.",
+  "_not_signed_comment": "records-manifest.json is absent because it carries its own signature below, and signing it from inside itself is the circularity the card avoids by excluding signatures[]. signing-key.public.json is absent because a key vouching for itself adds no trust — whoever can swap that file can swap a signature over it. Both omissions are stated rather than left to be noticed.",
+  "_limit_comment": "This proves a record has not changed since it was signed by the holder of that key. It does not prove the record is TRUE, and it does not prove who signed it: the verifying key is published on the same domain as the records, so TLS is what carries the domain binding. A signature is not a second opinion about the same channel.",
+  "alg": "ES256",
+  "jku": "https://a2atraffic.com/.well-known/jwks.json",
+  "kid": "9FJSTEGgcO2dfw_JW_zCxypjsswP72p8RnXDataRAaE",
+  "signed_at": "2026-09-05",
+  "records": [
+    {
+      "path": "/records/agent-card.draft.json",
+      "bytes": 5688,
+      "file_sha256": "21bce0787ece650ef154fd52cbcc14be3165cffbdf15ba25f34b876a15fa3e1f",
+      "payload_sha256": "09cb572b3806ad52d61df0e85e19241b6ac64b32bae0c9583bbefefa44f4d47a",
+      "signature": {
+        "protected": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpPU0UiLCJraWQiOiI5RkpTVEVHZ2NPMmRmd19KV196Q3h5cGpzc3dQNzJwOFJuWERhdGFSQWFFIiwiamt1IjoiaHR0cHM6Ly9hMmF0cmFmZmljLmNvbS8ud2VsbC1rbm93bi9qd2tzLmpzb24ifQ",
+        "signature": "5xPifxftgy-EdNE965TlranwtLTtUI5uTIB9vAQPpAmF5I3_N4lKQ0hm2zqQUqEfqiz0A6axRj0LqYhwi_EMyQ"
+      }
+    },
+    {
+      "path": "/records/agent-card.signature.json",
+      "bytes": 1284,
+      "file_sha256": "2ba82c35828cb2c4d293abec018f51a555837ec9546475a23c7de03e9cac0fe9",
+      "payload_sha256": "f79b1e0a280c49cc7fe5d3ab8dbc93394b93e20b6a36895bd94698ca6463d5c2",
+      "signature": {
+        "protected": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpPU0UiLCJraWQiOiI5RkpTVEVHZ2NPMmRmd19KV196Q3h5cGpzc3dQNzJwOFJuWERhdGFSQWFFIiwiamt1IjoiaHR0cHM6Ly9hMmF0cmFmZmljLmNvbS8ud2VsbC1rbm93bi9qd2tzLmpzb24ifQ",
+        "signature": "SPLKiPVzQg2OSKufOPfuUFyxQ6LYwNoS7g9RFKkbvbQtKVhvIp7FuYVQEFlCENyOIkqgDdLLco6S0YVRRRDQrQ"
+      }
+    },
+    {
+      "path": "/records/gap-matrix.json",
+      "bytes": 12510,
+      "file_sha256": "e8f673ebe01c3954bb2d6ff5b3f1c8cdabcd0a74c107cdba365020e8d56b8c87",
+      "payload_sha256": "fec1ceb9424beca4e35f622222ac526ce323510a8fc7aac65a69923a251f70b8",
+      "signature": {
+        "protected": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpPU0UiLCJraWQiOiI5RkpTVEVHZ2NPMmRmd19KV196Q3h5cGpzc3dQNzJwOFJuWERhdGFSQWFFIiwiamt1IjoiaHR0cHM6Ly9hMmF0cmFmZmljLmNvbS8ud2VsbC1rbm93bi9qd2tzLmpzb24ifQ",
+        "signature": "aYJLj2Lg8-ydEe2TVFzLWoS7fEfNyjaCQphDl54awgO2k-jWFYYD5-14on8pl7pejK6GWWFAJj6caOMizVD6-Q"
+      }
+    },
+    {
+      "path": "/records/invariants.json",
+      "bytes": 13114,
+      "file_sha256": "f3e37ff97b3bc459429e6c54ac9e451b2967d87bf69498c5ee67d64fc7e00078",
+      "payload_sha256": "f8e5bbe5b48aa54bb0d217328f7cde79a91bd6ce368155922f672e3951466d26",
+      "signature": {
+        "protected": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpPU0UiLCJraWQiOiI5RkpTVEVHZ2NPMmRmd19KV196Q3h5cGpzc3dQNzJwOFJuWERhdGFSQWFFIiwiamt1IjoiaHR0cHM6Ly9hMmF0cmFmZmljLmNvbS8ud2VsbC1rbm93bi9qd2tzLmpzb24ifQ",
+        "signature": "Rlm-iJleq5mJE2cRCnDOvUnC2DZRmJI9SvDZbGDAWRuUFTSnNwFI4NBA5Ku-LlnkUbAVhoY-WjpOuVvIy9GmsQ"
+      }
+    },
+    {
+      "path": "/records/protocol.json",
+      "bytes": 14403,
+      "file_sha256": "93b3a98e1fa2cfc27a444e930526afb860651ee69388f4cecc150a1356b2b4a6",
+      "payload_sha256": "edbd6e048090e1597b6fe61ec02c32d5236374939499f801d90936517da398bc",
+      "signature": {
+        "protected": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpPU0UiLCJraWQiOiI5RkpTVEVHZ2NPMmRmd19KV196Q3h5cGpzc3dQNzJwOFJuWERhdGFSQWFFIiwiamt1IjoiaHR0cHM6Ly9hMmF0cmFmZmljLmNvbS8ud2VsbC1rbm93bi9qd2tzLmpzb24ifQ",
+        "signature": "Bqcj3Ge9mUYebwT7gltZY9aPy9MebkkjfRJ8WSm8KwubDr9dsZJQaKz0-6IuAyXj4a6JQAxJwJxAtZ3M_vMRbg"
+      }
+    },
+    {
+      "path": "/records/surface.json",
+      "bytes": 16140,
+      "file_sha256": "e25af6f23920efc0d83e890fac50b7ef05cad867c5b4a32b9e1ba7bd4aead3c3",
+      "payload_sha256": "8ff6992a81db9e6f8fcf9dd318d5c8e1d9928538f41b499130ada6ce779286b0",
+      "signature": {
+        "protected": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpPU0UiLCJraWQiOiI5RkpTVEVHZ2NPMmRmd19KV196Q3h5cGpzc3dQNzJwOFJuWERhdGFSQWFFIiwiamt1IjoiaHR0cHM6Ly9hMmF0cmFmZmljLmNvbS8ud2VsbC1rbm93bi9qd2tzLmpzb24ifQ",
+        "signature": "YHrlqgJ99Z6v3Rq0SOza_uEfdP9pSeHzBQgZ8Y2uyEjqO0mQqUH3eHpFQPopLzGhEAuawENmGu_6uiW9Ur8i7Q"
+      }
+    },
+    {
+      "path": "/records/witness.json",
+      "bytes": 2322,
+      "file_sha256": "c669790ed6d968f3d02ca4471958d8d8d40035dd7e13b3107cd50b8994270ae2",
+      "payload_sha256": "ac2f16b7daec1b54e78fd61d78414da4221edddb6f1f9ce3d89aaedc62000946",
+      "signature": {
+        "protected": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpPU0UiLCJraWQiOiI5RkpTVEVHZ2NPMmRmd19KV196Q3h5cGpzc3dQNzJwOFJuWERhdGFSQWFFIiwiamt1IjoiaHR0cHM6Ly9hMmF0cmFmZmljLmNvbS8ud2VsbC1rbm93bi9qd2tzLmpzb24ifQ",
+        "signature": "lPPHiUZp54ojn1-zEYoRNQTVAeGGBLqSaZWv4GUyTgn3M6-ou57WGAo8jB4qwX8kTK87jRU8yn8X9lQxz-IBOA"
+      }
+    }
+  ],
+  "signature": {
+    "protected": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpPU0UiLCJraWQiOiI5RkpTVEVHZ2NPMmRmd19KV196Q3h5cGpzc3dQNzJwOFJuWERhdGFSQWFFIiwiamt1IjoiaHR0cHM6Ly9hMmF0cmFmZmljLmNvbS8ud2VsbC1rbm93bi9qd2tzLmpzb24ifQ",
+    "signature": "FeD8tSNCr9607L21EvnJwSo0Ly-FCTC9YGeD64UUdK5SfX4929c93UoL2oAhjsK2wS79tCq8tlKPHnwGcBJOQQ"
+  }
+}

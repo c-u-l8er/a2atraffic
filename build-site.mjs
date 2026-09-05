@@ -11,11 +11,11 @@
 // records/surface.json:verified_at. (This defect was found in agentelic.com's
 // build twice; do not reintroduce it here.)
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync, copyFileSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, mkdirSync, copyFileSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { verifyCard, sha256 } from "./tools/card-signing.mjs";
-import { cardPayload } from "./tools/jcs.mjs";
+import { verifyCard, verifyPayload, sha256, manifestSigningPayload } from "./tools/card-signing.mjs";
+import { cardPayload, canonicalBytes } from "./tools/jcs.mjs";
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const R = (p) => join(ROOT, p);
@@ -446,6 +446,11 @@ const cardPublic = Object.fromEntries(
 // signature: it is a claim of authenticity over content that has since changed,
 // which is the same defect class as a card at a discovery path with nothing
 // behind it — a promise whose subject moved.
+const jwksForRecords = () =>
+  Object.fromEntries(
+    Object.entries(readJSON("records/signing-key.public.json")).filter(([k]) => !k.startsWith("_")),
+  );
+
 let jwks = null;
 if (surface.serve_agent_card) {
   const sigRecord = readJSON("records/agent-card.signature.json");
@@ -470,6 +475,46 @@ if (surface.serve_agent_card) {
 }
 
 const cardJSON = JSON.stringify(cardPublic, null, 2);
+
+// ── the record signatures ──────────────────────────────────────────────────
+// Every published record under /records/ is signed, so the evidence this page is
+// generated from is tamper-evident and not only the card that points at it. As
+// with the card, the build never signs — `node tools/sign-records.mjs` does —
+// and the build's job is to refuse a manifest that no longer describes the
+// records it names.
+const recordManifest = readJSON("records/records-manifest.json");
+{
+  const mv = verifyPayload(manifestSigningPayload(recordManifest), recordManifest.signature, jwksForRecords());
+  if (!mv.ok) fail(`the records manifest's own signature does not verify: ${mv.reason}`);
+
+  for (const entry of recordManifest.records) {
+    const file = entry.path.replace(/^\//, "");
+    if (!existsSync(R(file))) fail(`the records manifest names ${entry.path}, which this build does not have.`);
+    const bytes = readFileSync(R(file));
+    const payload = canonicalBytes(JSON.parse(bytes.toString("utf8")));
+    if (sha256(payload) !== entry.payload_sha256) {
+      fail(
+        `${entry.path} has changed since it was signed.\n` +
+          `  signed over  ${entry.payload_sha256}\n` +
+          `  record is now ${sha256(payload)}\n` +
+          `  Re-sign:     node tools/sign-records.mjs`,
+      );
+    }
+    const v = verifyPayload(payload, entry.signature, jwksForRecords());
+    if (!v.ok) fail(`the signature for ${entry.path} does not verify: ${v.reason}`);
+  }
+
+  // Every published record must be COVERED. A manifest that silently omits one
+  // is how "the records are signed" becomes true of some of them.
+  const covered = new Set(recordManifest.records.map((r) => r.path));
+  const unsigned = ["records-manifest.json", "signing-key.public.json"];
+  for (const f of readdirSync(R("records")).filter((f) => f.endsWith(".json"))) {
+    if (unsigned.includes(f)) continue;
+    if (!covered.has(`/records/${f}`)) {
+      fail(`records/${f} is published but the manifest does not cover it. Run: node tools/sign-records.mjs`);
+    }
+  }
+}
 
 const host = surface.hosting;
 if (!host) fail("surface.hosting is absent; the 'our own card' section is written from a measurement and cannot be written without one.");
@@ -631,6 +676,20 @@ const ourCardServed = () => {
                 is the ordinary limit of <code class="inline">jku</code>-on-the-same-origin
                 discovery, and TLS is what is actually carrying the domain binding. A
                 signature is not a second opinion about the same channel.
+            </p>
+            <p class="section-desc">
+                <strong>So are the records underneath it.</strong> A signed card that
+                points at unsigned evidence moves the problem rather than solving it, so
+                all ${esc(String(recordManifest.records.length))} published records —
+                every file this page is generated from — carry their own detached
+                signature under the same key, listed at
+                <a href="/.well-known/records-signatures.json">/.well-known/records-signatures.json</a>,
+                which is itself signed so an entry cannot be quietly removed. Each entry
+                also states the plain SHA-256 of the bytes served, so the cheap check needs
+                <code class="inline">sha256sum</code> and nothing else. Two files are
+                deliberately outside it: the manifest, which carries its own signature, and
+                the public key, because a key vouching for itself adds nothing — whoever
+                could swap it could swap a signature over it.
             </p>
             <p class="section-desc">
                 The build never signs — ECDSA is randomised, so a build that signed would
@@ -866,8 +925,17 @@ if (surface.serve_agent_card) {
   // The jku in every protected header names this file. A signature whose key
   // cannot be fetched is not checkable by anyone, which is most of the value.
   writeFileSync(R(".well-known/jwks.json"), JSON.stringify(jwks, null, 2) + "\n");
+  writeFileSync(
+    R(".well-known/records-signatures.json"),
+    JSON.stringify(
+      Object.fromEntries(Object.entries(recordManifest).filter(([k]) => !k.startsWith("_"))),
+      null,
+      2,
+    ) + "\n",
+  );
   console.log("  .well-known/agent-card.json  EMITTED (serve_agent_card: true), signed");
   console.log("  .well-known/jwks.json        EMITTED");
+  console.log(`  .well-known/records-signatures.json  EMITTED, ${recordManifest.records.length} records`);
 } else if (existsSync(R(".well-known/agent-card.json"))) {
   fail(
     ".well-known/agent-card.json exists on disk but surface.serve_agent_card is false. " +

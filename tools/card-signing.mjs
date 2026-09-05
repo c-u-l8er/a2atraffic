@@ -18,7 +18,7 @@
 // not recoverable at all.
 
 import { createHash, createPublicKey, createPrivateKey, sign, verify } from "node:crypto";
-import { cardPayload } from "./jcs.mjs";
+import { cardPayload, canonicalBytes } from "./jcs.mjs";
 
 export const JKU = "https://a2atraffic.com/.well-known/jwks.json";
 export const ALG = "ES256";
@@ -44,11 +44,11 @@ function signingInput(protectedB64, payload) {
 }
 
 /**
- * Sign a card. `card` is the PUBLIC card (annotation keys already stripped);
- * `signatures` is excluded from the payload by cardPayload.
+ * Sign arbitrary canonical bytes. The Agent Card is one caller; the published
+ * records are the other. Same key, same detached-JWS construction, so a verifier
+ * that can check one can check the other with no second code path.
  */
-export function signCard(card, privateJwk) {
-  const payload = cardPayload(card);
+export function signPayload(payload, privateJwk) {
   const header = {
     alg: ALG,
     typ: "JOSE",
@@ -67,12 +67,16 @@ export function signCard(card, privateJwk) {
   };
 }
 
+/** Sign a card: the payload is the card with `signatures` excluded (§8.4.1). */
+export function signCard(card, privateJwk) {
+  return signPayload(cardPayload(card), privateJwk);
+}
+
 /**
- * Verify one AgentCardSignature against a card and a JWKS, following the steps
- * §8.4.3 requires of a client: exclude signatures, canonicalise, resolve the key
- * by kid, verify. Returns { ok, reason, header }.
+ * Verify a detached signature over `payload`, resolving the key from `jwks` by
+ * the kid in the protected header. Returns { ok, reason, header }.
  */
-export function verifyCard(card, signature, jwks) {
+export function verifyPayload(payload, signature, jwks) {
   let header;
   try {
     header = JSON.parse(unb64u(signature.protected).toString("utf8"));
@@ -85,11 +89,10 @@ export function verifyCard(card, signature, jwks) {
   const jwk = (jwks.keys || []).find((k) => k.kid === header.kid);
   if (!jwk) return { ok: false, reason: `no key in the JWKS has kid ${header.kid}`, header };
   if (thumbprint(jwk) !== header.kid) {
-    return { ok: false, reason: `the JWKS key's RFC 7638 thumbprint is not its own kid`, header };
+    return { ok: false, reason: "the JWKS key's RFC 7638 thumbprint is not its own kid", header };
   }
   if (jwk.d) return { ok: false, reason: "the published JWKS contains a PRIVATE key", header };
 
-  const payload = cardPayload(card);
   const ok = verify(
     "sha256",
     signingInput(signature.protected, payload),
@@ -99,4 +102,29 @@ export function verifyCard(card, signature, jwks) {
   return ok
     ? { ok: true, header, payload_sha256: sha256(payload) }
     : { ok: false, reason: "the signature does not verify over the canonical payload", header };
+}
+
+/**
+ * Verify one AgentCardSignature against a card and a JWKS, following the steps
+ * §8.4.3 requires of a client: exclude signatures, canonicalise, resolve the key
+ * by kid, verify.
+ */
+export function verifyCard(card, signature, jwks) {
+  return verifyPayload(cardPayload(card), signature, jwks);
+}
+
+/**
+ * The records manifest's signing payload: annotation keys and `signature`
+ * excluded, canonicalised — EXACTLY the card's rule, so a verifier needs one
+ * rule and not two.
+ *
+ * It lives here rather than in tools/sign-records.mjs because that file is a
+ * script: importing it to borrow one function would run the signer, read the
+ * private key, and exit if the key were absent. A rule the build and the gate
+ * both depend on belongs in a module that is safe to import.
+ */
+export function manifestSigningPayload(m) {
+  return canonicalBytes(
+    Object.fromEntries(Object.entries(m).filter(([k]) => !k.startsWith("_") && k !== "signature")),
+  );
 }
